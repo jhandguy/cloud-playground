@@ -1,0 +1,19 @@
+#!/bin/bash
+set -euo pipefail
+
+minikube start --vm=true
+minikube addons enable ingress
+
+terraform -chdir=terraform init -input=false
+terraform -chdir=terraform plan -input=false -out=tfplan
+terraform -chdir=terraform apply -input=false tfplan
+rm terraform/tfplan
+
+jenkins=$(terraform -chdir=terraform output -json jenkins | jq -r .)
+user=$(terraform -chdir=terraform output -json user | jq -r .)
+password=$(terraform -chdir=terraform output -json password | jq -r .)
+localstack=$(terraform -chdir=terraform output -json localstack | jq -r .)
+bucket=$(terraform -chdir=terraform output -json bucket | jq -r .)
+
+curl --silent --show-error --output /dev/null --fail --user $user:$password $jenkins
+aws --endpoint-url $localstack s3 ls $bucket
