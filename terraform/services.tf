@@ -11,3 +11,10 @@ data "kubernetes_service" "localstack" {
     namespace = helm_release.localstack.namespace
   }
 }
+
+data "kubernetes_service" "s3" {
+  metadata {
+    name      = helm_release.s3.name
+    namespace = helm_release.s3.namespace
+  }
+}

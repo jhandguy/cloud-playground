@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels: &labels
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: AWS_S3_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configMap }}
+                  key: aws_s3_endpoint
+            - name: AWS_S3_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configMap }}
+                  key: aws_s3_bucket
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configMap }}
+                  key: aws_region
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret }}
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret }}
+                  key: aws_secret_access_key
+            - name: URI_PREFIX
+              value: {{ .Values.uriPrefix }}
+            - name: HEALTH_PATH
+              value: {{ .Values.healthPath }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.uriPrefix }}{{ .Values.healthPath }}
+              port: 8080
+              scheme: HTTP
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.uriPrefix }}{{ .Values.healthPath }}
+              port: 8080
+              scheme: HTTP
+      imagePullSecrets:
+        - name: {{ .Values.image.secret }}

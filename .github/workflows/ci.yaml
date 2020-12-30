@@ -5,27 +5,81 @@ on:
     branches:
       - main
 
+env:
+  AWS_REGION: eu-central-1
+  IMAGE_REPOSITORY: ${{ github.repository }}-s3
+  IMAGE_TAG: 1.0.0
+
 jobs:
-  test:
-    runs-on: macos-latest
+  build:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Install tools
+      - name: Run short tests
+        run: cd s3 && go build . && go test ./... -short -cover -race
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: s3
+          file: s3/Dockerfile
+          pull: true
+          push: true
+          tags: |
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+  test:
+    needs: build
+    runs-on: macos-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      TF_VAR_registry_username: ${{ github.repository_owner }}
+      TF_VAR_registry_password: ${{ secrets.CR_PAT }}
+      TF_VAR_image_registry: ${{ secrets.IMAGE_REGISTRY }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install Minikube and Terraform
         run: brew update && brew install minikube terraform
 
       - name: Create infratructure
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: eu-central-1
+          TF_VAR_aws_region: ${{ env.AWS_REGION }}
+          TF_VAR_image_repository: ${{ env.IMAGE_REPOSITORY }}
+          TF_VAR_image_tag: ${{ env.IMAGE_TAG }}
         run: chmod +x create && ./create
 
-      - name: Run tests
-        run: echo "TODO"
+      - name: Run all tests
+        run: |
+          export AWS_S3_ENDPOINT=$(terraform -chdir=terraform output -json localstack | jq -r .)
+          export AWS_S3_BUCKET=$(terraform -chdir=terraform output -json bucket | jq -r .)
+          export S3_URL=$(terraform -chdir=terraform output -json s3 | jq -r .)
+          cd s3 && go test ./... -cover -race
 
       - name: Destroy infrastructure
+        env:
+          TF_VAR_aws_region: ${{ env.AWS_REGION }}
+          TF_VAR_image_repository: ${{ env.IMAGE_REPOSITORY }}
+          TF_VAR_image_tag: ${{ env.IMAGE_TAG }}
         run: chmod +x destroy && ./destroy

@@ -1,0 +1,7 @@
+FROM golang:1.15.6
+
+COPY s3 /
+
+ENTRYPOINT /s3
+
+EXPOSE 8080
