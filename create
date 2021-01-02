@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-minikube start --vm=true
+minikube start $(if [[ $OSTYPE != "linux-gnu"* ]]; then echo "--vm=true"; fi)
 minikube addons enable ingress
 
 terraform -chdir=terraform init -input=false
