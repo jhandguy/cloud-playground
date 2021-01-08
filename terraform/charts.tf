@@ -62,12 +62,12 @@ resource "helm_release" "s3" {
 
   set {
     name = "image.repository"
-    value = var.image_repository
+    value = var.s3_image_repository
   }
 
   set {
     name = "image.tag"
-    value = var.image_tag
+    value = var.s3_image_tag
   }
 
   set {

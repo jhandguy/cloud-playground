@@ -7,8 +7,8 @@ on:
 
 env:
   AWS_REGION: eu-central-1
-  IMAGE_REPOSITORY: ${{ github.repository }}-s3
-  IMAGE_TAG: 1.0.0
+  S3_IMAGE_REPOSITORY: ${{ github.repository }}-s3
+  S3_IMAGE_TAG: 1.0.0
 
 jobs:
   build:
@@ -40,8 +40,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.S3_IMAGE_REPOSITORY }}:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.S3_IMAGE_REPOSITORY }}:${{ env.S3_IMAGE_TAG }}
 
   test:
     needs: build
@@ -73,8 +73,8 @@ jobs:
           TF_VAR_registry_username: ${{ github.repository_owner }}
           TF_VAR_registry_password: ${{ secrets.CR_PAT }}
           TF_VAR_image_registry: ${{ secrets.IMAGE_REGISTRY }}
-          TF_VAR_image_repository: ${{ env.IMAGE_REPOSITORY }}
-          TF_VAR_image_tag: ${{ env.IMAGE_TAG }}
+          TF_VAR_s3_image_repository: ${{ env.S3_IMAGE_REPOSITORY }}
+          TF_VAR_s3_image_tag: ${{ env.S3_IMAGE_TAG }}
         run: |
           chmod +x create && ./create
           export AWS_S3_ENDPOINT=$(terraform -chdir=terraform output -json localstack | jq -r .)

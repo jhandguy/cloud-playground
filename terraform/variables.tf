@@ -28,12 +28,12 @@ variable "image_registry" {
   sensitive = true
 }
 
-variable "image_repository" {
+variable "s3_image_repository" {
   type      = string
   sensitive = true
 }
 
-variable "image_tag" {
+variable "s3_image_tag" {
   type      = string
   sensitive = true
 }
