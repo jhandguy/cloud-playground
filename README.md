@@ -15,3 +15,32 @@ A Playground to experiment with various DevOps tools and technologies.
 - Terraform
 - Kubernetes
 - Helm
+
+## Create Infrastructure
+
+### MacOS
+
+```shell
+chmod +x create && ./create --vm=true
+```
+
+### Linux
+
+```shell
+chmod +x create && ./create
+```
+
+## Run Tests
+
+```shell
+export AWS_S3_ENDPOINT=$(terraform -chdir=terraform output -json localstack | jq -r .)
+export AWS_S3_BUCKET=$(terraform -chdir=terraform output -json bucket | jq -r .)
+export S3_URL=$(terraform -chdir=terraform output -json s3 | jq -r .)
+(cd s3 && go test ./... -cover -race)
+```
+
+## Destroy Infrastructure
+
+```shell
+chmod +x destroy && ./destroy
+```
