@@ -18,6 +18,7 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   endpoints {
-    s3 = "http://${kubernetes_ingress.localstack.load_balancer_ingress.0.ip}"
+    s3       = "http://${kubernetes_ingress.localstack.load_balancer_ingress.0.ip}"
+    dynamodb = "http://${kubernetes_ingress.localstack.load_balancer_ingress.0.ip}"
   }
 }

@@ -53,10 +53,11 @@ func TestIntegration(t *testing.T) {
 	code, _ := test.RecordRequest(handleObject, http.MethodGet, obj.Name, nil)
 	test.AssertEqual(t, code, http.StatusNotFound)
 
-	code, _ = test.RecordRequest(handleObject, http.MethodPost, "", bytes.NewReader(byt))
+	code, body := test.RecordRequest(handleObject, http.MethodPost, "", bytes.NewReader(byt))
 	test.AssertEqual(t, code, http.StatusOK)
+	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
 
-	code, body := test.RecordRequest(handleObject, http.MethodGet, obj.Name, nil)
+	code, body = test.RecordRequest(handleObject, http.MethodGet, obj.Name, nil)
 	test.AssertEqual(t, code, http.StatusOK)
 	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
 
@@ -83,10 +84,11 @@ func TestSystem(t *testing.T) {
 	code, _ := test.SendRequest(t, url, http.MethodGet, obj.Name, nil)
 	test.AssertEqual(t, code, http.StatusNotFound)
 
-	code, _ = test.SendRequest(t, url, http.MethodPost, "", bytes.NewReader(byt))
+	code, body := test.SendRequest(t, url, http.MethodPost, "", bytes.NewReader(byt))
 	test.AssertEqual(t, code, http.StatusOK)
+	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
 
-	code, body := test.SendRequest(t, url, http.MethodGet, obj.Name, nil)
+	code, body = test.SendRequest(t, url, http.MethodGet, obj.Name, nil)
 	test.AssertEqual(t, code, http.StatusOK)
 	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
 

@@ -35,6 +35,13 @@ func CreateObject(createObject func(string, Object) error, bucket string) func(h
 			return
 		}
 
+		err = json.NewEncoder(w).Encode(obj)
+		if err != nil {
+			log.Printf("failed to encode object: %v\nerror: %v\n", obj, err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		log.Printf("successfully uploaded object %s in bucket %s\nwith content: %s\n", obj.Name, bucket, obj.Content)
 	}
 }
@@ -112,17 +119,6 @@ func CreateObjectFunc(client *s3.S3) func(string, Object) error {
 	}
 }
 
-func DeleteObjectFunc(client *s3.S3) func(string, string) error {
-	return func(bucket string, name string) error {
-		_, err := client.DeleteObjectWithContext(context.Background(), &s3.DeleteObjectInput{
-			Bucket: aws.String(bucket),
-			Key:    aws.String(name),
-		})
-
-		return err
-	}
-}
-
 func GetObjectFunc(client *s3.S3) func(string, string) (io.ReadCloser, error) {
 	return func(bucket string, name string) (io.ReadCloser, error) {
 		out, err := client.GetObjectWithContext(context.Background(), &s3.GetObjectInput{
@@ -134,6 +130,17 @@ func GetObjectFunc(client *s3.S3) func(string, string) (io.ReadCloser, error) {
 		}
 
 		return out.Body, nil
+	}
+}
+
+func DeleteObjectFunc(client *s3.S3) func(string, string) error {
+	return func(bucket string, name string) error {
+		_, err := client.DeleteObjectWithContext(context.Background(), &s3.DeleteObjectInput{
+			Bucket: aws.String(bucket),
+			Key:    aws.String(name),
+		})
+
+		return err
 	}
 }
 

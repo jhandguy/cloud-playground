@@ -16,10 +16,10 @@ func AssertEqual(t *testing.T, a interface{}, b interface{}) {
 	t.Fatal(fmt.Sprintf("%v != %v", a, b))
 }
 
-func RecordRequest(fun func(http.ResponseWriter, *http.Request), method, name string, body io.Reader) (int, *bytes.Buffer) {
-	target := "/object"
-	if len(name) > 0 {
-		target = fmt.Sprintf("%s?name=%s", target, name)
+func RecordRequest(fun func(http.ResponseWriter, *http.Request), method, id string, body io.Reader) (int, *bytes.Buffer) {
+	target := "/item"
+	if len(id) > 0 {
+		target = fmt.Sprintf("%s?id=%s", target, id)
 	}
 
 	w := httptest.NewRecorder()
@@ -30,10 +30,10 @@ func RecordRequest(fun func(http.ResponseWriter, *http.Request), method, name st
 	return w.Code, w.Body
 }
 
-func SendRequest(t *testing.T, url, method, name string, body io.Reader) (int, *bytes.Buffer) {
-	target := fmt.Sprintf("%s/object", url)
-	if len(name) > 0 {
-		target = fmt.Sprintf("%s?name=%s", target, name)
+func SendRequest(t *testing.T, url, method, id string, body io.Reader) (int, *bytes.Buffer) {
+	target := fmt.Sprintf("%s/item", url)
+	if len(id) > 0 {
+		target = fmt.Sprintf("%s?id=%s", target, id)
 	}
 
 	req, err := http.NewRequest(method, target, body)

@@ -18,3 +18,10 @@ data "kubernetes_service" "s3" {
     namespace = helm_release.s3.namespace
   }
 }
+
+data "kubernetes_service" "dynamo" {
+  metadata {
+    name      = helm_release.dynamo.name
+    namespace = helm_release.dynamo.namespace
+  }
+}

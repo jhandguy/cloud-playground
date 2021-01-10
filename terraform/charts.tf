@@ -1,9 +1,3 @@
-locals {
-  jenkins_uri_prefix = "/jenkins"
-  s3_uri_prefix      = "/s3"
-  s3_health_path     = "/health"
-}
-
 resource "helm_release" "jenkins" {
   name             = "jenkins"
   namespace        = "jenkins"
@@ -13,7 +7,7 @@ resource "helm_release" "jenkins" {
 
   set {
     name  = "controller.jenkinsUriPrefix"
-    value = local.jenkins_uri_prefix
+    value = "/${random_pet.jenkins_uri_prefix.id}"
   }
 }
 
@@ -26,7 +20,7 @@ resource "helm_release" "localstack" {
 
   set {
     name  = "startServices"
-    value = "s3"
+    value = "s3\\,dynamodb"
   }
 }
 
@@ -61,22 +55,73 @@ resource "helm_release" "s3" {
   }
 
   set {
-    name = "image.repository"
+    name  = "image.repository"
     value = var.s3_image_repository
   }
 
   set {
-    name = "image.tag"
+    name  = "image.tag"
     value = var.s3_image_tag
   }
 
   set {
     name  = "uriPrefix"
-    value = local.s3_uri_prefix
+    value = "/${random_pet.s3_uri_prefix.id}"
   }
 
   set {
     name  = "healthPath"
-    value = local.s3_health_path
+    value = "/${random_pet.s3_health_path.id}"
+  }
+}
+
+resource "helm_release" "dynamo" {
+  name      = "dynamo"
+  namespace = kubernetes_namespace.dynamo.metadata.0.name
+  chart     = "../dynamo/helm"
+
+  set {
+    name  = "replicas"
+    value = 1
+  }
+
+  set {
+    name  = "configMap"
+    value = kubernetes_config_map.dynamo.metadata.0.name
+  }
+
+  set {
+    name  = "secret"
+    value = kubernetes_secret.dynamo.metadata.0.name
+  }
+
+  set {
+    name  = "image.secret"
+    value = kubernetes_secret.dynamo_image.metadata.0.name
+  }
+
+  set {
+    name  = "image.registry"
+    value = var.image_registry
+  }
+
+  set {
+    name  = "image.repository"
+    value = var.dynamo_image_repository
+  }
+
+  set {
+    name  = "image.tag"
+    value = var.dynamo_image_tag
+  }
+
+  set {
+    name  = "uriPrefix"
+    value = "/${random_pet.dynamo_uri_prefix.id}"
+  }
+
+  set {
+    name  = "healthPath"
+    value = "/${random_pet.dynamo_health_path.id}"
   }
 }

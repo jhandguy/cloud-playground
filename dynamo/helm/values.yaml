@@ -1,0 +1,10 @@
+replicas: 1
+configMap: dynamo
+secret: dynamo
+image:
+  secret: dynamo-image
+  registry: ghcr.io
+  repository: jhandguy/devops-playground-dynamo
+  tag: 1.0.0
+uriPrefix: /dynamo
+healthPath: /health

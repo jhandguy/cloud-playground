@@ -37,3 +37,13 @@ variable "s3_image_tag" {
   type      = string
   sensitive = true
 }
+
+variable "dynamo_image_repository" {
+  type      = string
+  sensitive = true
+}
+
+variable "dynamo_image_tag" {
+  type      = string
+  sensitive = true
+}

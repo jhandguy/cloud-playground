@@ -15,7 +15,9 @@ password=$(terraform -chdir=terraform output -json password | jq -r .)
 localstack=$(terraform -chdir=terraform output -json localstack | jq -r .)
 bucket=$(terraform -chdir=terraform output -json bucket | jq -r .)
 s3_health=$(terraform -chdir=terraform output -json s3_health | jq -r .)
+dynamo_health=$(terraform -chdir=terraform output -json dynamo_health | jq -r .)
 
 curl --silent --show-error --output /dev/null --fail --user $user:$password $jenkins
 aws --endpoint-url $localstack s3 ls $bucket
 curl --silent --show-error --output /dev/null --fail $s3_health
+curl --silent --show-error --output /dev/null --fail $dynamo_health
