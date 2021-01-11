@@ -33,10 +33,7 @@ chmod +x create && ./create
 ## Run Tests
 
 ```shell
-export AWS_S3_ENDPOINT=$(terraform -chdir=terraform output -json localstack | jq -r .)
-export AWS_S3_BUCKET=$(terraform -chdir=terraform output -json bucket | jq -r .)
-export S3_URL=$(terraform -chdir=terraform output -json s3 | jq -r .)
-(cd s3 && go test ./... -cover -race)
+chmod +x test && ./test
 ```
 
 ## Destroy Infrastructure
