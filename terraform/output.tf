@@ -1,18 +1,3 @@
-output "jenkins" {
-  value       = "http://${kubernetes_ingress.jenkins.load_balancer_ingress.0.ip}/${random_pet.jenkins_uri_prefix.id}"
-  description = "Jenkins URL"
-}
-
-output "user" {
-  value       = data.kubernetes_secret.jenkins.data["jenkins-admin-user"]
-  description = "Jenkins User"
-}
-
-output "password" {
-  value       = data.kubernetes_secret.jenkins.data["jenkins-admin-password"]
-  description = "Jenkins Password"
-}
-
 output "localstack" {
   value       = "http://${kubernetes_ingress.localstack.load_balancer_ingress.0.ip}"
   description = "LocalStack URL"

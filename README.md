@@ -8,13 +8,17 @@ A Playground to experiment with various DevOps tools and technologies.
 
 - Minikube
 - LocalStack
-- Jenkins
 
 ## Technologies
 
 - Terraform
 - Kubernetes
 - Helm
+
+## Languages
+
+- Golang
+- YAML
 
 ## Create Infrastructure
 

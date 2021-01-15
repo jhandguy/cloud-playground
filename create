@@ -9,15 +9,14 @@ terraform -chdir=terraform plan -input=false -out=tfplan
 terraform -chdir=terraform apply -input=false tfplan
 rm terraform/tfplan
 
-jenkins=$(terraform -chdir=terraform output -json jenkins | jq -r .)
-user=$(terraform -chdir=terraform output -json user | jq -r .)
-password=$(terraform -chdir=terraform output -json password | jq -r .)
 localstack=$(terraform -chdir=terraform output -json localstack | jq -r .)
 bucket=$(terraform -chdir=terraform output -json bucket | jq -r .)
+table=$(terraform -chdir=terraform output -json table | jq -r .)
 s3_health=$(terraform -chdir=terraform output -json s3_health | jq -r .)
 dynamo_health=$(terraform -chdir=terraform output -json dynamo_health | jq -r .)
 
-curl --silent --show-error --output /dev/null --fail --user $user:$password $jenkins
-aws --endpoint-url $localstack s3 ls $bucket
+aws --endpoint-url $localstack s3api list-objects --bucket $bucket 1> /dev/null
+aws --endpoint-url $localstack dynamodb scan --table-name $table 1> /dev/null
+
 curl --silent --show-error --output /dev/null --fail $s3_health
 curl --silent --show-error --output /dev/null --fail $dynamo_health

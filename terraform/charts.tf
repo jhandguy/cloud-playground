@@ -1,16 +1,3 @@
-resource "helm_release" "jenkins" {
-  name             = "jenkins"
-  namespace        = "jenkins"
-  repository       = "https://charts.jenkins.io"
-  chart            = "jenkins"
-  create_namespace = true
-
-  set {
-    name  = "controller.jenkinsUriPrefix"
-    value = "/${random_pet.jenkins_uri_prefix.id}"
-  }
-}
-
 resource "helm_release" "localstack" {
   name             = "localstack"
   namespace        = "localstack"
