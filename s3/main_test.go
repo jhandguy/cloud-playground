@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"s3/object"
 	"s3/test"
 	"strings"
@@ -35,6 +36,33 @@ func TestHandleObject(t *testing.T) {
 
 	_, _ = test.RecordRequest(handleObject, http.MethodDelete, "", nil)
 	test.AssertEqual(t, isDeleteObjectCalled, true)
+}
+
+func TestAuthMiddleware(t *testing.T) {
+	isNextFuncCalled := false
+
+	nextFunc := func(http.ResponseWriter, *http.Request) {
+		isNextFuncCalled = true
+	}
+
+	expApiKey := "1234"
+
+	authMiddlewareFunc := authMiddleware(expApiKey, nextFunc)
+
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	r.Header.Add("Authorization", "wrong")
+
+	authMiddlewareFunc(w, r)
+
+	test.AssertEqual(t, w.Code, http.StatusForbidden)
+	test.AssertEqual(t, isNextFuncCalled, false)
+
+	r.Header.Set("Authorization", expApiKey)
+
+	authMiddlewareFunc(w, r)
+
+	test.AssertEqual(t, isNextFuncCalled, true)
 }
 
 func TestIntegration(t *testing.T) {
@@ -74,6 +102,7 @@ func TestSystem(t *testing.T) {
 	}
 
 	url := retrieveEnv("S3_URL")
+	apiKey := retrieveEnv("S3_API_KEY")
 
 	obj := object.Object{
 		Name:    "obj",
@@ -81,20 +110,20 @@ func TestSystem(t *testing.T) {
 	}
 	byt, _ := json.Marshal(obj)
 
-	code, _ := test.SendRequest(t, url, http.MethodGet, obj.Name, nil)
+	code, _ := test.SendRequest(t, url, http.MethodGet, obj.Name, apiKey, nil)
 	test.AssertEqual(t, code, http.StatusNotFound)
 
-	code, body := test.SendRequest(t, url, http.MethodPost, "", bytes.NewReader(byt))
+	code, body := test.SendRequest(t, url, http.MethodPost, "", apiKey, bytes.NewReader(byt))
 	test.AssertEqual(t, code, http.StatusOK)
 	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
 
-	code, body = test.SendRequest(t, url, http.MethodGet, obj.Name, nil)
+	code, body = test.SendRequest(t, url, http.MethodGet, obj.Name, apiKey, nil)
 	test.AssertEqual(t, code, http.StatusOK)
 	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
 
-	code, _ = test.SendRequest(t, url, http.MethodDelete, obj.Name, nil)
+	code, _ = test.SendRequest(t, url, http.MethodDelete, obj.Name, apiKey, nil)
 	test.AssertEqual(t, code, http.StatusOK)
 
-	code, _ = test.SendRequest(t, url, http.MethodGet, obj.Name, nil)
+	code, _ = test.SendRequest(t, url, http.MethodGet, obj.Name, apiKey, nil)
 	test.AssertEqual(t, code, http.StatusNotFound)
 }

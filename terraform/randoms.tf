@@ -9,3 +9,11 @@ resource "random_pet" "s3_health_path" {}
 resource "random_pet" "dynamo_uri_prefix" {}
 
 resource "random_pet" "dynamo_health_path" {}
+
+resource "random_password" "s3_api_key" {
+  length = 32
+}
+
+resource "random_password" "dynamo_api_key" {
+  length = 32
+}

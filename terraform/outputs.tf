@@ -23,6 +23,12 @@ output "s3_health" {
   description = "S3 Health URL"
 }
 
+output "s3_api_key" {
+  value       = random_password.s3_api_key.result
+  description = "S3 API key"
+  sensitive   = true
+}
+
 output "dynamo" {
   value       = "http://${kubernetes_ingress.dynamo.load_balancer_ingress.0.ip}/${random_pet.dynamo_uri_prefix.id}"
   description = "Dynamo URL"
@@ -31,4 +37,10 @@ output "dynamo" {
 output "dynamo_health" {
   value       = "http://${kubernetes_ingress.dynamo.load_balancer_ingress.0.ip}/${random_pet.dynamo_uri_prefix.id}/${random_pet.dynamo_health_path.id}"
   description = "Dynamo Health URL"
+}
+
+output "dynamo_api_key" {
+  value       = random_password.dynamo_api_key.result
+  description = "Dynamo API key"
+  sensitive   = true
 }

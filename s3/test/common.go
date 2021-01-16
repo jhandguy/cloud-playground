@@ -30,7 +30,7 @@ func RecordRequest(fun func(http.ResponseWriter, *http.Request), method, name st
 	return w.Code, w.Body
 }
 
-func SendRequest(t *testing.T, url, method, name string, body io.Reader) (int, *bytes.Buffer) {
+func SendRequest(t *testing.T, url, method, name, apiKey string, body io.Reader) (int, *bytes.Buffer) {
 	target := fmt.Sprintf("%s/object", url)
 	if len(name) > 0 {
 		target = fmt.Sprintf("%s?name=%s", target, name)
@@ -42,6 +42,7 @@ func SendRequest(t *testing.T, url, method, name string, body io.Reader) (int, *
 	}
 
 	client := &http.Client{}
+	req.Header.Add("Authorization", apiKey)
 	resp, err := client.Do(req)
 	if err != nil {
 		t.Fatal(err)

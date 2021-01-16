@@ -65,11 +65,22 @@ func checkHealth(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func authMiddleware(apiKey string, next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") == apiKey {
+			next(w, r)
+		} else {
+			w.WriteHeader(http.StatusForbidden)
+		}
+	}
+}
+
 func main() {
 	uriPrefix := retrieveEnv("URI_PREFIX")
 	healthPath := retrieveEnv("HEALTH_PATH")
+	apiKey := retrieveEnv("API_KEY")
 
-	http.HandleFunc(fmt.Sprintf("%s/item", uriPrefix), handleItemFunc())
+	http.HandleFunc(fmt.Sprintf("%s/item", uriPrefix), authMiddleware(apiKey, handleItemFunc()))
 	http.HandleFunc(fmt.Sprintf("%s%s", uriPrefix, healthPath), checkHealth)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))

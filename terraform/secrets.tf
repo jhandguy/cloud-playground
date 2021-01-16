@@ -7,6 +7,7 @@ resource "kubernetes_secret" "s3" {
   data = {
     aws_access_key_id     = var.aws_access_key_id
     aws_secret_access_key = var.aws_secret_access_key
+    api_key               = random_password.s3_api_key.result
   }
 }
 
@@ -40,6 +41,7 @@ resource "kubernetes_secret" "dynamo" {
   data = {
     aws_access_key_id     = var.aws_access_key_id
     aws_secret_access_key = var.aws_secret_access_key
+    api_key               = random_password.dynamo_api_key.result
   }
 }
 
