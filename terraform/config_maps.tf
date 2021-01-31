@@ -6,8 +6,8 @@ resource "kubernetes_config_map" "s3" {
 
   data = {
     aws_region      = var.aws_region
-    aws_s3_endpoint = "http://${kubernetes_ingress.localstack.load_balancer_ingress.0.ip}/"
-    aws_s3_bucket   = aws_s3_bucket.bucket.id
+    aws_s3_endpoint = "http://${helm_release.localstack.name}.${helm_release.localstack.namespace}.svc.cluster.local:4566"
+    aws_s3_bucket   = aws_s3_bucket.s3.id
   }
 }
 
@@ -19,7 +19,7 @@ resource "kubernetes_config_map" "dynamo" {
 
   data = {
     aws_region          = var.aws_region
-    aws_dynamo_endpoint = "http://${kubernetes_ingress.localstack.load_balancer_ingress.0.ip}/"
-    aws_dynamo_table    = aws_dynamodb_table.table.id
+    aws_dynamo_endpoint = "http://${helm_release.localstack.name}.${helm_release.localstack.namespace}.svc.cluster.local:4566"
+    aws_dynamo_table    = aws_dynamodb_table.dynamo.id
   }
 }

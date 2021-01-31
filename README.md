@@ -20,15 +20,27 @@ A Playground to experiment with various DevOps tools and technologies.
 - Golang
 - YAML
 
-## Create Infrastructure
+## Architecture
 
-### MacOS
-
-```shell
-chmod +x create && ./create --vm=true
+```text
+         -------
+        |  cli  |
+         -------
+            |
+           REST
+            |
+       -----------
+      |  gateway  |
+       -----------
+       |         |
+      gRPC      gRPC
+       |         |
+ ----------   ----------   
+|  dynamo  | |    s3    |
+ ----------   ----------
 ```
 
-### Linux
+## Create Infrastructure
 
 ```shell
 chmod +x create && ./create

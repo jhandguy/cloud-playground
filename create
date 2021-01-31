@@ -2,21 +2,8 @@
 set -euo pipefail
 
 minikube start $(if [[ $OSTYPE != "linux-gnu"* ]]; then echo "--vm=true"; fi)
-minikube addons enable ingress
 
-terraform -chdir=terraform init -input=false
-terraform -chdir=terraform plan -input=false -out=tfplan
-terraform -chdir=terraform apply -input=false tfplan
+terraform -chdir=terraform init
+terraform -chdir=terraform plan -var="minikube_ip=$(minikube ip)" -out=tfplan
+terraform -chdir=terraform apply tfplan
 rm terraform/tfplan
-
-localstack=$(terraform -chdir=terraform output -json localstack | jq -r .)
-bucket=$(terraform -chdir=terraform output -json bucket | jq -r .)
-table=$(terraform -chdir=terraform output -json table | jq -r .)
-s3_health=$(terraform -chdir=terraform output -json s3_health | jq -r .)
-dynamo_health=$(terraform -chdir=terraform output -json dynamo_health | jq -r .)
-
-aws --endpoint-url $localstack s3api list-objects --bucket $bucket 1> /dev/null
-aws --endpoint-url $localstack dynamodb scan --table-name $table 1> /dev/null
-
-curl --silent --show-error --output /dev/null --fail $s3_health
-curl --silent --show-error --output /dev/null --fail $dynamo_health

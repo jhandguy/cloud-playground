@@ -6,3 +6,6 @@
 
 *.tfstate
 *.tfstate.*
+
+*.pg.pb.go
+*.pg_grpc.pb.go

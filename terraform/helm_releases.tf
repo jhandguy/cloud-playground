@@ -9,6 +9,11 @@ resource "helm_release" "localstack" {
     name  = "startServices"
     value = "s3\\,dynamodb"
   }
+
+  set {
+    name  = "nodePorts.edgePort"
+    value = random_integer.localstack_node_port.result
+  }
 }
 
 resource "helm_release" "s3" {
@@ -19,6 +24,11 @@ resource "helm_release" "s3" {
   set {
     name  = "replicas"
     value = 1
+  }
+
+  set {
+    name  = "nodePort"
+    value = random_integer.s3_node_port.result
   }
 
   set {
@@ -50,16 +60,6 @@ resource "helm_release" "s3" {
     name  = "image.tag"
     value = var.s3_image_tag
   }
-
-  set {
-    name  = "uriPrefix"
-    value = "/${random_pet.s3_uri_prefix.id}"
-  }
-
-  set {
-    name  = "healthPath"
-    value = "/${random_pet.s3_health_path.id}"
-  }
 }
 
 resource "helm_release" "dynamo" {
@@ -70,6 +70,11 @@ resource "helm_release" "dynamo" {
   set {
     name  = "replicas"
     value = 1
+  }
+
+  set {
+    name  = "nodePort"
+    value = random_integer.dynamo_node_port.result
   }
 
   set {
@@ -100,15 +105,5 @@ resource "helm_release" "dynamo" {
   set {
     name  = "image.tag"
     value = var.dynamo_image_tag
-  }
-
-  set {
-    name  = "uriPrefix"
-    value = "/${random_pet.dynamo_uri_prefix.id}"
-  }
-
-  set {
-    name  = "healthPath"
-    value = "/${random_pet.dynamo_health_path.id}"
   }
 }

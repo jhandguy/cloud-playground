@@ -6,9 +6,13 @@ metadata:
   labels: &labels
     app: {{ .Release.Name }}
 spec:
+  type: NodePort
   ports:
-    - name: http
+    - name: grpc
       protocol: TCP
       port: 8080
       targetPort: 8080
+      {{- with .Values.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
   selector: *labels

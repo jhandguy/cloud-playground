@@ -1,19 +1,26 @@
-resource "random_pet" "bucket" {}
+resource "random_integer" "localstack_node_port" {
+  min = 30000
+  max = 32767
+}
 
-resource "random_pet" "table" {}
+resource "random_pet" "s3_bucket" {}
 
-resource "random_pet" "s3_uri_prefix" {}
-
-resource "random_pet" "s3_health_path" {}
-
-resource "random_pet" "dynamo_uri_prefix" {}
-
-resource "random_pet" "dynamo_health_path" {}
-
-resource "random_password" "s3_api_key" {
+resource "random_password" "s3_token" {
   length = 32
 }
 
-resource "random_password" "dynamo_api_key" {
+resource "random_integer" "s3_node_port" {
+  min = 30000
+  max = 32767
+}
+
+resource "random_pet" "dynamo_table" {}
+
+resource "random_password" "dynamo_token" {
   length = 32
+}
+
+resource "random_integer" "dynamo_node_port" {
+  min = 30000
+  max = 32767
 }

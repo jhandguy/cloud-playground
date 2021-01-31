@@ -1,3 +1,8 @@
+variable "minikube_ip" {
+  type    = string
+  default = ""
+}
+
 variable "aws_region" {
   type      = string
   sensitive = true

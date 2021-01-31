@@ -21,6 +21,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Protobuf
+        run: |
+          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
+          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
+          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          protoc --go_out=. --go-grpc_out=. s3/proto/object/object.pg.proto
+
       - name: Run short tests
         run: (cd s3 && go build . && go test ./... -short -cover -race)
 
@@ -52,6 +60,14 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Install Protobuf
+        run: |
+          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
+          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
+          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          protoc --go_out=. --go-grpc_out=. dynamo/proto/item/item.pg.proto
 
       - name: Run short tests
         run: (cd dynamo && go build . && go test ./... -short -cover -race)
@@ -96,6 +112,15 @@ jobs:
           curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
           sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
           sudo apt-get update && sudo apt-get install terraform
+
+      - name: Install Protobuf
+        run: |
+          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
+          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
+          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          protoc --go_out=. --go-grpc_out=. s3/proto/object/object.pg.proto
+          protoc --go_out=. --go-grpc_out=. dynamo/proto/item/item.pg.proto
 
       - name: Run all tests
         env:

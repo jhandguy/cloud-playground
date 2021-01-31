@@ -42,27 +42,21 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret }}
                   key: aws_secret_access_key
-            - name: API_KEY
+            - name: TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secret }}
-                  key: api_key
-            - name: URI_PREFIX
-              value: {{ .Values.uriPrefix }}
-            - name: HEALTH_PATH
-              value: {{ .Values.healthPath }}
+                  key: token
           ports:
             - containerPort: 8080
               protocol: TCP
           readinessProbe:
-            httpGet:
-              path: {{ .Values.uriPrefix }}{{ .Values.healthPath }}
-              port: 8080
-              scheme: HTTP
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:8080"]
+            initialDelaySeconds: 5
           livenessProbe:
-            httpGet:
-              path: {{ .Values.uriPrefix }}{{ .Values.healthPath }}
-              port: 8080
-              scheme: HTTP
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:8080"]
+            initialDelaySeconds: 10
       imagePullSecrets:
         - name: {{ .Values.image.secret }}

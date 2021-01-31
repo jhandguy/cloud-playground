@@ -1,7 +1,7 @@
-resource "aws_dynamodb_table" "table" {
-  depends_on = [kubernetes_ingress.localstack]
+resource "aws_dynamodb_table" "dynamo" {
+  depends_on = [helm_release.localstack]
 
-  name         = random_pet.table.id
+  name         = random_pet.dynamo_table.id
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "id"
 

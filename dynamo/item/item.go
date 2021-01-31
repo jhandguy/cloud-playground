@@ -2,10 +2,8 @@ package item
 
 import (
 	"context"
-	"encoding/json"
-	"log"
-	"net/http"
 
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/google/uuid"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,155 +11,80 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
-type Item struct {
-	Id      string `json:"id"`
-	Name    string `json:"name"`
-	Content string `json:"content"`
+type API struct {
+	DynamoDB DynamoDB
+	ItemServiceServer
 }
 
-func CreateItem(createItem func(string, Item) error, table string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		item := Item{
-			Id: uuid.New().String(),
-		}
+type DynamoDB struct {
+	Table string
 
-		err := json.NewDecoder(r.Body).Decode(&item)
-		if err != nil {
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			return
-		}
+	PutItemWithContext    func(ctx aws.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error)
+	GetItemWithContext    func(ctx aws.Context, input *dynamodb.GetItemInput, opts ...request.Option) (*dynamodb.GetItemOutput, error)
+	DeleteItemWithContext func(ctx aws.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error)
+}
 
-		err = createItem(table, item)
-		if err != nil {
-			log.Printf("failed to insert item %s (%s) in table %s\nwith content: %s\nerror: %v\n", item.Name, item.Id, table, item.Content, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = json.NewEncoder(w).Encode(item)
-		if err != nil {
-			log.Printf("failed to encode item: %v\nerror: %v\n", item, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		log.Printf("successfully inserted item %s (%s) in table %s\nwith content: %s\n", item.Name, item.Id, table, item.Content)
+func (api *API) CreateItem(ctx context.Context, req *CreateItemRequest) (*CreateItemResponse, error) {
+	item := &Item{
+		Id:      uuid.New().String(),
+		Name:    req.Name,
+		Content: req.Content,
 	}
-}
 
-func GetItem(getItem func(string, string) (map[string]*dynamodb.AttributeValue, error), table string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, ok := getIdQuery(r)
-		if !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		value, err := getItem(table, id)
-		if err != nil {
-			log.Printf("failed to select item %s from table %s\nerror: %v\n", id, table, err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-		if len(value) == 0 {
-			log.Printf("failed to find item %s from table %s\n", id, table)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		var item Item
-		err = dynamodbattribute.UnmarshalMap(value, &item)
-		if err != nil {
-			log.Printf("failed to unmarshal item: %v\nerror: %v\n", item, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = json.NewEncoder(w).Encode(item)
-		if err != nil {
-			log.Printf("failed to encode item: %v\nerror: %v\n", item, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		log.Printf("successfully selected item %s (%s) from table %s\nwith content: %s\n", item.Name, item.Id, table, item.Content)
+	it, err := dynamodbattribute.MarshalMap(item)
+	if err != nil {
+		return nil, err
 	}
-}
 
-func DeleteItem(deleteItem func(string, string) error, table string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, ok := getIdQuery(r)
-		if !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		err := deleteItem(table, id)
-		if err != nil {
-			log.Printf("failed to delete item %s from table %s\nerror: %v\n", id, table, err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		log.Printf("successfully deleted item %s from table %s\n", id, table)
+	_, err = api.DynamoDB.PutItemWithContext(ctx, &dynamodb.PutItemInput{
+		Item:      it,
+		TableName: aws.String(api.DynamoDB.Table),
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	return &CreateItemResponse{
+		Item: item,
+	}, nil
 }
 
-func CreateItemFunc(client *dynamodb.DynamoDB) func(string, Item) error {
-	return func(table string, item Item) error {
-		it, err := dynamodbattribute.MarshalMap(item)
-		if err != nil {
-			return err
-		}
-
-		_, err = client.PutItemWithContext(context.Background(), &dynamodb.PutItemInput{
-			Item:      it,
-			TableName: aws.String(table),
-		})
-
-		return err
-	}
-}
-
-func GetItemFunc(client *dynamodb.DynamoDB) func(string, string) (map[string]*dynamodb.AttributeValue, error) {
-	return func(table string, id string) (map[string]*dynamodb.AttributeValue, error) {
-		out, err := client.GetItemWithContext(context.Background(), &dynamodb.GetItemInput{
-			Key: map[string]*dynamodb.AttributeValue{
-				"id": {
-					S: aws.String(id),
-				},
+func (api *API) GetItem(ctx context.Context, req *GetItemRequest) (*GetItemResponse, error) {
+	out, err := api.DynamoDB.GetItemWithContext(ctx, &dynamodb.GetItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(req.Id),
 			},
-			TableName: aws.String(table),
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		return out.Item, nil
+		},
+		TableName: aws.String(api.DynamoDB.Table),
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	var item Item
+	err = dynamodbattribute.UnmarshalMap(out.Item, &item)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GetItemResponse{
+		Item: &item,
+	}, nil
 }
 
-func DeleteItemFunc(client *dynamodb.DynamoDB) func(string, string) error {
-	return func(table string, id string) error {
-		_, err := client.DeleteItemWithContext(context.Background(), &dynamodb.DeleteItemInput{
-			Key: map[string]*dynamodb.AttributeValue{
-				"id": {
-					S: aws.String(id),
-				},
+func (api *API) DeleteItem(ctx context.Context, req *DeleteItemRequest) (*DeleteItemResponse, error) {
+	_, err := api.DynamoDB.DeleteItemWithContext(ctx, &dynamodb.DeleteItemInput{
+		Key: map[string]*dynamodb.AttributeValue{
+			"id": {
+				S: aws.String(req.Id),
 			},
-			TableName: aws.String(table),
-		})
-
-		return err
-	}
-}
-
-func getIdQuery(r *http.Request) (string, bool) {
-	query, ok := r.URL.Query()["id"]
-
-	if !ok || len(query[0]) < 1 {
-		return "", false
+		},
+		TableName: aws.String(api.DynamoDB.Table),
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	return query[0], true
+	return &DeleteItemResponse{}, err
 }

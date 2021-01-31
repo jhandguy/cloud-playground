@@ -1,46 +1,41 @@
-output "localstack" {
-  value       = "http://${kubernetes_ingress.localstack.load_balancer_ingress.0.ip}"
-  description = "LocalStack URL"
+output "s3_endpoint" {
+  value       = "http://${var.minikube_ip}:${random_integer.localstack_node_port.result}"
+  description = "S3 Endpoint"
 }
 
-output "bucket" {
-  value       = aws_s3_bucket.bucket.id
-  description = "Bucket ID"
+output "s3_bucket" {
+  value       = aws_s3_bucket.s3.id
+  description = "S3 Bucket"
 }
 
-output "table" {
-  value       = aws_dynamodb_table.table.id
-  description = "Table ID"
+output "s3_host" {
+  value       = "${var.minikube_ip}:${random_integer.s3_node_port.result}"
+  description = "S3 Host"
 }
 
-output "s3" {
-  value       = "http://${kubernetes_ingress.s3.load_balancer_ingress.0.ip}/${random_pet.s3_uri_prefix.id}"
-  description = "S3 URL"
-}
-
-output "s3_health" {
-  value       = "http://${kubernetes_ingress.s3.load_balancer_ingress.0.ip}/${random_pet.s3_uri_prefix.id}/${random_pet.s3_health_path.id}"
-  description = "S3 Health URL"
-}
-
-output "s3_api_key" {
-  value       = random_password.s3_api_key.result
-  description = "S3 API key"
+output "s3_token" {
+  value       = random_password.s3_token.result
+  description = "S3 Token"
   sensitive   = true
 }
 
-output "dynamo" {
-  value       = "http://${kubernetes_ingress.dynamo.load_balancer_ingress.0.ip}/${random_pet.dynamo_uri_prefix.id}"
-  description = "Dynamo URL"
+output "dynamo_endpoint" {
+  value       = "http://${var.minikube_ip}:${random_integer.localstack_node_port.result}"
+  description = "Dynamo Endpoint"
 }
 
-output "dynamo_health" {
-  value       = "http://${kubernetes_ingress.dynamo.load_balancer_ingress.0.ip}/${random_pet.dynamo_uri_prefix.id}/${random_pet.dynamo_health_path.id}"
-  description = "Dynamo Health URL"
+output "dynamo_table" {
+  value       = aws_dynamodb_table.dynamo.id
+  description = "Dynamo Table"
 }
 
-output "dynamo_api_key" {
-  value       = random_password.dynamo_api_key.result
-  description = "Dynamo API key"
+output "dynamo_host" {
+  value       = "${var.minikube_ip}:${random_integer.dynamo_node_port.result}"
+  description = "Dynamo Host"
+}
+
+output "dynamo_token" {
+  value       = random_password.dynamo_token.result
+  description = "Dynamo Token"
   sensitive   = true
 }

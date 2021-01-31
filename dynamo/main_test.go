@@ -1,131 +1,189 @@
 package main
 
 import (
-	"bytes"
+	"context"
 	"dynamo/item"
-	"dynamo/test"
-	"encoding/json"
-	"net/http"
-	"net/http/httptest"
-	"strings"
+	"fmt"
+	"net"
 	"testing"
+	"time"
+
+	"google.golang.org/grpc/metadata"
+
+	"google.golang.org/grpc/test/bufconn"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+
+	"google.golang.org/grpc"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestHandleItem(t *testing.T) {
-	isCreateItemCalled := false
-	isGetItemCalled := false
-	isDeleteItemCalled := false
+func TestIsValidToken(t *testing.T) {
+	token := "token"
 
-	createItem := func(http.ResponseWriter, *http.Request) {
-		isCreateItemCalled = true
+	auth := []string{
+		fmt.Sprintf("Bearer %s", token),
 	}
-	getItem := func(http.ResponseWriter, *http.Request) {
-		isGetItemCalled = true
+	assert.True(t, isValidToken(auth, token))
+
+	auth = []string{}
+	assert.False(t, isValidToken(auth, token))
+
+	auth = []string{
+		token,
 	}
-	deleteItem := func(http.ResponseWriter, *http.Request) {
-		isDeleteItemCalled = true
+	assert.True(t, isValidToken(auth, token))
+
+	auth = []string{
+		"wrong",
 	}
-
-	handleItem := handleItem(createItem, getItem, deleteItem)
-
-	_, _ = test.RecordRequest(handleItem, http.MethodPost, "", nil)
-	test.AssertEqual(t, isCreateItemCalled, true)
-
-	_, _ = test.RecordRequest(handleItem, http.MethodGet, "", nil)
-	test.AssertEqual(t, isGetItemCalled, true)
-
-	_, _ = test.RecordRequest(handleItem, http.MethodDelete, "", nil)
-	test.AssertEqual(t, isDeleteItemCalled, true)
+	assert.False(t, isValidToken(auth, token))
 }
 
-func TestAuthMiddleware(t *testing.T) {
-	isNextFuncCalled := false
+func TestServeAPI(t *testing.T) {
+	var isPutItemWithContextCalled, isGetItemWithContextCalled, isDeleteItemWithContextCalled, isInterceptorCalled bool
 
-	nextFunc := func(http.ResponseWriter, *http.Request) {
-		isNextFuncCalled = true
+	api := &item.API{
+		DynamoDB: item.DynamoDB{
+			Table: "table",
+			PutItemWithContext: func(ctx aws.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error) {
+				isPutItemWithContextCalled = true
+				return &dynamodb.PutItemOutput{}, nil
+			},
+			GetItemWithContext: func(ctx aws.Context, input *dynamodb.GetItemInput, opts ...request.Option) (*dynamodb.GetItemOutput, error) {
+				isGetItemWithContextCalled = true
+				return &dynamodb.GetItemOutput{}, nil
+			},
+			DeleteItemWithContext: func(ctx aws.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error) {
+				isDeleteItemWithContextCalled = true
+				return &dynamodb.DeleteItemOutput{}, nil
+			},
+		},
+	}
+	interceptor := func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		isInterceptorCalled = true
+		return handler(ctx, req)
 	}
 
-	expApiKey := "1234"
+	bufSize := 1024 * 1024
+	listener := bufconn.Listen(bufSize)
 
-	authMiddlewareFunc := authMiddleware(expApiKey, nextFunc)
+	go func() {
+		serveAPI(api, interceptor, listener)
+	}()
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/", nil)
-	r.Header.Add("Authorization", "wrong")
+	ctx := context.Background()
+	bufDialer := func(context.Context, string) (net.Conn, error) {
+		return listener.Dial()
+	}
 
-	authMiddlewareFunc(w, r)
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	test.AssertEqual(t, w.Code, http.StatusForbidden)
-	test.AssertEqual(t, isNextFuncCalled, false)
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
 
-	r.Header.Set("Authorization", expApiKey)
+	c := item.NewItemServiceClient(conn)
 
-	authMiddlewareFunc(w, r)
+	createReq := &item.CreateItemRequest{
+		Name:    "name",
+		Content: "content",
+	}
+	createRes, err := c.CreateItem(ctx, createReq)
 
-	test.AssertEqual(t, isNextFuncCalled, true)
+	assert.Nil(t, err)
+	assert.NotNil(t, createRes)
+	assert.True(t, isPutItemWithContextCalled)
+	assert.True(t, isInterceptorCalled)
+
+	getReq := &item.GetItemRequest{
+		Id: "id",
+	}
+	getRes, err := c.GetItem(ctx, getReq)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, getRes)
+	assert.True(t, isGetItemWithContextCalled)
+	assert.True(t, isInterceptorCalled)
+
+	deleteReq := &item.DeleteItemRequest{
+		Id: "id",
+	}
+	deleteRes, err := c.DeleteItem(ctx, deleteReq)
+
+	assert.Nil(t, err)
+	assert.NotNil(t, deleteRes)
+	assert.True(t, isDeleteItemWithContextCalled)
+	assert.True(t, isInterceptorCalled)
 }
 
-func TestIntegration(t *testing.T) {
+func TestService(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
 
-	itm := item.Item{
-		Id:      "id",
-		Name:    "item",
-		Content: "Hello world!",
-	}
-	byt, _ := json.Marshal(itm)
+	go func() {
+		main()
+	}()
 
-	handleItem := handleItemFunc()
+	host := retrieveEnv("DYNAMO_HOST")
+	token := retrieveEnv("DYNAMO_TOKEN")
 
-	code, _ := test.RecordRequest(handleItem, http.MethodGet, itm.Id, nil)
-	test.AssertEqual(t, code, http.StatusNotFound)
+	md := metadata.New(map[string]string{"authorization": token})
+	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), time.Second)
+	defer cancel()
 
-	code, body := test.RecordRequest(handleItem, http.MethodPost, "", bytes.NewReader(byt))
-	test.AssertEqual(t, code, http.StatusOK)
-	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
-
-	code, body = test.RecordRequest(handleItem, http.MethodGet, itm.Id, nil)
-	test.AssertEqual(t, code, http.StatusOK)
-	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
-
-	code, _ = test.RecordRequest(handleItem, http.MethodDelete, itm.Id, nil)
-	test.AssertEqual(t, code, http.StatusOK)
-
-	code, _ = test.RecordRequest(handleItem, http.MethodGet, itm.Id, nil)
-	test.AssertEqual(t, code, http.StatusNotFound)
-}
-
-func TestSystem(t *testing.T) {
-	if testing.Short() {
-		t.Skip()
+	conn, err := grpc.DialContext(ctx, host, grpc.WithInsecure(), grpc.WithBlock())
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	url := retrieveEnv("DYNAMO_URL")
-	apiKey := retrieveEnv("DYNAMO_API_KEY")
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
 
-	itm := item.Item{
-		Id:      "id",
-		Name:    "item",
-		Content: "Hello world!",
+	c := item.NewItemServiceClient(conn)
+
+	createReq := &item.CreateItemRequest{
+		Name:    "name",
+		Content: "content",
 	}
-	byt, _ := json.Marshal(itm)
+	createRes, err := c.CreateItem(ctx, createReq)
 
-	code, _ := test.SendRequest(t, url, http.MethodGet, itm.Id, apiKey, nil)
-	test.AssertEqual(t, code, http.StatusNotFound)
+	assert.Nil(t, err)
+	assert.NotNil(t, createRes)
+	assert.NotNil(t, createRes.GetItem().GetId())
+	assert.Equal(t, createRes.GetItem().GetName(), createReq.Name)
+	assert.Equal(t, createRes.GetItem().GetContent(), createReq.Content)
 
-	code, body := test.SendRequest(t, url, http.MethodPost, "", apiKey, bytes.NewReader(byt))
-	test.AssertEqual(t, code, http.StatusOK)
-	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
+	getReq := &item.GetItemRequest{
+		Id: createRes.GetItem().GetId(),
+	}
+	getRes, err := c.GetItem(ctx, getReq)
 
-	code, body = test.SendRequest(t, url, http.MethodGet, itm.Id, apiKey, nil)
-	test.AssertEqual(t, code, http.StatusOK)
-	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
+	assert.Nil(t, err)
+	assert.NotNil(t, getRes)
+	assert.Equal(t, getRes.GetItem().GetId(), getReq.GetId())
+	assert.Equal(t, getRes.GetItem().GetName(), createRes.GetItem().GetName())
+	assert.Equal(t, getRes.GetItem().GetContent(), createRes.GetItem().GetContent())
 
-	code, _ = test.SendRequest(t, url, http.MethodDelete, itm.Id, apiKey, nil)
-	test.AssertEqual(t, code, http.StatusOK)
+	deleteReq := &item.DeleteItemRequest{
+		Id: getRes.GetItem().GetId(),
+	}
+	deleteRes, err := c.DeleteItem(ctx, deleteReq)
 
-	code, _ = test.SendRequest(t, url, http.MethodGet, itm.Id, apiKey, nil)
-	test.AssertEqual(t, code, http.StatusNotFound)
+	assert.Nil(t, err)
+	assert.NotNil(t, deleteRes)
 }

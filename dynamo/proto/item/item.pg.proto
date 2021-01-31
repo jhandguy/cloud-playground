@@ -1,0 +1,40 @@
+syntax = "proto3";
+package item;
+option go_package = "dynamo/item";
+
+service ItemService {
+    rpc GetItem(GetItemRequest) returns (GetItemResponse) {}
+
+    rpc CreateItem(CreateItemRequest) returns (CreateItemResponse) {}
+
+    rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse) {}
+}
+
+message Item {
+    string id = 1;
+    string name = 2;
+    string content = 3;
+}
+
+message GetItemRequest {
+    string id = 1;
+}
+
+message GetItemResponse {
+    Item Item = 1;
+}
+
+message CreateItemRequest {
+    string name = 1;
+    string content = 2;
+}
+
+message CreateItemResponse {
+    Item Item = 1;
+}
+
+message DeleteItemRequest {
+    string id = 1;
+}
+
+message DeleteItemResponse {}

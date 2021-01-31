@@ -2,154 +2,82 @@ package object
 
 import (
 	"context"
-	"encoding/json"
-	"io"
 	"io/ioutil"
-	"log"
-	"net/http"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws/request"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-type Object struct {
-	Name    string `json:"name"`
-	Content string `json:"content"`
+type API struct {
+	S3 S3
+	ObjectServiceServer
 }
 
-func CreateObject(createObject func(string, Object) error, bucket string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var obj Object
+type S3 struct {
+	Bucket string
 
-		err := json.NewDecoder(r.Body).Decode(&obj)
-		if err != nil {
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			return
-		}
+	PutObjectWithContext    func(ctx aws.Context, input *s3.PutObjectInput, opts ...request.Option) (*s3.PutObjectOutput, error)
+	GetObjectWithContext    func(ctx aws.Context, input *s3.GetObjectInput, opts ...request.Option) (*s3.GetObjectOutput, error)
+	DeleteObjectWithContext func(ctx aws.Context, input *s3.DeleteObjectInput, opts ...request.Option) (*s3.DeleteObjectOutput, error)
+}
 
-		err = createObject(bucket, obj)
-		if err != nil {
-			log.Printf("failed to upload object %s in bucket %s\nwith content: %s\nerror: %v\n", obj.Name, bucket, obj.Content, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		err = json.NewEncoder(w).Encode(obj)
-		if err != nil {
-			log.Printf("failed to encode object: %v\nerror: %v\n", obj, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		log.Printf("successfully uploaded object %s in bucket %s\nwith content: %s\n", obj.Name, bucket, obj.Content)
+func (api *API) CreateObject(ctx context.Context, req *CreateObjectRequest) (*CreateObjectResponse, error) {
+	_, err := api.S3.PutObjectWithContext(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(api.S3.Bucket),
+		Key:    aws.String(req.Name),
+		Body:   strings.NewReader(req.Content),
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	return &CreateObjectResponse{
+		Object: &Object{
+			Name:    req.Name,
+			Content: req.Content,
+		},
+	}, nil
 }
 
-func GetObject(getObject func(string, string) (io.ReadCloser, error), bucket string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		name, ok := getNameQuery(r)
-		if !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+func (api *API) GetObject(ctx context.Context, req *GetObjectRequest) (*GetObjectResponse, error) {
+	out, err := api.S3.GetObjectWithContext(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(api.S3.Bucket),
+		Key:    aws.String(req.Name),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-		body, err := getObject(bucket, name)
-		if err != nil {
-			log.Printf("failed to download object %s in bucket %s\nerror: %v\n", name, bucket, err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
+	body := out.Body
+	if body == nil {
+		return &GetObjectResponse{}, nil
+	}
 
-		defer func() {
-			_ = body.Close()
-		}()
+	defer func() {
+		_ = body.Close()
+	}()
 
-		byt, err := ioutil.ReadAll(body)
-		if err != nil {
-			log.Printf("failed to read object: %v\nerror: %v\n", body, err)
-			w.WriteHeader(http.StatusUnprocessableEntity)
-			return
-		}
+	byt, err := ioutil.ReadAll(body)
+	if err != nil {
+		return nil, err
+	}
 
-		obj := Object{
-			Name:    name,
+	return &GetObjectResponse{
+		Object: &Object{
+			Name:    req.Name,
 			Content: string(byt),
-		}
-
-		err = json.NewEncoder(w).Encode(obj)
-		if err != nil {
-			log.Printf("failed to encode object: %v\nerror: %v\n", obj, err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		log.Printf("successfully downloaded object %s in bucket %s\nwith content: %s\n", name, bucket, obj.Content)
-	}
+		},
+	}, nil
 }
 
-func DeleteObject(deleteObject func(string, string) error, bucket string) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		name, ok := getNameQuery(r)
-		if !ok {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+func (api *API) DeleteObject(ctx context.Context, req *DeleteObjectRequest) (*DeleteObjectResponse, error) {
+	_, err := api.S3.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(api.S3.Bucket),
+		Key:    aws.String(req.Name),
+	})
 
-		err := deleteObject(bucket, name)
-		if err != nil {
-			log.Printf("failed to delete object %s in bucket %s\nerror: %v\n", name, bucket, err)
-			w.WriteHeader(http.StatusNotFound)
-			return
-		}
-
-		log.Printf("successfully deleted object %s in bucket %s\n", name, bucket)
-	}
-}
-
-func CreateObjectFunc(client *s3.S3) func(string, Object) error {
-	return func(bucket string, obj Object) error {
-		_, err := client.PutObjectWithContext(context.Background(), &s3.PutObjectInput{
-			Bucket: aws.String(bucket),
-			Key:    aws.String(obj.Name),
-			Body:   strings.NewReader(obj.Content),
-		})
-
-		return err
-	}
-}
-
-func GetObjectFunc(client *s3.S3) func(string, string) (io.ReadCloser, error) {
-	return func(bucket string, name string) (io.ReadCloser, error) {
-		out, err := client.GetObjectWithContext(context.Background(), &s3.GetObjectInput{
-			Bucket: aws.String(bucket),
-			Key:    aws.String(name),
-		})
-		if err != nil {
-			return nil, err
-		}
-
-		return out.Body, nil
-	}
-}
-
-func DeleteObjectFunc(client *s3.S3) func(string, string) error {
-	return func(bucket string, name string) error {
-		_, err := client.DeleteObjectWithContext(context.Background(), &s3.DeleteObjectInput{
-			Bucket: aws.String(bucket),
-			Key:    aws.String(name),
-		})
-
-		return err
-	}
-}
-
-func getNameQuery(r *http.Request) (string, bool) {
-	query, ok := r.URL.Query()["name"]
-
-	if !ok || len(query[0]) < 1 {
-		return "", false
-	}
-
-	return query[0], true
+	return &DeleteObjectResponse{}, err
 }

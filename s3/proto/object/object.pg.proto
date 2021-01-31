@@ -1,0 +1,39 @@
+syntax = "proto3";
+package object;
+option go_package = "s3/object";
+
+service ObjectService {
+    rpc GetObject(GetObjectRequest) returns (GetObjectResponse) {}
+
+    rpc CreateObject(CreateObjectRequest) returns (CreateObjectResponse) {}
+
+    rpc DeleteObject(DeleteObjectRequest) returns (DeleteObjectResponse) {}
+}
+
+message Object {
+    string name = 1;
+    string content = 2;
+}
+
+message GetObjectRequest {
+    string name = 1;
+}
+
+message GetObjectResponse {
+    Object object = 1;
+}
+
+message CreateObjectRequest {
+    string name = 1;
+    string content = 2;
+}
+
+message CreateObjectResponse {
+    Object object = 1;
+}
+
+message DeleteObjectRequest {
+    string name = 1;
+}
+
+message DeleteObjectResponse {}

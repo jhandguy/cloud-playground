@@ -1,45 +1,66 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
-	"net/http"
+	"net"
 	"os"
 	"s3/object"
+	"strings"
+
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
-func handleObject(
-	createObject func(http.ResponseWriter, *http.Request),
-	getObject func(http.ResponseWriter, *http.Request),
-	deleteObject func(http.ResponseWriter, *http.Request),
-) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		switch r.Method {
-		case http.MethodPost:
-			createObject(w, r)
-		case http.MethodGet:
-			getObject(w, r)
-		case http.MethodDelete:
-			deleteObject(w, r)
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	}
-}
+var (
+	errMissingMetadata = status.Errorf(codes.InvalidArgument, "missing metadata")
+	errInvalidToken    = status.Errorf(codes.Unauthenticated, "invalid token")
+)
 
 func retrieveEnv(key string) string {
 	env, ok := os.LookupEnv(key)
 	if !ok {
-		log.Fatalf("could not find environment variable %s", key)
+		log.Fatalf("could not lookup env %s", key)
 	}
 	return env
 }
 
-func handleObjectFunc() func(http.ResponseWriter, *http.Request) {
+func isValidToken(authorization []string, token string) bool {
+	if len(authorization) < 1 {
+		return false
+	}
+	return strings.TrimPrefix(authorization[0], "Bearer ") == token
+}
+
+func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	token := retrieveEnv("TOKEN")
+
+	if info.FullMethod == "/grpc.health.v1.Health/Check" {
+		return handler(ctx, req)
+	}
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, errMissingMetadata
+	}
+
+	if !isValidToken(md["authorization"], token) {
+		return nil, errInvalidToken
+	}
+	return handler(ctx, req)
+}
+
+func newObjectAPI() *object.API {
 	endpoint := retrieveEnv("AWS_S3_ENDPOINT")
 	bucket := retrieveEnv("AWS_S3_BUCKET")
 
@@ -52,36 +73,32 @@ func handleObjectFunc() func(http.ResponseWriter, *http.Request) {
 
 	client := s3.New(sess, aws.NewConfig().WithEndpoint(endpoint))
 
-	return handleObject(
-		object.CreateObject(object.CreateObjectFunc(client), bucket),
-		object.GetObject(object.GetObjectFunc(client), bucket),
-		object.DeleteObject(object.DeleteObjectFunc(client), bucket),
-	)
-}
-
-func checkHealth(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		w.WriteHeader(http.StatusMethodNotAllowed)
+	return &object.API{
+		S3: object.S3{
+			Bucket:                  bucket,
+			PutObjectWithContext:    client.PutObjectWithContext,
+			GetObjectWithContext:    client.GetObjectWithContext,
+			DeleteObjectWithContext: client.DeleteObjectWithContext,
+		},
 	}
 }
 
-func authMiddleware(apiKey string, next func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") == apiKey {
-			next(w, r)
-		} else {
-			w.WriteHeader(http.StatusForbidden)
-		}
+func serveAPI(api *object.API, interceptor grpc.UnaryServerInterceptor, listener net.Listener) {
+	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor))
+
+	object.RegisterObjectServiceServer(s, api)
+	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
+
+	if err := s.Serve(listener); err != nil {
+		log.Fatalf("failed to serve: %v", err)
 	}
 }
 
 func main() {
-	uriPrefix := retrieveEnv("URI_PREFIX")
-	healthPath := retrieveEnv("HEALTH_PATH")
-	apiKey := retrieveEnv("API_KEY")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
 
-	http.HandleFunc(fmt.Sprintf("%s/object", uriPrefix), authMiddleware(apiKey, handleObjectFunc()))
-	http.HandleFunc(fmt.Sprintf("%s%s", uriPrefix, healthPath), checkHealth)
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	serveAPI(newObjectAPI(), ensureValidToken, listener)
 }

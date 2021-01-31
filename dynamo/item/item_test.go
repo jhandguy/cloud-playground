@@ -1,92 +1,120 @@
 package item
 
 import (
-	"bytes"
-	"dynamo/test"
-	"encoding/json"
-	"net/http"
-	"strings"
+	"context"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 
+	"github.com/stretchr/testify/assert"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
 func TestCreateItem(t *testing.T) {
-	var actTable string
-	var actItem Item
+	var actTable, actId, actName, actContent string
 
-	fun := func(table string, item Item) error {
-		actTable = table
-		actItem = item
-		return nil
+	api := API{
+		DynamoDB: DynamoDB{
+			Table: "table",
+			PutItemWithContext: func(ctx aws.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error) {
+				actTable = *input.TableName
+				actId = *input.Item["id"].S
+				actName = *input.Item["name"].S
+				actContent = *input.Item["content"].S
+
+				return &dynamodb.PutItemOutput{}, nil
+			},
+			GetItemWithContext:    nil,
+			DeleteItemWithContext: nil,
+		},
 	}
 
-	table := "table"
-	sut := CreateItem(fun, table)
-
-	item := Item{
-		Id:      "id",
-		Name:    "item",
-		Content: "Hello world!",
+	req := &CreateItemRequest{
+		Name:    "name",
+		Content: "content",
 	}
-	byt, _ := json.Marshal(item)
+	resp, err := api.CreateItem(context.Background(), req)
 
-	code, _ := test.RecordRequest(sut, http.MethodPost, "", bytes.NewReader(byt))
-
-	test.AssertEqual(t, code, http.StatusOK)
-	test.AssertEqual(t, actTable, table)
-	test.AssertEqual(t, actItem, item)
+	assert.Equal(t, actTable, api.DynamoDB.Table)
+	assert.Equal(t, actName, req.Name)
+	assert.Equal(t, actContent, req.Content)
+	assert.Nil(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, resp.Item.Id, actId)
+	assert.Equal(t, resp.Item.Name, req.Name)
+	assert.Equal(t, resp.Item.Content, req.Content)
 }
 
 func TestGetItem(t *testing.T) {
-	var actTable string
-	var actId string
-
+	var actTable, actId string
 	item := Item{
 		Id:      "id",
-		Name:    "item",
-		Content: "Hello world!",
-	}
-	byt, _ := json.Marshal(item)
-
-	fun := func(table string, id string) (map[string]*dynamodb.AttributeValue, error) {
-		actTable = table
-		actId = id
-
-		return dynamodbattribute.MarshalMap(item)
+		Name:    "name",
+		Content: "content",
 	}
 
-	table := "table"
-	sut := GetItem(fun, table)
+	api := API{
+		DynamoDB: DynamoDB{
+			Table:              "table",
+			PutItemWithContext: nil,
+			GetItemWithContext: func(ctx aws.Context, input *dynamodb.GetItemInput, opts ...request.Option) (*dynamodb.GetItemOutput, error) {
+				actTable = *input.TableName
+				actId = *input.Key["id"].S
 
-	code, body := test.RecordRequest(sut, http.MethodGet, item.Id, bytes.NewReader(byt))
+				itm, err := dynamodbattribute.MarshalMap(&item)
+				if err != nil {
+					return nil, err
+				}
 
-	test.AssertEqual(t, code, http.StatusOK)
-	test.AssertEqual(t, actTable, table)
-	test.AssertEqual(t, actId, item.Id)
-	test.AssertEqual(t, strings.ReplaceAll(body.String(), "\n", ""), string(byt))
+				return &dynamodb.GetItemOutput{
+					Item: itm,
+				}, nil
+			},
+			DeleteItemWithContext: nil,
+		},
+	}
+
+	req := &GetItemRequest{
+		Id: item.Id,
+	}
+	resp, err := api.GetItem(context.Background(), req)
+
+	assert.Equal(t, actTable, api.DynamoDB.Table)
+	assert.Equal(t, actId, req.Id)
+	assert.Nil(t, err)
+	assert.NotNil(t, resp)
+	assert.Equal(t, resp.Item.Id, item.Id)
+	assert.Equal(t, resp.Item.Name, item.Name)
+	assert.Equal(t, resp.Item.Content, item.Content)
 }
 
 func TestDeleteItem(t *testing.T) {
-	var actTable string
-	var actId string
+	var actTable, actId string
 
-	fun := func(table string, id string) error {
-		actTable = table
-		actId = id
+	api := API{
+		DynamoDB: DynamoDB{
+			Table:              "table",
+			PutItemWithContext: nil,
+			GetItemWithContext: nil,
+			DeleteItemWithContext: func(ctx aws.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error) {
+				actTable = *input.TableName
+				actId = *input.Key["id"].S
 
-		return nil
+				return &dynamodb.DeleteItemOutput{}, nil
+			},
+		},
 	}
 
-	table := "table"
-	id := "id"
-	sut := DeleteItem(fun, table)
+	req := &DeleteItemRequest{
+		Id: "id",
+	}
+	resp, err := api.DeleteItem(context.Background(), req)
 
-	code, _ := test.RecordRequest(sut, http.MethodDelete, id, nil)
-
-	test.AssertEqual(t, code, http.StatusOK)
-	test.AssertEqual(t, actTable, table)
-	test.AssertEqual(t, actId, id)
+	assert.Equal(t, actTable, api.DynamoDB.Table)
+	assert.Equal(t, actId, req.Id)
+	assert.Nil(t, err)
+	assert.NotNil(t, resp)
 }
