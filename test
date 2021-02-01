@@ -1,14 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
-export AWS_S3_ENDPOINT=$(terraform -chdir=terraform output -json s3_endpoint | jq -r .)
-export AWS_S3_BUCKET=$(terraform -chdir=terraform output -json s3_bucket | jq -r .)
+export AWS_S3_ENDPOINT=$(terraform -chdir=terraform output -json aws_s3_endpoint | jq -r .)
+export AWS_S3_BUCKET=$(terraform -chdir=terraform output -json aws_s3_bucket | jq -r .)
 export S3_HOST=$(terraform -chdir=terraform output -json s3_host | jq -r .)
 export S3_TOKEN=$(terraform -chdir=terraform output -json s3_token | jq -r .)
 (cd s3 && go build . && go test ./... -cover -race)
 
-export AWS_DYNAMO_ENDPOINT=$(terraform -chdir=terraform output -json dynamo_endpoint | jq -r .)
-export AWS_DYNAMO_TABLE=$(terraform -chdir=terraform output -json dynamo_table | jq -r .)
+export AWS_DYNAMO_ENDPOINT=$(terraform -chdir=terraform output -json aws_dynamo_endpoint | jq -r .)
+export AWS_DYNAMO_TABLE=$(terraform -chdir=terraform output -json aws_dynamo_table | jq -r .)
 export DYNAMO_HOST=$(terraform -chdir=terraform output -json dynamo_host | jq -r .)
 export DYNAMO_TOKEN=$(terraform -chdir=terraform output -json dynamo_token | jq -r .)
 (cd dynamo && go build . && go test ./... -cover -race)

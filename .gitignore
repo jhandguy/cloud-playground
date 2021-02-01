@@ -9,3 +9,6 @@
 
 *.pg.pb.go
 *.pg_grpc.pb.go
+
+/dynamo/dynamo
+/s3/s3

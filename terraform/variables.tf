@@ -1,6 +1,5 @@
-variable "minikube_ip" {
+variable "node_ip" {
   type    = string
-  default = ""
 }
 
 variable "aws_region" {

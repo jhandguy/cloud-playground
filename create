@@ -4,6 +4,6 @@ set -euo pipefail
 minikube start $(if [[ $OSTYPE != "linux-gnu"* ]]; then echo "--vm=true"; fi)
 
 terraform -chdir=terraform init
-terraform -chdir=terraform plan -var="minikube_ip=$(minikube ip)" -out=tfplan
+terraform -chdir=terraform plan -var="node_ip=$(minikube ip)" -out=tfplan
 terraform -chdir=terraform apply tfplan
 rm terraform/tfplan
