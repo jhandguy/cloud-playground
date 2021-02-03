@@ -26,11 +26,10 @@ jobs:
           sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
           go get -u google.golang.org/protobuf/cmd/protoc-gen-go
           go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          export PATH="$PATH:$(go env GOPATH)/bin"
-          protoc --go_out=. --go-grpc_out=. s3/proto/object/object.pg.proto
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      - name: Run short tests
-        run: (cd s3 && go build . && go test ./... -short -cover -race)
+      - name: Build and run short tests
+        run: make -C s3 build
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -66,11 +65,10 @@ jobs:
           sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
           go get -u google.golang.org/protobuf/cmd/protoc-gen-go
           go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          export PATH="$PATH:$(go env GOPATH)/bin"
-          protoc --go_out=. --go-grpc_out=. dynamo/proto/item/item.pg.proto
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      - name: Run short tests
-        run: (cd dynamo && go build . && go test ./... -short -cover -race)
+      - name: Build and run short tests
+        run: make -C dynamo build
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -118,11 +116,9 @@ jobs:
           sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
           go get -u google.golang.org/protobuf/cmd/protoc-gen-go
           go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          export PATH="$PATH:$(go env GOPATH)/bin"
-          protoc --go_out=. --go-grpc_out=. s3/proto/object/object.pg.proto
-          protoc --go_out=. --go-grpc_out=. dynamo/proto/item/item.pg.proto
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      - name: Run all tests
+      - name: Build and run all tests
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -137,7 +133,4 @@ jobs:
           TF_VAR_s3_image_tag: ${{ env.S3_IMAGE_TAG }}
           TF_VAR_dynamo_image_repository: ${{ env.DYNAMO_IMAGE_REPOSITORY }}
           TF_VAR_dynamo_image_tag: ${{ env.DYNAMO_IMAGE_TAG }}
-        run: |
-          chmod +x create && ./create
-          chmod +x test && ./test
-          chmod +x destroy && ./destroy
+        run: make all

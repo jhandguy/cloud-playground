@@ -40,20 +40,26 @@ A Playground to experiment with various DevOps tools and technologies.
  ----------   ----------
 ```
 
-## Create Infrastructure
+## Automation
 
 ```shell
-chmod +x create && ./create
+make all
 ```
 
-## Run Tests
+### Create Infrastructure
 
 ```shell
-chmod +x test && ./test
+make setup
 ```
 
-## Destroy Infrastructure
+### Run Tests
 
 ```shell
-chmod +x destroy && ./destroy
+make test
+```
+
+### Destroy Infrastructure
+
+```shell
+make teardown
 ```

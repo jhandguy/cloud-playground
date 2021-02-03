@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"s3/object"
+	"s3/object/pb"
 	"strings"
 
 	"google.golang.org/grpc/health"
@@ -43,7 +44,7 @@ func isValidToken(authorization []string, token string) bool {
 }
 
 func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	token := retrieveEnv("TOKEN")
+	token := retrieveEnv("S3_TOKEN")
 
 	if info.FullMethod == "/grpc.health.v1.Health/Check" {
 		return handler(ctx, req)
@@ -86,7 +87,7 @@ func newObjectAPI() *object.API {
 func serveAPI(api *object.API, interceptor grpc.UnaryServerInterceptor, listener net.Listener) {
 	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor))
 
-	object.RegisterObjectServiceServer(s, api)
+	pb.RegisterObjectServiceServer(s, api)
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 
 	if err := s.Serve(listener); err != nil {
@@ -95,7 +96,8 @@ func serveAPI(api *object.API, interceptor grpc.UnaryServerInterceptor, listener
 }
 
 func main() {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
+	port := retrieveEnv("S3_PORT")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

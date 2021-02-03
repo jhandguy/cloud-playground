@@ -12,7 +12,7 @@ resource "helm_release" "localstack" {
 
   set {
     name  = "nodePorts.edgePort"
-    value = random_integer.localstack_node_port.result
+    value = local.node_ports["localstack"]
   }
 }
 
@@ -28,7 +28,7 @@ resource "helm_release" "s3" {
 
   set {
     name  = "nodePort"
-    value = random_integer.s3_node_port.result
+    value = local.node_ports["s3"]
   }
 
   set {
@@ -74,7 +74,7 @@ resource "helm_release" "dynamo" {
 
   set {
     name  = "nodePort"
-    value = random_integer.dynamo_node_port.result
+    value = local.node_ports["dynamo"]
   }
 
   set {

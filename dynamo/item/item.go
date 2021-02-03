@@ -2,6 +2,7 @@ package item
 
 import (
 	"context"
+	"dynamo/item/pb"
 
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/google/uuid"
@@ -13,7 +14,7 @@ import (
 
 type API struct {
 	DynamoDB DynamoDB
-	ItemServiceServer
+	pb.ItemServiceServer
 }
 
 type DynamoDB struct {
@@ -24,8 +25,8 @@ type DynamoDB struct {
 	DeleteItemWithContext func(ctx aws.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error)
 }
 
-func (api *API) CreateItem(ctx context.Context, req *CreateItemRequest) (*CreateItemResponse, error) {
-	item := &Item{
+func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.CreateItemResponse, error) {
+	item := &pb.Item{
 		Id:      uuid.New().String(),
 		Name:    req.Name,
 		Content: req.Content,
@@ -44,12 +45,12 @@ func (api *API) CreateItem(ctx context.Context, req *CreateItemRequest) (*Create
 		return nil, err
 	}
 
-	return &CreateItemResponse{
+	return &pb.CreateItemResponse{
 		Item: item,
 	}, nil
 }
 
-func (api *API) GetItem(ctx context.Context, req *GetItemRequest) (*GetItemResponse, error) {
+func (api *API) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetItemResponse, error) {
 	out, err := api.DynamoDB.GetItemWithContext(ctx, &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {
@@ -62,18 +63,18 @@ func (api *API) GetItem(ctx context.Context, req *GetItemRequest) (*GetItemRespo
 		return nil, err
 	}
 
-	var item Item
+	var item pb.Item
 	err = dynamodbattribute.UnmarshalMap(out.Item, &item)
 	if err != nil {
 		return nil, err
 	}
 
-	return &GetItemResponse{
+	return &pb.GetItemResponse{
 		Item: &item,
 	}, nil
 }
 
-func (api *API) DeleteItem(ctx context.Context, req *DeleteItemRequest) (*DeleteItemResponse, error) {
+func (api *API) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest) (*pb.DeleteItemResponse, error) {
 	_, err := api.DynamoDB.DeleteItemWithContext(ctx, &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {
@@ -86,5 +87,5 @@ func (api *API) DeleteItem(ctx context.Context, req *DeleteItemRequest) (*Delete
 		return nil, err
 	}
 
-	return &DeleteItemResponse{}, err
+	return &pb.DeleteItemResponse{}, err
 }

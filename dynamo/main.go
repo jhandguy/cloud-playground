@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"dynamo/item"
+	"dynamo/item/pb"
 	"fmt"
 	"log"
 	"net"
@@ -44,7 +45,7 @@ func isValidToken(authorization []string, token string) bool {
 }
 
 func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	token := retrieveEnv("TOKEN")
+	token := retrieveEnv("DYNAMO_TOKEN")
 
 	if info.FullMethod == "/grpc.health.v1.Health/Check" {
 		return handler(ctx, req)
@@ -86,7 +87,7 @@ func newItemAPI() *item.API {
 func serveAPI(api *item.API, interceptor grpc.UnaryServerInterceptor, listener net.Listener) {
 	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor))
 
-	item.RegisterItemServiceServer(s, api)
+	pb.RegisterItemServiceServer(s, api)
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 
 	if err := s.Serve(listener); err != nil {
@@ -95,7 +96,8 @@ func serveAPI(api *item.API, interceptor grpc.UnaryServerInterceptor, listener n
 }
 
 func main() {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", 8080))
+	port := retrieveEnv("DYNAMO_PORT")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

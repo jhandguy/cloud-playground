@@ -42,11 +42,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret }}
                   key: aws_secret_access_key
-            - name: TOKEN
+            - name: S3_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secret }}
-                  key: token
+                  key: s3_token
+            - name: S3_PORT
+              value: "8080"
           ports:
             - containerPort: 8080
               protocol: TCP

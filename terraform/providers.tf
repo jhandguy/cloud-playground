@@ -18,7 +18,7 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   endpoints {
-    s3       = "http://${var.node_ip}:${random_integer.localstack_node_port.result}"
-    dynamodb = "http://${var.node_ip}:${random_integer.localstack_node_port.result}"
+    s3       = "http://${var.node_ip}:${local.node_ports["localstack"]}"
+    dynamodb = "http://${var.node_ip}:${local.node_ports["localstack"]}"
   }
 }

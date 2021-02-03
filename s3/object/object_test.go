@@ -3,6 +3,7 @@ package object
 import (
 	"context"
 	"io/ioutil"
+	"s3/object/pb"
 	"strings"
 	"testing"
 
@@ -36,7 +37,7 @@ func TestCreateObject(t *testing.T) {
 		},
 	}
 
-	req := &CreateObjectRequest{
+	req := &pb.CreateObjectRequest{
 		Name:    "name",
 		Content: "content",
 	}
@@ -71,7 +72,7 @@ func TestGetObject(t *testing.T) {
 		},
 	}
 
-	req := &GetObjectRequest{
+	req := &pb.GetObjectRequest{
 		Name: "name",
 	}
 	resp, err := api.GetObject(context.Background(), req)
@@ -101,7 +102,7 @@ func TestDeleteObject(t *testing.T) {
 		},
 	}
 
-	req := &DeleteObjectRequest{
+	req := &pb.DeleteObjectRequest{
 		Name: "name",
 	}
 	resp, err := api.DeleteObject(context.Background(), req)

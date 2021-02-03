@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"dynamo/item"
+	"dynamo/item/pb"
 	"fmt"
 	"net"
 	"testing"
@@ -92,9 +93,9 @@ func TestServeAPI(t *testing.T) {
 		}
 	}()
 
-	c := item.NewItemServiceClient(conn)
+	c := pb.NewItemServiceClient(conn)
 
-	createReq := &item.CreateItemRequest{
+	createReq := &pb.CreateItemRequest{
 		Name:    "name",
 		Content: "content",
 	}
@@ -105,7 +106,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isPutItemWithContextCalled)
 	assert.True(t, isInterceptorCalled)
 
-	getReq := &item.GetItemRequest{
+	getReq := &pb.GetItemRequest{
 		Id: "id",
 	}
 	getRes, err := c.GetItem(ctx, getReq)
@@ -115,7 +116,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isGetItemWithContextCalled)
 	assert.True(t, isInterceptorCalled)
 
-	deleteReq := &item.DeleteItemRequest{
+	deleteReq := &pb.DeleteItemRequest{
 		Id: "id",
 	}
 	deleteRes, err := c.DeleteItem(ctx, deleteReq)
@@ -126,23 +127,33 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isInterceptorCalled)
 }
 
-func TestService(t *testing.T) {
+func TestIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
 
-	go func() {
-		main()
-	}()
+	go main()
+	testDial("localhost", t)
+}
+
+func TestSystem(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 
 	host := retrieveEnv("DYNAMO_HOST")
+	testDial(host, t)
+}
+
+func testDial(host string, t *testing.T) {
+	port := retrieveEnv("DYNAMO_PORT")
 	token := retrieveEnv("DYNAMO_TOKEN")
 
 	md := metadata.New(map[string]string{"authorization": token})
 	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), time.Second)
 	defer cancel()
 
-	conn, err := grpc.DialContext(ctx, host, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,9 +165,9 @@ func TestService(t *testing.T) {
 		}
 	}()
 
-	c := item.NewItemServiceClient(conn)
+	c := pb.NewItemServiceClient(conn)
 
-	createReq := &item.CreateItemRequest{
+	createReq := &pb.CreateItemRequest{
 		Name:    "name",
 		Content: "content",
 	}
@@ -168,7 +179,7 @@ func TestService(t *testing.T) {
 	assert.Equal(t, createRes.GetItem().GetName(), createReq.Name)
 	assert.Equal(t, createRes.GetItem().GetContent(), createReq.Content)
 
-	getReq := &item.GetItemRequest{
+	getReq := &pb.GetItemRequest{
 		Id: createRes.GetItem().GetId(),
 	}
 	getRes, err := c.GetItem(ctx, getReq)
@@ -179,7 +190,7 @@ func TestService(t *testing.T) {
 	assert.Equal(t, getRes.GetItem().GetName(), createRes.GetItem().GetName())
 	assert.Equal(t, getRes.GetItem().GetContent(), createRes.GetItem().GetContent())
 
-	deleteReq := &item.DeleteItemRequest{
+	deleteReq := &pb.DeleteItemRequest{
 		Id: getRes.GetItem().GetId(),
 	}
 	deleteRes, err := c.DeleteItem(ctx, deleteReq)

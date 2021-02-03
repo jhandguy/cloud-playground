@@ -1,7 +1,0 @@
-#!/bin/bash
-set -euo pipefail
-
-terraform -chdir=terraform destroy -var="node_ip=$(minikube ip)" -auto-approve
-
-minikube stop
-minikube delete

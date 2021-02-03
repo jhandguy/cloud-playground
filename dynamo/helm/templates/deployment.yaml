@@ -42,11 +42,13 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret }}
                   key: aws_secret_access_key
-            - name: TOKEN
+            - name: DYNAMO_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.secret }}
-                  key: token
+                  key: dynamo_token
+            - name: DYNAMO_PORT
+              value: "8080"
           ports:
             - containerPort: 8080
               protocol: TCP

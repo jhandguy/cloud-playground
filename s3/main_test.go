@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"s3/object"
+	"s3/object/pb"
 	"testing"
 	"time"
 
@@ -91,9 +92,9 @@ func TestServeAPI(t *testing.T) {
 		}
 	}()
 
-	c := object.NewObjectServiceClient(conn)
+	c := pb.NewObjectServiceClient(conn)
 
-	createReq := &object.CreateObjectRequest{
+	createReq := &pb.CreateObjectRequest{
 		Name:    "name",
 		Content: "content",
 	}
@@ -104,7 +105,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isPutObjectWithContextCalled)
 	assert.True(t, isInterceptorCalled)
 
-	getReq := &object.GetObjectRequest{
+	getReq := &pb.GetObjectRequest{
 		Name: "name",
 	}
 	getRes, err := c.GetObject(ctx, getReq)
@@ -114,7 +115,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isGetObjectWithContextCalled)
 	assert.True(t, isInterceptorCalled)
 
-	deleteReq := &object.DeleteObjectRequest{
+	deleteReq := &pb.DeleteObjectRequest{
 		Name: "name",
 	}
 	deleteRes, err := c.DeleteObject(ctx, deleteReq)
@@ -125,23 +126,33 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isInterceptorCalled)
 }
 
-func TestService(t *testing.T) {
+func TestIntegration(t *testing.T) {
 	if testing.Short() {
 		t.Skip()
 	}
 
-	go func() {
-		main()
-	}()
+	go main()
+	testDial("localhost", t)
+}
+
+func TestSystem(t *testing.T) {
+	if testing.Short() {
+		t.Skip()
+	}
 
 	host := retrieveEnv("S3_HOST")
+	testDial(host, t)
+}
+
+func testDial(host string, t *testing.T) {
+	port := retrieveEnv("S3_PORT")
 	token := retrieveEnv("S3_TOKEN")
 
 	md := metadata.New(map[string]string{"authorization": token})
 	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), time.Second)
 	defer cancel()
 
-	conn, err := grpc.DialContext(ctx, host, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,9 +164,9 @@ func TestService(t *testing.T) {
 		}
 	}()
 
-	c := object.NewObjectServiceClient(conn)
+	c := pb.NewObjectServiceClient(conn)
 
-	createReq := &object.CreateObjectRequest{
+	createReq := &pb.CreateObjectRequest{
 		Name:    "name",
 		Content: "content",
 	}
@@ -166,7 +177,7 @@ func TestService(t *testing.T) {
 	assert.Equal(t, createRes.GetObject().GetName(), createReq.Name)
 	assert.Equal(t, createRes.GetObject().GetContent(), createReq.Content)
 
-	getReq := &object.GetObjectRequest{
+	getReq := &pb.GetObjectRequest{
 		Name: createReq.GetName(),
 	}
 	getRes, err := c.GetObject(ctx, getReq)
@@ -176,7 +187,7 @@ func TestService(t *testing.T) {
 	assert.Equal(t, getRes.GetObject().GetName(), createRes.GetObject().GetName())
 	assert.Equal(t, getRes.GetObject().GetContent(), createRes.GetObject().GetContent())
 
-	deleteReq := &object.DeleteObjectRequest{
+	deleteReq := &pb.DeleteObjectRequest{
 		Name: getReq.GetName(),
 	}
 	deleteRes, err := c.DeleteObject(ctx, deleteReq)

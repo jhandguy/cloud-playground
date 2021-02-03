@@ -1,5 +1,5 @@
 variable "node_ip" {
-  type    = string
+  type = string
 }
 
 variable "aws_region" {

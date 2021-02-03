@@ -2,6 +2,7 @@ package item
 
 import (
 	"context"
+	"dynamo/item/pb"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -32,7 +33,7 @@ func TestCreateItem(t *testing.T) {
 		},
 	}
 
-	req := &CreateItemRequest{
+	req := &pb.CreateItemRequest{
 		Name:    "name",
 		Content: "content",
 	}
@@ -50,7 +51,7 @@ func TestCreateItem(t *testing.T) {
 
 func TestGetItem(t *testing.T) {
 	var actTable, actId string
-	item := Item{
+	item := pb.Item{
 		Id:      "id",
 		Name:    "name",
 		Content: "content",
@@ -77,7 +78,7 @@ func TestGetItem(t *testing.T) {
 		},
 	}
 
-	req := &GetItemRequest{
+	req := &pb.GetItemRequest{
 		Id: item.Id,
 	}
 	resp, err := api.GetItem(context.Background(), req)
@@ -108,7 +109,7 @@ func TestDeleteItem(t *testing.T) {
 		},
 	}
 
-	req := &DeleteItemRequest{
+	req := &pb.DeleteItemRequest{
 		Id: "id",
 	}
 	resp, err := api.DeleteItem(context.Background(), req)
