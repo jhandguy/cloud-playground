@@ -1,4 +1,4 @@
-module s3
+module github.com/jhandguy/devops-playground/s3
 
 go 1.15
 

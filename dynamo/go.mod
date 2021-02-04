@@ -1,4 +1,4 @@
-module dynamo
+module github.com/jhandguy/devops-playground/dynamo
 
 go 1.15
 

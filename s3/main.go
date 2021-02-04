@@ -6,21 +6,20 @@ import (
 	"log"
 	"net"
 	"os"
-	"s3/object"
-	"s3/object/pb"
 	"strings"
-
-	"google.golang.org/grpc/health"
-	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+
+	"github.com/jhandguy/devops-playground/s3/object"
+	"github.com/jhandguy/devops-playground/s3/object/pb"
 )
 
 var (

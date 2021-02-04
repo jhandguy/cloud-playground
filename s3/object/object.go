@@ -3,13 +3,13 @@ package object
 import (
 	"context"
 	"io/ioutil"
-	"s3/object/pb"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws/request"
-
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
+
+	"github.com/jhandguy/devops-playground/s3/object/pb"
 )
 
 type API struct {

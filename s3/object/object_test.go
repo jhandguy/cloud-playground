@@ -3,15 +3,15 @@ package object
 import (
 	"context"
 	"io/ioutil"
-	"s3/object/pb"
 	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/jhandguy/devops-playground/s3/object/pb"
 )
 
 func TestCreateObject(t *testing.T) {

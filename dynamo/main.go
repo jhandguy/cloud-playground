@@ -2,26 +2,24 @@ package main
 
 import (
 	"context"
-	"dynamo/item"
-	"dynamo/item/pb"
 	"fmt"
 	"log"
 	"net"
 	"os"
 	"strings"
 
-	"google.golang.org/grpc/health"
-	"google.golang.org/grpc/health/grpc_health_v1"
-
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/jhandguy/devops-playground/dynamo/item"
+	"github.com/jhandguy/devops-playground/dynamo/item/pb"
 )
 
 var (

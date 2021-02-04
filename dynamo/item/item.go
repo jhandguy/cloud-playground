@@ -2,14 +2,14 @@ package item
 
 import (
 	"context"
-	"dynamo/item/pb"
-
-	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/google/uuid"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/google/uuid"
+
+	"github.com/jhandguy/devops-playground/dynamo/item/pb"
 )
 
 type API struct {

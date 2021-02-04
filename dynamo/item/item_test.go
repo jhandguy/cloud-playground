@@ -2,27 +2,26 @@ package item
 
 import (
 	"context"
-	"dynamo/item/pb"
 	"testing"
-
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-
-	"github.com/stretchr/testify/assert"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/jhandguy/devops-playground/dynamo/item/pb"
 )
 
 func TestCreateItem(t *testing.T) {
-	var actTable, actId, actName, actContent string
+	var actTable, actID, actName, actContent string
 
 	api := API{
 		DynamoDB: DynamoDB{
 			Table: "table",
 			PutItemWithContext: func(ctx aws.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error) {
 				actTable = *input.TableName
-				actId = *input.Item["id"].S
+				actID = *input.Item["id"].S
 				actName = *input.Item["name"].S
 				actContent = *input.Item["content"].S
 
@@ -44,13 +43,13 @@ func TestCreateItem(t *testing.T) {
 	assert.Equal(t, actContent, req.Content)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
-	assert.Equal(t, resp.Item.Id, actId)
+	assert.Equal(t, resp.Item.Id, actID)
 	assert.Equal(t, resp.Item.Name, req.Name)
 	assert.Equal(t, resp.Item.Content, req.Content)
 }
 
 func TestGetItem(t *testing.T) {
-	var actTable, actId string
+	var actTable, actID string
 	item := pb.Item{
 		Id:      "id",
 		Name:    "name",
@@ -63,7 +62,7 @@ func TestGetItem(t *testing.T) {
 			PutItemWithContext: nil,
 			GetItemWithContext: func(ctx aws.Context, input *dynamodb.GetItemInput, opts ...request.Option) (*dynamodb.GetItemOutput, error) {
 				actTable = *input.TableName
-				actId = *input.Key["id"].S
+				actID = *input.Key["id"].S
 
 				itm, err := dynamodbattribute.MarshalMap(&item)
 				if err != nil {
@@ -84,7 +83,7 @@ func TestGetItem(t *testing.T) {
 	resp, err := api.GetItem(context.Background(), req)
 
 	assert.Equal(t, actTable, api.DynamoDB.Table)
-	assert.Equal(t, actId, req.Id)
+	assert.Equal(t, actID, req.Id)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
 	assert.Equal(t, resp.Item.Id, item.Id)
@@ -93,7 +92,7 @@ func TestGetItem(t *testing.T) {
 }
 
 func TestDeleteItem(t *testing.T) {
-	var actTable, actId string
+	var actTable, actID string
 
 	api := API{
 		DynamoDB: DynamoDB{
@@ -102,7 +101,7 @@ func TestDeleteItem(t *testing.T) {
 			GetItemWithContext: nil,
 			DeleteItemWithContext: func(ctx aws.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error) {
 				actTable = *input.TableName
-				actId = *input.Key["id"].S
+				actID = *input.Key["id"].S
 
 				return &dynamodb.DeleteItemOutput{}, nil
 			},
@@ -115,7 +114,7 @@ func TestDeleteItem(t *testing.T) {
 	resp, err := api.DeleteItem(context.Background(), req)
 
 	assert.Equal(t, actTable, api.DynamoDB.Table)
-	assert.Equal(t, actId, req.Id)
+	assert.Equal(t, actID, req.Id)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
 }

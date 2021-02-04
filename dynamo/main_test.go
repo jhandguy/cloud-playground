@@ -2,24 +2,21 @@ package main
 
 import (
 	"context"
-	"dynamo/item"
-	"dynamo/item/pb"
 	"fmt"
 	"net"
 	"testing"
 	"time"
 
-	"google.golang.org/grpc/metadata"
-
-	"google.golang.org/grpc/test/bufconn"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-
-	"google.golang.org/grpc"
-
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/test/bufconn"
+
+	"github.com/jhandguy/devops-playground/dynamo/item"
+	"github.com/jhandguy/devops-playground/dynamo/item/pb"
 )
 
 func TestIsValidToken(t *testing.T) {
@@ -64,7 +61,7 @@ func TestServeAPI(t *testing.T) {
 			},
 		},
 	}
-	interceptor := func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	interceptor := func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		isInterceptorCalled = true
 		return handler(ctx, req)
 	}

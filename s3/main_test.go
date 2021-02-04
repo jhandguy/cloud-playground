@@ -4,21 +4,19 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"s3/object"
-	"s3/object/pb"
 	"testing"
 	"time"
 
-	"google.golang.org/grpc/metadata"
-
-	"github.com/aws/aws-sdk-go/service/s3"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/jhandguy/devops-playground/s3/object"
+	"github.com/jhandguy/devops-playground/s3/object/pb"
 )
 
 func TestIsValidToken(t *testing.T) {
@@ -63,7 +61,7 @@ func TestServeAPI(t *testing.T) {
 			},
 		},
 	}
-	interceptor := func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	interceptor := func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		isInterceptorCalled = true
 		return handler(ctx, req)
 	}
