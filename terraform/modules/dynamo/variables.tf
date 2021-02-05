@@ -3,6 +3,11 @@ variable "node_ip" {
   description = "Node ip"
 }
 
+variable "node_port" {
+  type        = number
+  description = "Node port"
+}
+
 variable "aws_region" {
   type        = string
   sensitive   = true
@@ -21,6 +26,16 @@ variable "aws_secret_access_key" {
   description = "AWS secret access key"
 }
 
+variable "aws_dynamo_endpoint" {
+  type        = string
+  description = "AWS dynamo endpoint"
+}
+
+variable "aws_dynamo_table" {
+  type        = string
+  description = "AWS dynamo table"
+}
+
 variable "registry_username" {
   type        = string
   sensitive   = true
@@ -37,18 +52,6 @@ variable "image_registry" {
   type        = string
   sensitive   = true
   description = "Image registry"
-}
-
-variable "s3_image_repository" {
-  type        = string
-  sensitive   = true
-  description = "S3 image repository"
-}
-
-variable "s3_image_tag" {
-  type        = string
-  sensitive   = true
-  description = "S3 image tag"
 }
 
 variable "dynamo_image_repository" {

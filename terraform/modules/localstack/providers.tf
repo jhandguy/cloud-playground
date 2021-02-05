@@ -1,7 +1,3 @@
-provider "kubernetes" {
-  config_context_cluster = "minikube"
-}
-
 provider "helm" {
   kubernetes {
     config_context_cluster = "minikube"
@@ -18,7 +14,7 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   endpoints {
-    s3       = "http://${var.node_ip}:${local.node_ports["localstack"]}"
-    dynamodb = "http://${var.node_ip}:${local.node_ports["localstack"]}"
+    s3       = "http://${var.node_ip}:${var.node_port}"
+    dynamodb = "http://${var.node_ip}:${var.node_port}"
   }
 }

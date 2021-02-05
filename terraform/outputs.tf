@@ -1,51 +1,51 @@
 output "aws_s3_endpoint" {
-  value       = "http://${var.node_ip}:${local.node_ports["localstack"]}"
-  description = "S3 Endpoint"
+  value       = "http://${var.node_ip}:${module.minikube.node_ports["localstack"]}"
+  description = "S3 endpoint"
 }
 
 output "aws_s3_bucket" {
-  value       = aws_s3_bucket.s3.id
-  description = "S3 Bucket"
+  value       = module.localstack.aws_s3_buckets["s3"]
+  description = "S3 bucket"
 }
 
 output "s3_host" {
   value       = var.node_ip
-  description = "S3 Host"
+  description = "S3 host"
 }
 
 output "s3_port" {
-  value       = local.node_ports["s3"]
-  description = "S3 Port"
+  value       = module.minikube.node_ports["s3"]
+  description = "S3 port"
 }
 
 output "s3_token" {
-  value       = random_password.s3_token.result
-  description = "S3 Token"
+  value       = module.s3.token
+  description = "S3 token"
   sensitive   = true
 }
 
 output "aws_dynamo_endpoint" {
-  value       = "http://${var.node_ip}:${local.node_ports["localstack"]}"
-  description = "Dynamo Endpoint"
+  value       = "http://${var.node_ip}:${module.minikube.node_ports["localstack"]}"
+  description = "Dynamo endpoint"
 }
 
 output "aws_dynamo_table" {
-  value       = aws_dynamodb_table.dynamo.id
-  description = "Dynamo Table"
+  value       = module.localstack.aws_dynamo_tables["dynamo"]
+  description = "Dynamo table"
 }
 
 output "dynamo_host" {
   value       = var.node_ip
-  description = "Dynamo Host"
+  description = "Dynamo host"
 }
 
 output "dynamo_port" {
-  value       = local.node_ports["dynamo"]
-  description = "Dynamo Port"
+  value       = module.minikube.node_ports["dynamo"]
+  description = "Dynamo port"
 }
 
 output "dynamo_token" {
-  value       = random_password.dynamo_token.result
-  description = "Dynamo Token"
+  value       = module.dynamo.token
+  description = "Dynamo token"
   sensitive   = true
 }
