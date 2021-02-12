@@ -1,6 +1,6 @@
 syntax = "proto3";
 package item;
-option go_package = "item/pb";
+option go_package = "pb/item";
 
 service ItemService {
     rpc GetItem(GetItemRequest) returns (GetItemResponse) {}

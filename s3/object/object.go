@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
 
-	"github.com/jhandguy/devops-playground/s3/object/pb"
+	pb "github.com/jhandguy/devops-playground/s3/pb/object"
 )
 
 type API struct {

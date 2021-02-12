@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jhandguy/devops-playground/s3/object/pb"
+	pb "github.com/jhandguy/devops-playground/s3/pb/object"
 )
 
 func TestCreateObject(t *testing.T) {

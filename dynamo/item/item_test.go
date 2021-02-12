@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jhandguy/devops-playground/dynamo/item/pb"
+	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
 )
 
 func TestCreateItem(t *testing.T) {

@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/jhandguy/devops-playground/s3/object"
-	"github.com/jhandguy/devops-playground/s3/object/pb"
+	pb "github.com/jhandguy/devops-playground/s3/pb/object"
 )
 
 func TestIsValidToken(t *testing.T) {

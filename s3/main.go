@@ -19,7 +19,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/jhandguy/devops-playground/s3/object"
-	"github.com/jhandguy/devops-playground/s3/object/pb"
+	pb "github.com/jhandguy/devops-playground/s3/pb/object"
 )
 
 var (

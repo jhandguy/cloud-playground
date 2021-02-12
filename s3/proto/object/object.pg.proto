@@ -1,6 +1,6 @@
 syntax = "proto3";
 package object;
-option go_package = "object/pb";
+option go_package = "pb/object";
 
 service ObjectService {
     rpc GetObject(GetObjectRequest) returns (GetObjectResponse) {}

@@ -16,7 +16,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/jhandguy/devops-playground/dynamo/item"
-	"github.com/jhandguy/devops-playground/dynamo/item/pb"
+	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
 )
 
 func TestIsValidToken(t *testing.T) {
