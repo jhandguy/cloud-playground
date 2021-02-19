@@ -5,7 +5,7 @@ lint:
 	golangci-lint run
 
 build:
-	$(shell if [[ $OSTYPE != "linux-gnu"* ]]; then echo "env GOOS=linux GOARCH=amd64"; fi) go build .
+	$(shell if [ $$(uname) != "Linux" ]; then echo "env GOOS=linux GOARCH=amd64"; fi) go build .
 	go test ./... -short -cover -race
 
 PORT ?= 8080
