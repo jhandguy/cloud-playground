@@ -14,6 +14,8 @@ env:
   S3_IMAGE_TAG: 1.0.0
   DYNAMO_IMAGE_REPOSITORY: ${{ github.repository }}/dynamo
   DYNAMO_IMAGE_TAG: 1.0.0
+  GATEWAY_IMAGE_REPOSITORY: ${{ github.repository }}/gateway
+  GATEWAY_IMAGE_TAG: 1.0.0
 
 jobs:
   s3:
@@ -112,8 +114,56 @@ jobs:
             ${{ secrets.IMAGE_REGISTRY }}/${{ env.DYNAMO_IMAGE_REPOSITORY }}:latest
             ${{ secrets.IMAGE_REGISTRY }}/${{ env.DYNAMO_IMAGE_REPOSITORY }}:${{ env.DYNAMO_IMAGE_TAG }}
 
+  gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install protobuf
+        run: |
+          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
+          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
+          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Compile proto files
+        run: make -C gateway compile
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.36
+          working-directory: gateway
+
+      - name: Build and run short tests
+        run: make -C gateway build
+
+      - name: Setup docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Build and push docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: gateway
+          file: gateway/Dockerfile
+          pull: true
+          push: true
+          tags: |
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.GATEWAY_IMAGE_REPOSITORY }}:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.GATEWAY_IMAGE_REPOSITORY }}:${{ env.GATEWAY_IMAGE_TAG }}
+
   test:
-    needs: [s3, dynamo]
+    needs: [s3, dynamo, gateway]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -157,4 +207,6 @@ jobs:
           TF_VAR_s3_image_tag: ${{ env.S3_IMAGE_TAG }}
           TF_VAR_dynamo_image_repository: ${{ env.DYNAMO_IMAGE_REPOSITORY }}
           TF_VAR_dynamo_image_tag: ${{ env.DYNAMO_IMAGE_TAG }}
+          TF_VAR_gateway_image_repository: ${{ env.GATEWAY_IMAGE_REPOSITORY }}
+          TF_VAR_gateway_image_tag: ${{ env.GATEWAY_IMAGE_TAG }}
         run: make all

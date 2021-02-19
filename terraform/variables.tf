@@ -62,3 +62,15 @@ variable "dynamo_image_tag" {
   sensitive   = true
   description = "Dynamo image tag"
 }
+
+variable "gateway_image_repository" {
+  type        = string
+  sensitive   = true
+  description = "Gateway image repository"
+}
+
+variable "gateway_image_tag" {
+  type        = string
+  sensitive   = true
+  description = "Gateway image tag"
+}

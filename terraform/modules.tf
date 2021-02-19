@@ -1,7 +1,7 @@
 module "minikube" {
   source = "./modules/minikube"
 
-  node_ports = ["localstack", "dynamo", "s3"]
+  node_ports = ["localstack", "dynamo", "s3", "gateway"]
 }
 
 module "localstack" {
@@ -48,4 +48,20 @@ module "s3" {
   registry_username     = var.registry_username
   s3_image_repository   = var.s3_image_repository
   s3_image_tag          = var.s3_image_tag
+}
+
+module "gateway" {
+  source = "./modules/gateway"
+
+  dynamo_token             = module.dynamo.token
+  dynamo_url               = module.dynamo.url
+  gateway_image_repository = var.gateway_image_repository
+  gateway_image_tag        = var.gateway_image_tag
+  image_registry           = var.image_registry
+  node_ip                  = var.node_ip
+  node_port                = module.minikube.node_ports["gateway"]
+  registry_password        = var.registry_password
+  registry_username        = var.registry_username
+  s3_token                 = module.s3.token
+  s3_url                   = module.s3.url
 }

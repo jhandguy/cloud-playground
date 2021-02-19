@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels: &labels
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels: *labels
+  template:
+    metadata:
+      labels: *labels
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          env:
+            - name: S3_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configMap }}
+                  key: s3_url
+            - name: S3_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret }}
+                  key: s3_token
+            - name: DYNAMO_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.configMap }}
+                  key: dynamo_url
+            - name: DYNAMO_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret }}
+                  key: dynamo_token
+            - name: GATEWAY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret }}
+                  key: gateway_api_key
+            - name: GATEWAY_PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+      imagePullSecrets:
+        - name: {{ .Values.image.secret }}

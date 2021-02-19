@@ -12,13 +12,16 @@ setup_terraform:
 	rm terraform/tfplan
 
 compile:
-	make -j compile_s3 compile_dynamo
+	make -j compile_s3 compile_dynamo compile_gateway
 
 compile_s3:
 	make -C s3 compile
 
 compile_dynamo:
 	make -C dynamo compile
+
+compile_gateway:
+	make -C gateway compile
 
 lint:
 	make -j lint_terraform lint_helm lint_golang
@@ -32,9 +35,10 @@ lint_helm:
 lint_golang:
 	make -C s3 lint
 	make -C dynamo lint
+	make -C gateway lint
 
 build:
-	make -j build_s3 build_dynamo
+	make -j build_s3 build_dynamo build_gateway
 
 build_s3:
 	make -C s3 build
@@ -42,14 +46,21 @@ build_s3:
 build_dynamo:
 	make -C dynamo build
 
+build_gateway:
+	make -C gateway build
+
 test:
 	make -j test_s3 test_dynamo
+	make test_gateway
 
 test_s3:
-	make -C s3 test
+	make -C s3 test PORT=8080
 
 test_dynamo:
-	make -C dynamo test
+	make -C dynamo test PORT=8081
+
+test_gateway:
+	make -C gateway test PORT=8082
 
 teardown: teardown_terraform teardown_minikube
 

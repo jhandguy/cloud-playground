@@ -43,13 +43,13 @@ func TestCreateObject(t *testing.T) {
 	}
 	resp, err := api.CreateObject(context.Background(), req)
 
-	assert.Equal(t, actBucket, api.S3.Bucket)
-	assert.Equal(t, actName, req.Name)
-	assert.Equal(t, actContent, req.Content)
+	assert.Equal(t, api.S3.Bucket, actBucket)
+	assert.Equal(t, req.Name, actName)
+	assert.Equal(t, req.Content, actContent)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
-	assert.Equal(t, resp.Object.Name, req.Name)
-	assert.Equal(t, resp.Object.Content, req.Content)
+	assert.Equal(t, req.Name, resp.Object.Name)
+	assert.Equal(t, req.Content, resp.Object.Content)
 }
 
 func TestGetObject(t *testing.T) {
@@ -77,12 +77,12 @@ func TestGetObject(t *testing.T) {
 	}
 	resp, err := api.GetObject(context.Background(), req)
 
-	assert.Equal(t, actBucket, api.S3.Bucket)
-	assert.Equal(t, actName, req.Name)
+	assert.Equal(t, api.S3.Bucket, actBucket)
+	assert.Equal(t, req.Name, actName)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
-	assert.Equal(t, resp.Object.Name, req.Name)
-	assert.Equal(t, resp.Object.Content, expContent)
+	assert.Equal(t, req.Name, resp.Object.Name)
+	assert.Equal(t, expContent, resp.Object.Content)
 }
 
 func TestDeleteObject(t *testing.T) {
@@ -107,8 +107,8 @@ func TestDeleteObject(t *testing.T) {
 	}
 	resp, err := api.DeleteObject(context.Background(), req)
 
-	assert.Equal(t, actBucket, api.S3.Bucket)
-	assert.Equal(t, actName, req.Name)
+	assert.Equal(t, api.S3.Bucket, actBucket)
+	assert.Equal(t, req.Name, actName)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
 }

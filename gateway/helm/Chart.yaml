@@ -1,0 +1,5 @@
+apiVersion: v2
+appVersion: 1.0.0
+name: gateway
+description: Gateway Helm Chart
+version: 1.0.0

@@ -97,6 +97,9 @@ func TestServeAPI(t *testing.T) {
 		Content: "content",
 	}
 	createRes, err := c.CreateItem(ctx, createReq)
+	if err != nil {
+		t.Log(err)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, createRes)
@@ -107,6 +110,9 @@ func TestServeAPI(t *testing.T) {
 		Id: "id",
 	}
 	getRes, err := c.GetItem(ctx, getReq)
+	if err != nil {
+		t.Log(err)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, getRes)
@@ -117,6 +123,9 @@ func TestServeAPI(t *testing.T) {
 		Id: "id",
 	}
 	deleteRes, err := c.DeleteItem(ctx, deleteReq)
+	if err != nil {
+		t.Log(err)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, deleteRes)
@@ -130,7 +139,10 @@ func TestIntegration(t *testing.T) {
 	}
 
 	go main()
-	testDial("localhost", t)
+
+	port := retrieveEnv("DYNAMO_PORT")
+	url := fmt.Sprintf("localhost:%s", port)
+	testDynamo(url, t)
 }
 
 func TestSystem(t *testing.T) {
@@ -138,19 +150,18 @@ func TestSystem(t *testing.T) {
 		t.Skip()
 	}
 
-	host := retrieveEnv("DYNAMO_HOST")
-	testDial(host, t)
+	url := retrieveEnv("DYNAMO_URL")
+	testDynamo(url, t)
 }
 
-func testDial(host string, t *testing.T) {
-	port := retrieveEnv("DYNAMO_PORT")
+func testDynamo(url string, t *testing.T) {
 	token := retrieveEnv("DYNAMO_TOKEN")
 
-	md := metadata.New(map[string]string{"authorization": token})
-	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), time.Second)
+	md := metadata.New(map[string]string{"x-api-key": token})
+	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), 10*time.Second)
 	defer cancel()
 
-	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", host, port), grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(ctx, url, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -169,28 +180,37 @@ func testDial(host string, t *testing.T) {
 		Content: "content",
 	}
 	createRes, err := c.CreateItem(ctx, createReq)
+	if err != nil {
+		t.Log(err)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, createRes)
 	assert.NotNil(t, createRes.GetItem().GetId())
-	assert.Equal(t, createRes.GetItem().GetName(), createReq.Name)
-	assert.Equal(t, createRes.GetItem().GetContent(), createReq.Content)
+	assert.Equal(t, createReq.Name, createRes.GetItem().GetName())
+	assert.Equal(t, createReq.Content, createRes.GetItem().GetContent())
 
 	getReq := &pb.GetItemRequest{
 		Id: createRes.GetItem().GetId(),
 	}
 	getRes, err := c.GetItem(ctx, getReq)
+	if err != nil {
+		t.Log(err)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, getRes)
-	assert.Equal(t, getRes.GetItem().GetId(), getReq.GetId())
-	assert.Equal(t, getRes.GetItem().GetName(), createRes.GetItem().GetName())
-	assert.Equal(t, getRes.GetItem().GetContent(), createRes.GetItem().GetContent())
+	assert.Equal(t, getReq.GetId(), getRes.GetItem().GetId())
+	assert.Equal(t, createRes.GetItem().GetName(), getRes.GetItem().GetName())
+	assert.Equal(t, createRes.GetItem().GetContent(), getRes.GetItem().GetContent())
 
 	deleteReq := &pb.DeleteItemRequest{
 		Id: getRes.GetItem().GetId(),
 	}
 	deleteRes, err := c.DeleteItem(ctx, deleteReq)
+	if err != nil {
+		t.Log(err)
+	}
 
 	assert.Nil(t, err)
 	assert.NotNil(t, deleteRes)

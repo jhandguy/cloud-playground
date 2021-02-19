@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels: &labels
+    app: {{ .Release.Name }}
+spec:
+  type: NodePort
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+      {{- with .Values.nodePort }}
+      nodePort: {{ . }}
+      {{- end }}
+  selector: *labels

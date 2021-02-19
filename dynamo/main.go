@@ -54,7 +54,7 @@ func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServ
 		return nil, errMissingMetadata
 	}
 
-	if !isValidToken(md["authorization"], token) {
+	if !isValidToken(md["x-api-key"], token) {
 		return nil, errInvalidToken
 	}
 	return handler(ctx, req)

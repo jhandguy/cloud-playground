@@ -2,6 +2,7 @@ package item
 
 import (
 	"context"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
@@ -34,6 +35,7 @@ func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.
 
 	it, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
+		log.Printf("failed to marshal item: %v", err)
 		return nil, err
 	}
 
@@ -42,6 +44,7 @@ func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.
 		TableName: aws.String(api.DynamoDB.Table),
 	})
 	if err != nil {
+		log.Printf("failed to create item: %v", err)
 		return nil, err
 	}
 
@@ -60,12 +63,14 @@ func (api *API) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetIte
 		TableName: aws.String(api.DynamoDB.Table),
 	})
 	if err != nil {
+		log.Printf("failed to get item: %v", err)
 		return nil, err
 	}
 
 	var item pb.Item
 	err = dynamodbattribute.UnmarshalMap(out.Item, &item)
 	if err != nil {
+		log.Printf("failed to unmarshal item: %v", err)
 		return nil, err
 	}
 
@@ -84,8 +89,9 @@ func (api *API) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest) (*pb.
 		TableName: aws.String(api.DynamoDB.Table),
 	})
 	if err != nil {
+		log.Printf("failed to delete item: %v", err)
 		return nil, err
 	}
 
-	return &pb.DeleteItemResponse{}, err
+	return &pb.DeleteItemResponse{}, nil
 }

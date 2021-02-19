@@ -1,0 +1,8 @@
+replicas: 1
+configMap: gateway
+secret: gateway
+image:
+  secret: gateway-image
+  registry: ghcr.io
+  repository: jhandguy/devops-playground/gateway
+  tag: 1.0.0

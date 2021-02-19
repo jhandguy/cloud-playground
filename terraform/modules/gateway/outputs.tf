@@ -1,7 +1,7 @@
-output "token" {
-  value       = random_password.s3_token.result
+output "api_key" {
+  value       = random_password.gateway_api_key.result
   sensitive   = true
-  description = "Token"
+  description = "API key"
 }
 
 output "url" {

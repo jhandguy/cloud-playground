@@ -3,6 +3,7 @@ package object
 import (
 	"context"
 	"io/ioutil"
+	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -32,6 +33,7 @@ func (api *API) CreateObject(ctx context.Context, req *pb.CreateObjectRequest) (
 		Body:   strings.NewReader(req.Content),
 	})
 	if err != nil {
+		log.Printf("failed to create object: %v", err)
 		return nil, err
 	}
 
@@ -49,6 +51,7 @@ func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.Ge
 		Key:    aws.String(req.Name),
 	})
 	if err != nil {
+		log.Printf("failed to get object: %v", err)
 		return nil, err
 	}
 
@@ -63,6 +66,7 @@ func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.Ge
 
 	byt, err := ioutil.ReadAll(body)
 	if err != nil {
+		log.Printf("failed to read object: %v", err)
 		return nil, err
 	}
 
@@ -79,6 +83,10 @@ func (api *API) DeleteObject(ctx context.Context, req *pb.DeleteObjectRequest) (
 		Bucket: aws.String(api.S3.Bucket),
 		Key:    aws.String(req.Name),
 	})
+	if err != nil {
+		log.Printf("failed to delete object: %v", err)
+		return nil, err
+	}
 
-	return &pb.DeleteObjectResponse{}, err
+	return &pb.DeleteObjectResponse{}, nil
 }
