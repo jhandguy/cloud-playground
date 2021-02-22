@@ -3,11 +3,14 @@ package message
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/jhandguy/devops-playground/gateway/item"
@@ -20,19 +23,22 @@ func TestCreateMessage(t *testing.T) {
 	var actItemReq *itemPb.CreateItemRequest
 	var actObjectReq *objectPb.CreateObjectRequest
 
-	expMessage := Message{
-		ID:      "id",
-		Name:    "name",
+	expMsg := Message{
+		ID:      uuid.NewString(),
 		Content: "content",
 	}
 
 	expItemReq := &itemPb.CreateItemRequest{
-		Name:    expMessage.Name,
-		Content: expMessage.Content,
+		Item: &itemPb.Item{
+			Id:      expMsg.ID,
+			Content: expMsg.Content,
+		},
 	}
 	expObjectReq := &objectPb.CreateObjectRequest{
-		Name:    expMessage.Name,
-		Content: expMessage.Content,
+		Object: &objectPb.Object{
+			Id:      expMsg.ID,
+			Content: expMsg.Content,
+		},
 	}
 
 	api := API{
@@ -42,9 +48,8 @@ func TestCreateMessage(t *testing.T) {
 
 				return &itemPb.CreateItemResponse{
 					Item: &itemPb.Item{
-						Id:      expMessage.ID,
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
@@ -55,23 +60,26 @@ func TestCreateMessage(t *testing.T) {
 
 				return &objectPb.CreateObjectResponse{
 					Object: &objectPb.Object{
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
 		},
 	}
 
-	byt, err := json.Marshal(expMessage)
+	byt, err := json.Marshal(expMsg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	router := mux.NewRouter()
+	router.HandleFunc("/message", api.CreateMessage).Methods(http.MethodPost)
+
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/message", bytes.NewReader(byt))
 
-	api.CreateMessage(w, r)
+	router.ServeHTTP(w, r)
 
 	assert.Equal(t, expItemReq, actItemReq)
 	assert.Equal(t, expObjectReq, actObjectReq)
@@ -83,17 +91,16 @@ func TestGetMessage(t *testing.T) {
 	var actItemReq *itemPb.GetItemRequest
 	var actObjectReq *objectPb.GetObjectRequest
 
-	expMessage := Message{
-		ID:      "id",
-		Name:    "name",
+	expMsg := Message{
+		ID:      uuid.NewString(),
 		Content: "content",
 	}
 
 	expItemReq := &itemPb.GetItemRequest{
-		Id: expMessage.ID,
+		Id: expMsg.ID,
 	}
 	expObjectReq := &objectPb.GetObjectRequest{
-		Name: expMessage.Name,
+		Id: expMsg.ID,
 	}
 
 	api := API{
@@ -103,9 +110,8 @@ func TestGetMessage(t *testing.T) {
 
 				return &itemPb.GetItemResponse{
 					Item: &itemPb.Item{
-						Id:      expMessage.ID,
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
@@ -116,23 +122,26 @@ func TestGetMessage(t *testing.T) {
 
 				return &objectPb.GetObjectResponse{
 					Object: &objectPb.Object{
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
 		},
 	}
 
-	byt, err := json.Marshal(expMessage)
+	byt, err := json.Marshal(expMsg)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodGet, "/message", bytes.NewReader(byt))
+	router := mux.NewRouter()
+	router.HandleFunc("/message/{id}", api.GetMessage).Methods(http.MethodGet)
 
-	api.GetMessage(w, r)
+	w := httptest.NewRecorder()
+	r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/message/%s", expMsg.ID), nil)
+
+	router.ServeHTTP(w, r)
 
 	assert.Equal(t, expItemReq, actItemReq)
 	assert.Equal(t, expObjectReq, actObjectReq)
@@ -144,17 +153,16 @@ func TestDeleteMessage(t *testing.T) {
 	var actItemReq *itemPb.DeleteItemRequest
 	var actObjectReq *objectPb.DeleteObjectRequest
 
-	expMessage := Message{
-		ID:      "id",
-		Name:    "name",
+	expMsg := Message{
+		ID:      uuid.NewString(),
 		Content: "content",
 	}
 
 	expItemReq := &itemPb.DeleteItemRequest{
-		Id: expMessage.ID,
+		Id: expMsg.ID,
 	}
 	expObjectReq := &objectPb.DeleteObjectRequest{
-		Name: expMessage.Name,
+		Id: expMsg.ID,
 	}
 
 	api := API{
@@ -174,15 +182,13 @@ func TestDeleteMessage(t *testing.T) {
 		},
 	}
 
-	byt, err := json.Marshal(expMessage)
-	if err != nil {
-		t.Fatal(err)
-	}
+	router := mux.NewRouter()
+	router.HandleFunc("/message/{id}", api.DeleteMessage).Methods(http.MethodDelete)
 
 	w := httptest.NewRecorder()
-	r := httptest.NewRequest(http.MethodDelete, "/message", bytes.NewReader(byt))
+	r := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/message/%s", expMsg.ID), nil)
 
-	api.DeleteMessage(w, r)
+	router.ServeHTTP(w, r)
 
 	assert.Equal(t, expItemReq, actItemReq)
 	assert.Equal(t, expObjectReq, actObjectReq)

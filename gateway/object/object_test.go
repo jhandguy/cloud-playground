@@ -6,6 +6,7 @@ import (
 	"net"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -20,15 +21,12 @@ type objectServiceServer struct {
 }
 
 func (s *objectServiceServer) CreateObject(_ context.Context, request *objectPb.CreateObjectRequest) (*objectPb.CreateObjectResponse, error) {
-	return &objectPb.CreateObjectResponse{Object: &objectPb.Object{
-		Name:    request.GetName(),
-		Content: request.GetContent(),
-	}}, nil
+	return &objectPb.CreateObjectResponse{Object: request.GetObject()}, nil
 }
 
 func (s *objectServiceServer) GetObject(_ context.Context, request *objectPb.GetObjectRequest) (*objectPb.GetObjectResponse, error) {
 	return &objectPb.GetObjectResponse{Object: &objectPb.Object{
-		Name: request.GetName(),
+		Id: request.GetId(),
 	}}, nil
 }
 
@@ -65,16 +63,18 @@ func TestCreateObject(t *testing.T) {
 	}
 
 	req := &objectPb.CreateObjectRequest{
-		Name:    "name",
-		Content: "content",
+		Object: &objectPb.Object{
+			Id:      uuid.NewString(),
+			Content: "content",
+		},
 	}
 
 	res, err := api.CreateObject(req)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
-	assert.Equal(t, req.GetName(), res.GetObject().GetName())
-	assert.Equal(t, req.GetContent(), res.GetObject().GetContent())
+	assert.Equal(t, req.GetObject().GetId(), res.GetObject().GetId())
+	assert.Equal(t, req.GetObject().GetContent(), res.GetObject().GetContent())
 }
 
 func TestGetObject(t *testing.T) {
@@ -83,14 +83,14 @@ func TestGetObject(t *testing.T) {
 	}
 
 	req := &objectPb.GetObjectRequest{
-		Name: "name",
+		Id: uuid.NewString(),
 	}
 
 	res, err := api.GetObject(req)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
-	assert.Equal(t, req.GetName(), res.GetObject().GetName())
+	assert.Equal(t, req.GetId(), res.GetObject().GetId())
 }
 
 func TestDeleteObject(t *testing.T) {
@@ -99,7 +99,7 @@ func TestDeleteObject(t *testing.T) {
 	}
 
 	req := &objectPb.DeleteObjectRequest{
-		Name: "name",
+		Id: uuid.NewString(),
 	}
 
 	res, err := api.DeleteObject(req)

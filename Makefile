@@ -50,8 +50,7 @@ build_gateway:
 	make -C gateway build
 
 test:
-	make -j test_s3 test_dynamo
-	make test_gateway
+	make -j test_s3 test_dynamo test_gateway
 
 test_s3:
 	make -C s3 test PORT=8080

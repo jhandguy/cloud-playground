@@ -12,8 +12,7 @@ service ItemService {
 
 message Item {
     string id = 1;
-    string name = 2;
-    string content = 3;
+    string content = 2;
 }
 
 message GetItemRequest {
@@ -25,8 +24,7 @@ message GetItemResponse {
 }
 
 message CreateItemRequest {
-    string name = 1;
-    string content = 2;
+    Item Item = 1;
 }
 
 message CreateItemResponse {

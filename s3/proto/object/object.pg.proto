@@ -11,12 +11,12 @@ service ObjectService {
 }
 
 message Object {
-    string name = 1;
+    string id = 1;
     string content = 2;
 }
 
 message GetObjectRequest {
-    string name = 1;
+    string id = 1;
 }
 
 message GetObjectResponse {
@@ -24,8 +24,7 @@ message GetObjectResponse {
 }
 
 message CreateObjectRequest {
-    string name = 1;
-    string content = 2;
+    Object object = 1;
 }
 
 message CreateObjectResponse {
@@ -33,7 +32,7 @@ message CreateObjectResponse {
 }
 
 message DeleteObjectRequest {
-    string name = 1;
+    string id = 1;
 }
 
 message DeleteObjectResponse {}

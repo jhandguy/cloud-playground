@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -93,8 +94,10 @@ func TestServeAPI(t *testing.T) {
 	c := pb.NewItemServiceClient(conn)
 
 	createReq := &pb.CreateItemRequest{
-		Name:    "name",
-		Content: "content",
+		Item: &pb.Item{
+			Id:      uuid.NewString(),
+			Content: "content",
+		},
 	}
 	createRes, err := c.CreateItem(ctx, createReq)
 	if err != nil {
@@ -107,7 +110,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isInterceptorCalled)
 
 	getReq := &pb.GetItemRequest{
-		Id: "id",
+		Id: createRes.GetItem().GetId(),
 	}
 	getRes, err := c.GetItem(ctx, getReq)
 	if err != nil {
@@ -120,7 +123,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isInterceptorCalled)
 
 	deleteReq := &pb.DeleteItemRequest{
-		Id: "id",
+		Id: getRes.GetItem().GetId(),
 	}
 	deleteRes, err := c.DeleteItem(ctx, deleteReq)
 	if err != nil {
@@ -176,8 +179,10 @@ func testDynamo(url string, t *testing.T) {
 	c := pb.NewItemServiceClient(conn)
 
 	createReq := &pb.CreateItemRequest{
-		Name:    "name",
-		Content: "content",
+		Item: &pb.Item{
+			Id:      uuid.NewString(),
+			Content: "content",
+		},
 	}
 	createRes, err := c.CreateItem(ctx, createReq)
 	if err != nil {
@@ -186,9 +191,8 @@ func testDynamo(url string, t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, createRes)
-	assert.NotNil(t, createRes.GetItem().GetId())
-	assert.Equal(t, createReq.Name, createRes.GetItem().GetName())
-	assert.Equal(t, createReq.Content, createRes.GetItem().GetContent())
+	assert.Equal(t, createReq.GetItem().GetId(), createRes.GetItem().GetId())
+	assert.Equal(t, createReq.GetItem().GetContent(), createRes.GetItem().GetContent())
 
 	getReq := &pb.GetItemRequest{
 		Id: createRes.GetItem().GetId(),
@@ -201,7 +205,6 @@ func testDynamo(url string, t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotNil(t, getRes)
 	assert.Equal(t, getReq.GetId(), getRes.GetItem().GetId())
-	assert.Equal(t, createRes.GetItem().GetName(), getRes.GetItem().GetName())
 	assert.Equal(t, createRes.GetItem().GetContent(), getRes.GetItem().GetContent())
 
 	deleteReq := &pb.DeleteItemRequest{

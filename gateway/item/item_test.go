@@ -6,6 +6,7 @@ import (
 	"net"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -20,10 +21,7 @@ type itemServiceServer struct {
 }
 
 func (s *itemServiceServer) CreateItem(_ context.Context, request *itemPb.CreateItemRequest) (*itemPb.CreateItemResponse, error) {
-	return &itemPb.CreateItemResponse{Item: &itemPb.Item{
-		Name:    request.GetName(),
-		Content: request.GetContent(),
-	}}, nil
+	return &itemPb.CreateItemResponse{Item: request.GetItem()}, nil
 }
 
 func (s *itemServiceServer) GetItem(_ context.Context, request *itemPb.GetItemRequest) (*itemPb.GetItemResponse, error) {
@@ -65,16 +63,18 @@ func TestCreateItem(t *testing.T) {
 	}
 
 	req := &itemPb.CreateItemRequest{
-		Name:    "name",
-		Content: "content",
+		Item: &itemPb.Item{
+			Id:      uuid.NewString(),
+			Content: "content",
+		},
 	}
 
 	res, err := api.CreateItem(req)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
-	assert.Equal(t, req.GetName(), res.GetItem().GetName())
-	assert.Equal(t, req.GetContent(), res.GetItem().GetContent())
+	assert.Equal(t, req.GetItem().GetId(), res.GetItem().GetId())
+	assert.Equal(t, req.GetItem().GetContent(), res.GetItem().GetContent())
 }
 
 func TestGetItem(t *testing.T) {
@@ -83,7 +83,7 @@ func TestGetItem(t *testing.T) {
 	}
 
 	req := &itemPb.GetItemRequest{
-		Id: "id",
+		Id: uuid.NewString(),
 	}
 
 	res, err := api.GetItem(req)
@@ -99,7 +99,7 @@ func TestDeleteItem(t *testing.T) {
 	}
 
 	req := &itemPb.DeleteItemRequest{
-		Id: "id",
+		Id: uuid.NewString(),
 	}
 
 	res, err := api.DeleteItem(req)

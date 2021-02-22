@@ -8,13 +8,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
 )
 
 func TestCreateItem(t *testing.T) {
-	var actTable, actID, actName, actContent string
+	var actTable, actID, actContent string
 
 	api := API{
 		DynamoDB: DynamoDB{
@@ -22,7 +23,6 @@ func TestCreateItem(t *testing.T) {
 			PutItemWithContext: func(ctx aws.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error) {
 				actTable = *input.TableName
 				actID = *input.Item["id"].S
-				actName = *input.Item["name"].S
 				actContent = *input.Item["content"].S
 
 				return &dynamodb.PutItemOutput{}, nil
@@ -33,26 +33,26 @@ func TestCreateItem(t *testing.T) {
 	}
 
 	req := &pb.CreateItemRequest{
-		Name:    "name",
-		Content: "content",
+		Item: &pb.Item{
+			Id:      uuid.NewString(),
+			Content: "content",
+		},
 	}
 	resp, err := api.CreateItem(context.Background(), req)
 
 	assert.Equal(t, api.DynamoDB.Table, actTable)
-	assert.Equal(t, req.Name, actName)
-	assert.Equal(t, req.Content, actContent)
+	assert.Equal(t, req.GetItem().GetId(), actID)
+	assert.Equal(t, req.GetItem().GetContent(), actContent)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
-	assert.Equal(t, actID, resp.Item.Id)
-	assert.Equal(t, req.Name, resp.Item.Name)
-	assert.Equal(t, req.Content, resp.Item.Content)
+	assert.Equal(t, req.GetItem().GetId(), resp.Item.GetId())
+	assert.Equal(t, req.GetItem().GetContent(), resp.Item.GetContent())
 }
 
 func TestGetItem(t *testing.T) {
 	var actTable, actID string
 	item := pb.Item{
-		Id:      "id",
-		Name:    "name",
+		Id:      uuid.NewString(),
 		Content: "content",
 	}
 
@@ -78,17 +78,16 @@ func TestGetItem(t *testing.T) {
 	}
 
 	req := &pb.GetItemRequest{
-		Id: item.Id,
+		Id: item.GetId(),
 	}
 	resp, err := api.GetItem(context.Background(), req)
 
 	assert.Equal(t, api.DynamoDB.Table, actTable)
-	assert.Equal(t, req.Id, actID)
+	assert.Equal(t, req.GetId(), actID)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
-	assert.Equal(t, item.Id, resp.Item.Id)
-	assert.Equal(t, item.Name, resp.Item.Name)
-	assert.Equal(t, item.Content, resp.Item.Content)
+	assert.Equal(t, item.GetId(), resp.Item.GetId())
+	assert.Equal(t, item.GetContent(), resp.Item.GetContent())
 }
 
 func TestDeleteItem(t *testing.T) {
@@ -109,12 +108,12 @@ func TestDeleteItem(t *testing.T) {
 	}
 
 	req := &pb.DeleteItemRequest{
-		Id: "id",
+		Id: uuid.NewString(),
 	}
 	resp, err := api.DeleteItem(context.Background(), req)
 
 	assert.Equal(t, api.DynamoDB.Table, actTable)
-	assert.Equal(t, req.Id, actID)
+	assert.Equal(t, req.GetId(), actID)
 	assert.Nil(t, err)
 	assert.NotNil(t, resp)
 }

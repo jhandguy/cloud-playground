@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"github.com/google/uuid"
 
 	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
 )
@@ -27,13 +26,7 @@ type DynamoDB struct {
 }
 
 func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.CreateItemResponse, error) {
-	item := &pb.Item{
-		Id:      uuid.New().String(),
-		Name:    req.Name,
-		Content: req.Content,
-	}
-
-	it, err := dynamodbattribute.MarshalMap(item)
+	it, err := dynamodbattribute.MarshalMap(req.GetItem())
 	if err != nil {
 		log.Printf("failed to marshal item: %v", err)
 		return nil, err
@@ -49,7 +42,7 @@ func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.
 	}
 
 	return &pb.CreateItemResponse{
-		Item: item,
+		Item: req.GetItem(),
 	}, nil
 }
 
@@ -57,7 +50,7 @@ func (api *API) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetIte
 	out, err := api.DynamoDB.GetItemWithContext(ctx, &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {
-				S: aws.String(req.Id),
+				S: aws.String(req.GetId()),
 			},
 		},
 		TableName: aws.String(api.DynamoDB.Table),
@@ -83,7 +76,7 @@ func (api *API) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest) (*pb.
 	_, err := api.DynamoDB.DeleteItemWithContext(ctx, &dynamodb.DeleteItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"id": {
-				S: aws.String(req.Id),
+				S: aws.String(req.GetId()),
 			},
 		},
 		TableName: aws.String(api.DynamoDB.Table),

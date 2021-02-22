@@ -29,26 +29,21 @@ type S3 struct {
 func (api *API) CreateObject(ctx context.Context, req *pb.CreateObjectRequest) (*pb.CreateObjectResponse, error) {
 	_, err := api.S3.PutObjectWithContext(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(api.S3.Bucket),
-		Key:    aws.String(req.Name),
-		Body:   strings.NewReader(req.Content),
+		Key:    aws.String(req.GetObject().GetId()),
+		Body:   strings.NewReader(req.GetObject().GetContent()),
 	})
 	if err != nil {
 		log.Printf("failed to create object: %v", err)
 		return nil, err
 	}
 
-	return &pb.CreateObjectResponse{
-		Object: &pb.Object{
-			Name:    req.Name,
-			Content: req.Content,
-		},
-	}, nil
+	return &pb.CreateObjectResponse{Object: req.GetObject()}, nil
 }
 
 func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.GetObjectResponse, error) {
 	out, err := api.S3.GetObjectWithContext(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(api.S3.Bucket),
-		Key:    aws.String(req.Name),
+		Key:    aws.String(req.GetId()),
 	})
 	if err != nil {
 		log.Printf("failed to get object: %v", err)
@@ -72,7 +67,7 @@ func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.Ge
 
 	return &pb.GetObjectResponse{
 		Object: &pb.Object{
-			Name:    req.Name,
+			Id:      req.GetId(),
 			Content: string(byt),
 		},
 	}, nil
@@ -81,7 +76,7 @@ func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.Ge
 func (api *API) DeleteObject(ctx context.Context, req *pb.DeleteObjectRequest) (*pb.DeleteObjectResponse, error) {
 	_, err := api.S3.DeleteObjectWithContext(ctx, &s3.DeleteObjectInput{
 		Bucket: aws.String(api.S3.Bucket),
-		Key:    aws.String(req.Name),
+		Key:    aws.String(req.GetId()),
 	})
 	if err != nil {
 		log.Printf("failed to delete object: %v", err)

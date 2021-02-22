@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -93,8 +94,10 @@ func TestServeAPI(t *testing.T) {
 	c := pb.NewObjectServiceClient(conn)
 
 	createReq := &pb.CreateObjectRequest{
-		Name:    "name",
-		Content: "content",
+		Object: &pb.Object{
+			Id:      uuid.NewString(),
+			Content: "content",
+		},
 	}
 	createRes, err := c.CreateObject(ctx, createReq)
 	if err != nil {
@@ -107,7 +110,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isInterceptorCalled)
 
 	getReq := &pb.GetObjectRequest{
-		Name: "name",
+		Id: createRes.GetObject().GetId(),
 	}
 	getRes, err := c.GetObject(ctx, getReq)
 	if err != nil {
@@ -120,7 +123,7 @@ func TestServeAPI(t *testing.T) {
 	assert.True(t, isInterceptorCalled)
 
 	deleteReq := &pb.DeleteObjectRequest{
-		Name: "name",
+		Id: getRes.GetObject().GetId(),
 	}
 	deleteRes, err := c.DeleteObject(ctx, deleteReq)
 	if err != nil {
@@ -176,8 +179,10 @@ func testS3(url string, t *testing.T) {
 	c := pb.NewObjectServiceClient(conn)
 
 	createReq := &pb.CreateObjectRequest{
-		Name:    "name",
-		Content: "content",
+		Object: &pb.Object{
+			Id:      uuid.NewString(),
+			Content: "content",
+		},
 	}
 	createRes, err := c.CreateObject(ctx, createReq)
 	if err != nil {
@@ -186,11 +191,11 @@ func testS3(url string, t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, createRes)
-	assert.Equal(t, createReq.Name, createRes.GetObject().GetName())
-	assert.Equal(t, createReq.Content, createRes.GetObject().GetContent())
+	assert.Equal(t, createReq.GetObject().GetId(), createRes.GetObject().GetId())
+	assert.Equal(t, createReq.GetObject().GetContent(), createRes.GetObject().GetContent())
 
 	getReq := &pb.GetObjectRequest{
-		Name: createReq.GetName(),
+		Id: createReq.GetObject().GetId(),
 	}
 	getRes, err := c.GetObject(ctx, getReq)
 	if err != nil {
@@ -199,11 +204,11 @@ func testS3(url string, t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.NotNil(t, getRes)
-	assert.Equal(t, createRes.GetObject().GetName(), getRes.GetObject().GetName())
+	assert.Equal(t, createRes.GetObject().GetId(), getRes.GetObject().GetId())
 	assert.Equal(t, createRes.GetObject().GetContent(), getRes.GetObject().GetContent())
 
 	deleteReq := &pb.DeleteObjectRequest{
-		Name: getReq.GetName(),
+		Id: getReq.GetId(),
 	}
 	deleteRes, err := c.DeleteObject(ctx, deleteReq)
 	if err != nil {

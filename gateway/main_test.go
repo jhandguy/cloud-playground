@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/go-resty/resty/v2"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/jhandguy/devops-playground/gateway/item"
@@ -19,15 +20,30 @@ import (
 	objectPb "github.com/jhandguy/devops-playground/gateway/pb/object"
 )
 
+func TestIsValidAPIKey(t *testing.T) {
+	apiKey := "api-key"
+
+	auth := fmt.Sprintf("Bearer %s", apiKey)
+	assert.True(t, isValidAPIKey(auth, apiKey))
+
+	auth = ""
+	assert.False(t, isValidAPIKey(auth, apiKey))
+
+	auth = apiKey
+	assert.True(t, isValidAPIKey(auth, apiKey))
+
+	auth = "wrong"
+	assert.False(t, isValidAPIKey(auth, apiKey))
+}
+
 func TestServeAPI(t *testing.T) {
 	var isCreateItemCalled, isCreateObjectCalled bool
 	var isGetItemCalled, isGetObjectCalled bool
 	var isDeleteItemCalled, isDeleteObjectCalled bool
 	var isMiddlewareCalled bool
 
-	expMessage := message.Message{
-		ID:      "id",
-		Name:    "name",
+	expMsg := message.Message{
+		ID:      uuid.NewString(),
 		Content: "content",
 	}
 
@@ -38,9 +54,8 @@ func TestServeAPI(t *testing.T) {
 
 				return &itemPb.CreateItemResponse{
 					Item: &itemPb.Item{
-						Id:      expMessage.ID,
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
@@ -49,9 +64,8 @@ func TestServeAPI(t *testing.T) {
 
 				return &itemPb.GetItemResponse{
 					Item: &itemPb.Item{
-						Id:      expMessage.ID,
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
@@ -67,8 +81,8 @@ func TestServeAPI(t *testing.T) {
 
 				return &objectPb.CreateObjectResponse{
 					Object: &objectPb.Object{
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
@@ -77,8 +91,8 @@ func TestServeAPI(t *testing.T) {
 
 				return &objectPb.GetObjectResponse{
 					Object: &objectPb.Object{
-						Name:    expMessage.Name,
-						Content: expMessage.Content,
+						Id:      expMsg.ID,
+						Content: expMsg.Content,
 					},
 				}, nil
 			},
@@ -97,7 +111,7 @@ func TestServeAPI(t *testing.T) {
 
 	router := serveAPI(api, middleware)
 
-	byt, err := json.Marshal(expMessage)
+	byt, err := json.Marshal(expMsg)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -115,7 +129,7 @@ func TestServeAPI(t *testing.T) {
 
 	isMiddlewareCalled = false
 	w = httptest.NewRecorder()
-	r = httptest.NewRequest(http.MethodGet, "/message", bytes.NewReader(byt))
+	r = httptest.NewRequest(http.MethodGet, fmt.Sprintf("/message/%s", expMsg.ID), nil)
 
 	router.ServeHTTP(w, r)
 
@@ -127,7 +141,7 @@ func TestServeAPI(t *testing.T) {
 
 	isMiddlewareCalled = false
 	w = httptest.NewRecorder()
-	r = httptest.NewRequest(http.MethodDelete, "/message", bytes.NewReader(byt))
+	r = httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/message/%s", expMsg.ID), nil)
 
 	router.ServeHTTP(w, r)
 
@@ -160,68 +174,55 @@ func TestSystem(t *testing.T) {
 }
 
 func testGateway(t *testing.T, url string) {
-	expMessage := message.Message{
-		Name:    "name",
+	apiKey := retrieveEnv("GATEWAY_API_KEY")
+	client := resty.
+		New().
+		SetHostURL(fmt.Sprintf("http://%s", url)).
+		SetAuthToken(apiKey).
+		SetDebug(true)
+
+	expMsg := message.Message{
+		ID:      uuid.NewString(),
 		Content: "content",
 	}
 
-	byt, err := json.Marshal(expMessage)
+	res, err := client.
+		R().
+		SetResult(message.Message{}).
+		SetBody(expMsg).
+		Post("/message")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	code, body := doRequest(t, url, http.MethodPost, bytes.NewReader(byt))
+	actMsg := res.Result().(*message.Message)
 
-	assert.Equal(t, http.StatusOK, code)
+	assert.Equal(t, http.StatusOK, res.StatusCode())
+	assert.Equal(t, expMsg.ID, actMsg.ID)
+	assert.Equal(t, expMsg.Content, actMsg.Content)
 
-	var actMessage message.Message
-	byt = body.Bytes()
-	err = json.Unmarshal(byt, &actMessage)
+	res, err = client.
+		R().
+		SetResult(message.Message{}).
+		SetPathParam("id", expMsg.ID).
+		Get("/message/{id}")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expMessage.Name, actMessage.Name)
-	assert.Equal(t, expMessage.Content, actMessage.Content)
+	actMsg = res.Result().(*message.Message)
 
-	code, body = doRequest(t, url, http.MethodGet, bytes.NewReader(byt))
+	assert.Equal(t, http.StatusOK, res.StatusCode())
+	assert.Equal(t, expMsg.ID, actMsg.ID)
+	assert.Equal(t, expMsg.Content, actMsg.Content)
 
-	assert.Equal(t, http.StatusOK, code)
-	assert.Equal(t, string(byt), body.String())
-
-	code, body = doRequest(t, url, http.MethodDelete, bytes.NewReader(byt))
-
-	assert.Equal(t, http.StatusOK, code)
-	assert.Empty(t, body.String())
-}
-
-func doRequest(t *testing.T, url, method string, body io.Reader) (int, *bytes.Buffer) {
-	apiKey := retrieveEnv("GATEWAY_API_KEY")
-	target := fmt.Sprintf("http://%s/message", url)
-
-	req, err := http.NewRequest(method, target, body)
+	res, err = client.
+		R().
+		SetPathParam("id", expMsg.ID).
+		Delete("/message/{id}")
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	client := &http.Client{}
-	req.Header.Add("Authorization", apiKey)
-	resp, err := client.Do(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}()
-
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(resp.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return resp.StatusCode, buf
+	assert.Equal(t, http.StatusOK, res.StatusCode())
+	assert.Empty(t, res.Body())
 }

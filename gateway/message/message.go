@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
+
 	"github.com/jhandguy/devops-playground/gateway/item"
 	"github.com/jhandguy/devops-playground/gateway/object"
 	itemPb "github.com/jhandguy/devops-playground/gateway/pb/item"
@@ -13,8 +16,7 @@ import (
 )
 
 type Message struct {
-	ID      string `json:"id,omitempty"`
-	Name    string `json:"name"`
+	ID      string `json:"id"`
 	Content string `json:"content"`
 }
 
@@ -33,6 +35,10 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if msg.ID == "" {
+		msg.ID = uuid.NewString()
+	}
+
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -41,8 +47,10 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		defer wg.Done()
 		req := objectPb.CreateObjectRequest{
-			Name:    msg.Name,
-			Content: msg.Content,
+			Object: &objectPb.Object{
+				Id:      msg.ID,
+				Content: msg.Content,
+			},
 		}
 		objResp, objErr = api.ObjectAPI.CreateObject(&req)
 	}()
@@ -52,8 +60,10 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		defer wg.Done()
 		req := itemPb.CreateItemRequest{
-			Name:    msg.Name,
-			Content: msg.Content,
+			Item: &itemPb.Item{
+				Id:      msg.ID,
+				Content: msg.Content,
+			},
 		}
 		itmResp, itmErr = api.ItemAPI.CreateItem(&req)
 	}()
@@ -66,14 +76,12 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if objResp.GetObject().GetName() != itmResp.GetItem().GetName() ||
+	if objResp.GetObject().GetId() != itmResp.GetItem().GetId() ||
 		objResp.GetObject().GetContent() != itmResp.GetItem().GetContent() {
 		log.Printf("unexpected inconsistencies: %v != %v", objResp, itmResp)
 		w.WriteHeader(http.StatusExpectationFailed)
 		return
 	}
-
-	msg.ID = itmResp.GetItem().GetId()
 
 	err = json.NewEncoder(w).Encode(msg)
 	if err != nil {
@@ -84,12 +92,13 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
-	var msg Message
+	msg := Message{
+		ID: mux.Vars(r)["id"],
+	}
 
-	err := json.NewDecoder(r.Body).Decode(&msg)
-	if err != nil {
-		log.Printf("failed to decode message: %v", err)
-		w.WriteHeader(http.StatusUnprocessableEntity)
+	if msg.ID == "" {
+		log.Printf("missing id in request: %v", r)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -101,7 +110,7 @@ func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		defer wg.Done()
 		req := objectPb.GetObjectRequest{
-			Name: msg.Name,
+			Id: msg.ID,
 		}
 		objResp, objErr = api.ObjectAPI.GetObject(&req)
 	}()
@@ -118,13 +127,19 @@ func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
 
 	wg.Wait()
 
-	if objErr != nil || itmErr != nil {
-		log.Printf("failed to get message: %v", err)
+	if objErr != nil {
+		log.Printf("failed to get object: %v", objErr)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	if objResp.GetObject().GetName() != itmResp.GetItem().GetName() ||
+	if itmErr != nil {
+		log.Printf("failed to get item: %v", itmErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if objResp.GetObject().GetId() != itmResp.GetItem().GetId() ||
 		objResp.GetObject().GetContent() != itmResp.GetItem().GetContent() {
 		log.Printf("unexpected inconsistencies: %v != %v", objResp, itmResp)
 		w.WriteHeader(http.StatusExpectationFailed)
@@ -133,7 +148,7 @@ func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
 
 	msg.Content = objResp.GetObject().GetContent()
 
-	err = json.NewEncoder(w).Encode(msg)
+	err := json.NewEncoder(w).Encode(msg)
 	if err != nil {
 		log.Printf("failed to encode message: %v", err)
 		w.WriteHeader(http.StatusUnprocessableEntity)
@@ -142,12 +157,13 @@ func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
-	var msg Message
+	msg := Message{
+		ID: mux.Vars(r)["id"],
+	}
 
-	err := json.NewDecoder(r.Body).Decode(&msg)
-	if err != nil {
-		log.Printf("failed to decode message: %v", err)
-		w.WriteHeader(http.StatusUnprocessableEntity)
+	if msg.ID == "" {
+		log.Printf("missing id in request: %v", r)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
@@ -158,7 +174,7 @@ func (api *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	go func() {
 		defer wg.Done()
 		req := objectPb.DeleteObjectRequest{
-			Name: msg.Name,
+			Id: msg.ID,
 		}
 		_, objErr = api.ObjectAPI.DeleteObject(&req)
 	}()
@@ -174,8 +190,14 @@ func (api *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 
 	wg.Wait()
 
-	if objErr != nil || itmErr != nil {
-		log.Printf("failed to delete message: %v", err)
+	if objErr != nil {
+		log.Printf("failed to delete object: %v", objErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if itmErr != nil {
+		log.Printf("failed to delete item: %v", itmErr)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

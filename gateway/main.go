@@ -64,10 +64,14 @@ func newMessageAPI() *message.API {
 	}
 }
 
+func isValidAPIKey(authorization, apiKey string) bool {
+	return strings.TrimPrefix(authorization, "Bearer ") == apiKey
+}
+
 func ensureValidAPIKey(next http.Handler) http.Handler {
 	apiKey := retrieveEnv("GATEWAY_API_KEY")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") == apiKey || strings.Contains(r.RequestURI, "/health") {
+		if isValidAPIKey(r.Header.Get("Authorization"), apiKey) || strings.Contains(r.RequestURI, "/health") {
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -80,12 +84,20 @@ func serveAPI(api *message.API, middleware mux.MiddlewareFunc) *mux.Router {
 		w.WriteHeader(http.StatusOK)
 	}
 
+	setContentTypeHeader := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			next.ServeHTTP(w, r)
+		})
+	}
+
 	router := mux.NewRouter()
+	router.Use(setContentTypeHeader)
 	router.Use(middleware)
 	router.HandleFunc("/health", getHealth).Methods(http.MethodGet)
 	router.HandleFunc("/message", api.CreateMessage).Methods(http.MethodPost)
-	router.HandleFunc("/message", api.GetMessage).Methods(http.MethodGet)
-	router.HandleFunc("/message", api.DeleteMessage).Methods(http.MethodDelete)
+	router.HandleFunc("/message/{id}", api.GetMessage).Methods(http.MethodGet)
+	router.HandleFunc("/message/{id}", api.DeleteMessage).Methods(http.MethodDelete)
 
 	return router
 }
