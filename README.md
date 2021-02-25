@@ -23,21 +23,27 @@ A Playground to experiment with various DevOps tools and technologies.
 ## Architecture
 
 ```text
- ----------   ----------   
-|  dynamo  | |    s3    |
- ----------   ----------
-       |         |
-      gRPC      gRPC
-       |         |
-       -----------
-      |  gateway  |
-       -----------
-            |
-           REST
-            |
-         -------
-        |  cli  |
-         -------
+ -----------   -----------
+| Dynamo DB | | S3 Bucket |
+ -----------   -----------
+      |             |
+     SDK           SDK
+      |             |
+  ----------   ----------   
+ |  dynamo  | |    s3    |
+  ----------   ----------
+        |         |
+       gRPC      gRPC
+        |         |
+        -----------
+       |  gateway  |
+        -----------
+             |
+            REST
+             |
+          -------
+         |  cli  |
+          -------
 ```
 
 ## Automation
