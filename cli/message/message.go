@@ -75,8 +75,7 @@ func newClient() *resty.Client {
 	return resty.
 		New().
 		SetHostURL(url).
-		SetAuthToken(token).
-		SetDebug(true)
+		SetAuthToken(token)
 }
 
 func createMessage(*cobra.Command, []string) {
