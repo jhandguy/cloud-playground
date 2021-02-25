@@ -36,9 +36,10 @@ lint_golang:
 	make -C s3 lint
 	make -C dynamo lint
 	make -C gateway lint
+	make -C cli lint
 
 build:
-	make -j build_s3 build_dynamo build_gateway
+	make -j build_s3 build_dynamo build_gateway build_cli
 
 build_s3:
 	make -C s3 build
@@ -49,8 +50,11 @@ build_dynamo:
 build_gateway:
 	make -C gateway build
 
+build_cli:
+	make -C cli build
+
 test:
-	make -j test_s3 test_dynamo test_gateway
+	make -j test_s3 test_dynamo test_gateway test_cli
 
 test_s3:
 	make -C s3 test PORT=8080
@@ -60,6 +64,9 @@ test_dynamo:
 
 test_gateway:
 	make -C gateway test PORT=8082
+
+test_cli:
+	make -C cli test
 
 teardown: teardown_terraform teardown_minikube
 

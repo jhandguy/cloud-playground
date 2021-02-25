@@ -162,8 +162,25 @@ jobs:
             ${{ secrets.IMAGE_REGISTRY }}/${{ env.GATEWAY_IMAGE_REPOSITORY }}:latest
             ${{ secrets.IMAGE_REGISTRY }}/${{ env.GATEWAY_IMAGE_REPOSITORY }}:${{ env.GATEWAY_IMAGE_TAG }}
 
+  cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.36
+          working-directory: cli
+
+      - name: Build and run short tests
+        run: make -C cli build
+
   test:
-    needs: [s3, dynamo, gateway]
+    needs: [s3, dynamo, gateway, cli]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
