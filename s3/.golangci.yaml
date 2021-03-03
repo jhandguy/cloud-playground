@@ -13,8 +13,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    - interfacer
-    - maligned
     - misspell
     - nakedret
     - rowserrcheck
@@ -27,6 +25,7 @@ linters:
     - unused
     - varcheck
     - whitespace
+    - revive
 
 linters-settings:
   goimports:
