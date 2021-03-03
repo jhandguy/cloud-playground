@@ -76,3 +76,18 @@ teardown_terraform:
 teardown_minikube:
 	minikube stop
 	minikube delete
+
+update:
+	make -j update_s3 update_dynamo update_gateway update_cli
+
+update_s3:
+	make -C s3 update
+
+update_dynamo:
+	make -C dynamo update
+
+update_gateway:
+	make -C gateway update
+
+update_cli:
+	make -C cli update

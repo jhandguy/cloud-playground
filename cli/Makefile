@@ -12,3 +12,7 @@ test:
 	./cli message create -i "id" -c "content"
 	./cli message get -i "id"
 	./cli message delete -i "id"
+
+update:
+	go get -u
+	go mod tidy

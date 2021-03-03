@@ -16,3 +16,7 @@ test: export DYNAMO_TOKEN=$(shell terraform -chdir=../terraform output -json dyn
 test: export DYNAMO_URL=$(shell terraform -chdir=../terraform output -json dynamo_url | jq -r .)
 test:
 	go test ./... -cover -race
+
+update:
+	go get -u
+	go mod tidy
