@@ -3,6 +3,7 @@ package message
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
@@ -42,16 +43,18 @@ var (
 
 func init() {
 	viper.AutomaticEnv()
+	viper.SetEnvPrefix("gateway")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 
 	Cmd.AddCommand(createMessageCmd)
 	Cmd.AddCommand(getMessageCmd)
 	Cmd.AddCommand(deleteMessageCmd)
 
 	Cmd.PersistentFlags().StringP("token", "t", "", "gateway auth token")
-	handleMissingFlag(viper.BindPFlag("GATEWAY_API_KEY", Cmd.PersistentFlags().Lookup("token")))
+	handleMissingFlag(viper.BindPFlag("api-key", Cmd.PersistentFlags().Lookup("token")))
 
 	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
-	handleMissingFlag(viper.BindPFlag("GATEWAY_URL", Cmd.PersistentFlags().Lookup("url")))
+	handleMissingFlag(viper.BindPFlag("url", Cmd.PersistentFlags().Lookup("url")))
 
 	createMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	createMessageCmd.Flags().StringVarP(&content, "content", "c", "", "content of the message")
@@ -76,8 +79,8 @@ type message struct {
 }
 
 func newClient() *resty.Client {
-	url := fmt.Sprintf("http://%s", viper.GetString("GATEWAY_URL"))
-	token := viper.GetString("GATEWAY_API_KEY")
+	url := fmt.Sprintf("http://%s", viper.GetString("url"))
+	token := viper.GetString("api-key")
 
 	return resty.
 		New().
