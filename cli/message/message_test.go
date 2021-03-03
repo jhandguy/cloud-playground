@@ -1,8 +1,10 @@
 package message
 
 import (
-	"log"
-	"os"
+	"bytes"
+	"fmt"
+	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -21,40 +23,42 @@ func TestEnd2End(t *testing.T) {
 		t.Skip()
 	}
 
-	err := Cmd.PersistentFlags().Set("token", retrieveEnv("GATEWAY_API_KEY"))
-	assert.Nil(t, err)
-
-	err = Cmd.PersistentFlags().Set("url", retrieveEnv("GATEWAY_URL"))
-	assert.Nil(t, err)
-
-	id := uuid.NewString()
-
-	err = createMessageCmd.Flags().Set("id", id)
-	assert.Nil(t, err)
-
-	err = createMessageCmd.Flags().Set("content", "content")
-	assert.Nil(t, err)
-
-	err = createMessageCmd.Execute()
-	assert.Nil(t, err)
-
-	err = getMessageCmd.Flags().Set("id", id)
-	assert.Nil(t, err)
-
-	err = getMessageCmd.Execute()
-	assert.Nil(t, err)
-
-	err = deleteMessageCmd.Flags().Set("id", id)
-	assert.Nil(t, err)
-
-	err = deleteMessageCmd.Execute()
-	assert.Nil(t, err)
-}
-
-func retrieveEnv(key string) string {
-	env, ok := os.LookupEnv(key)
-	if !ok {
-		log.Fatalf("could not lookup env %s", key)
+	msg := message{
+		ID:      uuid.NewString(),
+		Content: "content",
 	}
-	return env
+
+	buf := bytes.NewBufferString("")
+	Cmd.SetOut(buf)
+	Cmd.SetArgs([]string{"create", "-i", msg.ID, "-c", msg.Content})
+
+	if err := Cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err := ioutil.ReadAll(buf)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(string(out), fmt.Sprintf("%v", msg)))
+
+	buf.Reset()
+	Cmd.SetArgs([]string{"get", "-i", msg.ID})
+
+	if err := Cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err = ioutil.ReadAll(buf)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(string(out), fmt.Sprintf("%v", msg)))
+
+	buf.Reset()
+	Cmd.SetArgs([]string{"delete", "-i", msg.ID})
+
+	if err := Cmd.Execute(); err != nil {
+		t.Fatal(err)
+	}
+
+	out, err = ioutil.ReadAll(buf)
+	assert.Nil(t, err)
+	assert.True(t, strings.Contains(string(out), fmt.Sprintf("%v", nil)))
 }

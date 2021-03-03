@@ -1,10 +1,12 @@
 package message
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var Cmd = &cobra.Command{
@@ -35,19 +37,21 @@ var deleteMessageCmd = &cobra.Command{
 }
 
 var (
-	token, url  string
 	id, content string
 )
 
 func init() {
+	viper.AutomaticEnv()
+
 	Cmd.AddCommand(createMessageCmd)
 	Cmd.AddCommand(getMessageCmd)
 	Cmd.AddCommand(deleteMessageCmd)
 
-	Cmd.PersistentFlags().StringVarP(&token, "token", "t", "", "gateway auth token")
-	Cmd.PersistentFlags().StringVarP(&url, "url", "u", "", "gateway URL")
-	handleMissingFlag(Cmd.MarkPersistentFlagRequired("token"))
-	handleMissingFlag(Cmd.MarkPersistentFlagRequired("url"))
+	Cmd.PersistentFlags().StringP("token", "t", "", "gateway auth token")
+	handleMissingFlag(viper.BindPFlag("GATEWAY_API_KEY", Cmd.PersistentFlags().Lookup("token")))
+
+	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
+	handleMissingFlag(viper.BindPFlag("GATEWAY_URL", Cmd.PersistentFlags().Lookup("url")))
 
 	createMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	createMessageCmd.Flags().StringVarP(&content, "content", "c", "", "content of the message")
@@ -72,13 +76,16 @@ type message struct {
 }
 
 func newClient() *resty.Client {
+	url := fmt.Sprintf("http://%s", viper.GetString("GATEWAY_URL"))
+	token := viper.GetString("GATEWAY_API_KEY")
+
 	return resty.
 		New().
 		SetHostURL(url).
 		SetAuthToken(token)
 }
 
-func createMessage(*cobra.Command, []string) {
+func createMessage(cmd *cobra.Command, _ []string) {
 	res, err := newClient().
 		R().
 		SetResult(message{}).
@@ -91,10 +98,12 @@ func createMessage(*cobra.Command, []string) {
 		log.Fatalf("failed to create message: %v", err)
 	}
 
-	log.Printf("successfully created message: %v", res.Result().(*message))
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "successfully created message: %v\n", res.Result()); err != nil {
+		log.Fatal(err)
+	}
 }
 
-func getMessage(*cobra.Command, []string) {
+func getMessage(cmd *cobra.Command, _ []string) {
 	res, err := newClient().
 		R().
 		SetResult(message{}).
@@ -104,11 +113,13 @@ func getMessage(*cobra.Command, []string) {
 		log.Fatalf("failed to get message: %v", err)
 	}
 
-	log.Printf("successfully got message: %v", res.Result().(*message))
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "successfully got message: %v\n", res.Result()); err != nil {
+		log.Fatal(err)
+	}
 }
 
-func deleteMessage(*cobra.Command, []string) {
-	_, err := newClient().
+func deleteMessage(cmd *cobra.Command, _ []string) {
+	res, err := newClient().
 		R().
 		SetPathParam("id", id).
 		Delete("/message/{id}")
@@ -116,5 +127,7 @@ func deleteMessage(*cobra.Command, []string) {
 		log.Fatalf("failed to delete message: %v", err)
 	}
 
-	log.Print("successfully deleted message")
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "successfully deleted message: %v\n", res.Result()); err != nil {
+		log.Fatal(err)
+	}
 }
