@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -143,7 +144,7 @@ func TestIntegration(t *testing.T) {
 
 	go main()
 
-	port := retrieveEnv("DYNAMO_PORT")
+	port := viper.GetString("dynamo-port")
 	url := fmt.Sprintf("localhost:%s", port)
 	testDynamo(url, t)
 }
@@ -153,12 +154,12 @@ func TestSystem(t *testing.T) {
 		t.Skip()
 	}
 
-	url := retrieveEnv("DYNAMO_URL")
+	url := viper.GetString("dynamo-url")
 	testDynamo(url, t)
 }
 
 func testDynamo(url string, t *testing.T) {
-	token := retrieveEnv("DYNAMO_TOKEN")
+	token := viper.GetString("dynamo-token")
 
 	md := metadata.New(map[string]string{"x-api-key": token})
 	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), 10*time.Second)

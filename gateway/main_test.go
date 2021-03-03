@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/jhandguy/devops-playground/gateway/item"
@@ -159,7 +160,7 @@ func TestIntegration(t *testing.T) {
 
 	go main()
 
-	port := retrieveEnv("GATEWAY_PORT")
+	port := viper.GetString("gateway-port")
 	url := fmt.Sprintf("localhost:%s", port)
 	testGateway(t, url)
 }
@@ -169,12 +170,12 @@ func TestSystem(t *testing.T) {
 		t.Skip()
 	}
 
-	url := retrieveEnv("GATEWAY_URL")
+	url := viper.GetString("gateway-url")
 	testGateway(t, url)
 }
 
 func testGateway(t *testing.T, url string) {
-	apiKey := retrieveEnv("GATEWAY_API_KEY")
+	apiKey := viper.GetString("gateway-api-key")
 	client := resty.
 		New().
 		SetHostURL(fmt.Sprintf("http://%s", url)).

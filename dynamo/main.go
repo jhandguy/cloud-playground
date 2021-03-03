@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health"
@@ -27,14 +27,6 @@ var (
 	errInvalidToken    = status.Errorf(codes.Unauthenticated, "invalid token")
 )
 
-func retrieveEnv(key string) string {
-	env, ok := os.LookupEnv(key)
-	if !ok {
-		log.Fatalf("could not lookup env %s", key)
-	}
-	return env
-}
-
 func isValidToken(authorization []string, token string) bool {
 	if len(authorization) < 1 {
 		return false
@@ -43,7 +35,7 @@ func isValidToken(authorization []string, token string) bool {
 }
 
 func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	token := retrieveEnv("DYNAMO_TOKEN")
+	token := viper.GetString("dynamo-token")
 
 	if info.FullMethod == "/grpc.health.v1.Health/Check" {
 		return handler(ctx, req)
@@ -61,8 +53,8 @@ func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServ
 }
 
 func newItemAPI() *item.API {
-	endpoint := retrieveEnv("AWS_DYNAMO_ENDPOINT")
-	table := retrieveEnv("AWS_DYNAMO_TABLE")
+	endpoint := viper.GetString("aws-dynamo-endpoint")
+	table := viper.GetString("aws-dynamo-table")
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		Config: aws.Config{
@@ -94,11 +86,16 @@ func serveAPI(api *item.API, interceptor grpc.UnaryServerInterceptor, listener n
 }
 
 func main() {
-	port := retrieveEnv("DYNAMO_PORT")
+	port := viper.GetString("dynamo-port")
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	serveAPI(newItemAPI(), ensureValidToken, listener)
+}
+
+func init() {
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 }

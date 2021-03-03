@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
@@ -18,19 +18,11 @@ import (
 	"github.com/jhandguy/devops-playground/gateway/object"
 )
 
-func retrieveEnv(key string) string {
-	env, ok := os.LookupEnv(key)
-	if !ok {
-		log.Fatalf("could not find environment variable %s", key)
-	}
-	return env
-}
-
 func newMessageAPI() *message.API {
-	s3URL := retrieveEnv("S3_URL")
-	s3Token := retrieveEnv("S3_TOKEN")
-	dynamoURL := retrieveEnv("DYNAMO_URL")
-	dynamoToken := retrieveEnv("DYNAMO_TOKEN")
+	s3URL := viper.GetString("s3-url")
+	s3Token := viper.GetString("s3-token")
+	dynamoURL := viper.GetString("dynamo-url")
+	dynamoToken := viper.GetString("dynamo-token")
 
 	newS3Context := func() (context.Context, context.CancelFunc) {
 		md := metadata.New(map[string]string{"x-api-key": s3Token})
@@ -69,7 +61,7 @@ func isValidAPIKey(authorization, apiKey string) bool {
 }
 
 func ensureValidAPIKey(next http.Handler) http.Handler {
-	apiKey := retrieveEnv("GATEWAY_API_KEY")
+	apiKey := viper.GetString("gateway-api-key")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isValidAPIKey(r.Header.Get("Authorization"), apiKey) || strings.Contains(r.RequestURI, "/health") {
 			next.ServeHTTP(w, r)
@@ -103,7 +95,7 @@ func serveAPI(api *message.API, middleware mux.MiddlewareFunc) *mux.Router {
 }
 
 func main() {
-	port := retrieveEnv("GATEWAY_PORT")
+	port := viper.GetString("gateway-port")
 
 	router := serveAPI(newMessageAPI(), ensureValidAPIKey)
 
@@ -118,4 +110,9 @@ func main() {
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+}
+
+func init() {
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -143,7 +144,7 @@ func TestIntegration(t *testing.T) {
 
 	go main()
 
-	port := retrieveEnv("S3_PORT")
+	port := viper.GetString("s3-port")
 	url := fmt.Sprintf("localhost:%s", port)
 	testS3(url, t)
 }
@@ -153,12 +154,12 @@ func TestSystem(t *testing.T) {
 		t.Skip()
 	}
 
-	url := retrieveEnv("S3_URL")
+	url := viper.GetString("s3-url")
 	testS3(url, t)
 }
 
 func testS3(url string, t *testing.T) {
-	token := retrieveEnv("S3_TOKEN")
+	token := viper.GetString("s3-token")
 
 	md := metadata.New(map[string]string{"x-api-key": token})
 	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), 10*time.Second)
