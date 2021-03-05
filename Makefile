@@ -3,7 +3,7 @@ all: compile lint build setup test teardown
 setup: setup_minikube setup_terraform
 
 setup_minikube:
-	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
+	minikube start --install-addons=false $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
 
 setup_terraform:
 	terraform -chdir=terraform init
@@ -57,7 +57,7 @@ test:
 	make -j test_s3 test_dynamo test_gateway test_cli
 
 test_s3:
-	make -C s3 test PORT=8080
+	make -C s3 test GRPC_PORT=8080 METRICS_PORT=9090
 
 test_dynamo:
 	make -C dynamo test PORT=8081

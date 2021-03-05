@@ -17,3 +17,9 @@ variable "prometheus_node_port" {
   type        = number
   description = "Prometheus node port"
 }
+
+variable "grafana_dashboards" {
+  type        = list(string)
+  default     = []
+  description = "Grafana dashboards"
+}

@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,6 +22,7 @@ import (
 
 	"github.com/jhandguy/devops-playground/s3/object"
 	pb "github.com/jhandguy/devops-playground/s3/pb/object"
+	"github.com/jhandguy/devops-playground/s3/prometheus"
 )
 
 var (
@@ -75,25 +78,39 @@ func newObjectAPI() *object.API {
 	}
 }
 
-func serveAPI(api *object.API, interceptor grpc.UnaryServerInterceptor, listener net.Listener) {
-	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor))
+func serveMetrics(path string, listener net.Listener) {
+	http.Handle(path, promhttp.Handler())
+
+	if err := http.Serve(listener, nil); err != nil {
+		log.Fatalf("failed to serve metrics: %v", err)
+	}
+}
+
+func serveAPI(api *object.API, listener net.Listener, interceptors ...grpc.UnaryServerInterceptor) {
+	s := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors...))
 
 	pb.RegisterObjectServiceServer(s, api)
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 
 	if err := s.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatalf("failed to serve API: %v", err)
 	}
 }
 
 func main() {
-	port := viper.GetString("s3-port")
+	port := viper.GetString("s3-metrics-port")
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	go serveMetrics("/metrics", listener)
 
-	serveAPI(newObjectAPI(), ensureValidToken, listener)
+	port = viper.GetString("s3-grpc-port")
+	listener, err = net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	serveAPI(newObjectAPI(), listener, prometheus.CollectMetrics, ensureValidToken)
 }
 
 func init() {

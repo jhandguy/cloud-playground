@@ -2,6 +2,7 @@ resource "helm_release" "s3" {
   name      = "s3"
   namespace = kubernetes_namespace.s3.metadata.0.name
   chart     = "../s3/helm"
+  wait      = true
 
   set {
     name  = "replicas"

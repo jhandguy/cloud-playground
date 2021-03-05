@@ -73,6 +73,7 @@ module "prometheus" {
   source = "./modules/prometheus"
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
+  grafana_dashboards     = ["s3"]
   grafana_node_port      = module.minikube.node_ports["grafana"]
   node_ip                = var.node_ip
   prometheus_node_port   = module.minikube.node_ports["prometheus"]

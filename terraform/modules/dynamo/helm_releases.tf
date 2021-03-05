@@ -2,6 +2,7 @@ resource "helm_release" "dynamo" {
   name      = "dynamo"
   namespace = kubernetes_namespace.dynamo.metadata.0.name
   chart     = "../dynamo/helm"
+  wait      = true
 
   set {
     name  = "replicas"

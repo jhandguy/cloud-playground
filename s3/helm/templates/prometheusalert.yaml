@@ -1,0 +1,25 @@
+apiVersion: "monitoring.coreos.com/v1"
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: S3
+      rules:
+        - alert: S3SliCritical
+          expr: sum(rate(devops_playground_s3_requests_success[5m])) / sum(rate(devops_playground_s3_requests_total[5m])) < {{ .Values.prometheus.sli }}
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "S3 SLI is below the threshold for more than 2m minutes"
+        - alert: S3SliWarning
+          expr: sum(rate(devops_playground_s3_requests_success[5m])) / sum(rate(devops_playground_s3_requests_total[5m])) < {{ .Values.prometheus.sli }}
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "S3 SLI is below the threshold"

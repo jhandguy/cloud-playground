@@ -2,6 +2,7 @@ resource "helm_release" "gateway" {
   name      = "gateway"
   namespace = kubernetes_namespace.gateway.metadata.0.name
   chart     = "../gateway/helm"
+  wait      = true
 
   set {
     name  = "replicas"

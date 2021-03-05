@@ -4,6 +4,7 @@ resource "helm_release" "localstack" {
   repository       = "http://helm.localstack.cloud"
   chart            = "localstack"
   create_namespace = true
+  wait             = true
 
   set {
     name  = "startServices"

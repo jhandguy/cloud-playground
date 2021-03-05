@@ -47,11 +47,17 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret }}
                   key: s3_token
-            - name: S3_PORT
+            - name: S3_GRPC_PORT
               value: "8080"
+            - name: S3_METRICS_PORT
+              value: "9090"
           ports:
-            - containerPort: 8080
+            - name: grpc
               protocol: TCP
+              containerPort: 8080
+            - name: metrics
+              protocol: TCP
+              containerPort: 9090
           readinessProbe:
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:8080"]
