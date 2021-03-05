@@ -50,3 +50,24 @@ output "gateway_url" {
   value       = module.gateway.url
   description = "Gateway URL"
 }
+
+output "prometheus_url" {
+  value       = module.prometheus.prometheus_url
+  description = "Prometheus URL"
+}
+
+output "alertmanager_url" {
+  value       = module.prometheus.alertmanager_url
+  description = "AlertManager URL"
+}
+
+output "grafana_url" {
+  value       = module.prometheus.grafana_url
+  description = "Grafana URL"
+}
+
+output "grafana_admin_password" {
+  value       = module.prometheus.grafana_admin_password
+  description = "Grafana admin password"
+  sensitive   = true
+}

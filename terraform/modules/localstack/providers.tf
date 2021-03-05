@@ -1,9 +1,3 @@
-provider "helm" {
-  kubernetes {
-    config_context_cluster = "minikube"
-  }
-}
-
 provider "aws" {
   region                      = var.aws_region
   access_key                  = var.aws_access_key_id

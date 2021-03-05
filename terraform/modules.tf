@@ -1,7 +1,7 @@
 module "minikube" {
   source = "./modules/minikube"
 
-  node_ports = ["localstack", "dynamo", "s3", "gateway"]
+  node_ports = ["localstack", "dynamo", "s3", "gateway", "prometheus", "alertmanager", "grafana"]
 }
 
 module "localstack" {
@@ -17,7 +17,8 @@ module "localstack" {
 }
 
 module "dynamo" {
-  source = "./modules/dynamo"
+  depends_on = [module.prometheus]
+  source     = "./modules/dynamo"
 
   aws_access_key_id       = var.aws_access_key_id
   aws_dynamo_endpoint     = module.localstack.localstack_endpoint
@@ -34,7 +35,8 @@ module "dynamo" {
 }
 
 module "s3" {
-  source = "./modules/s3"
+  depends_on = [module.prometheus]
+  source     = "./modules/s3"
 
   aws_access_key_id     = var.aws_access_key_id
   aws_region            = var.aws_region
@@ -51,7 +53,8 @@ module "s3" {
 }
 
 module "gateway" {
-  source = "./modules/gateway"
+  depends_on = [module.prometheus]
+  source     = "./modules/gateway"
 
   dynamo_token             = module.dynamo.token
   dynamo_url               = module.dynamo.url
@@ -64,4 +67,13 @@ module "gateway" {
   registry_username        = var.registry_username
   s3_token                 = module.s3.token
   s3_url                   = module.s3.url
+}
+
+module "prometheus" {
+  source = "./modules/prometheus"
+
+  alertmanager_node_port = module.minikube.node_ports["alertmanager"]
+  grafana_node_port      = module.minikube.node_ports["grafana"]
+  node_ip                = var.node_ip
+  prometheus_node_port   = module.minikube.node_ports["prometheus"]
 }
