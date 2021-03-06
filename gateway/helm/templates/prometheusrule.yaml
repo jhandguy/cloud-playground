@@ -1,0 +1,25 @@
+apiVersion: "monitoring.coreos.com/v1"
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: Gateway
+      rules:
+        - alert: GatewaySliCritical
+          expr: sum(rate(devops_playground_gateway_requests_success[5m])) / sum(rate(devops_playground_gateway_requests_total[5m])) < {{ .Values.prometheus.sli }}
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Gateway SLI is below the threshold for more than 2m minutes"
+        - alert: GatewaySliWarning
+          expr: sum(rate(devops_playground_gateway_requests_success[5m])) / sum(rate(devops_playground_gateway_requests_total[5m])) < {{ .Values.prometheus.sli }}
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gateway SLI is below the threshold"

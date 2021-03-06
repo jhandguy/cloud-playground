@@ -16,8 +16,7 @@ require (
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.7.0
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
-	golang.org/x/sys v0.0.0-20210303074136-134d130e1a04 // indirect
+	golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b // indirect
 	golang.org/x/text v0.3.5 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

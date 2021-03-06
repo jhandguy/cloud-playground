@@ -6,3 +6,5 @@ image:
   registry: ghcr.io
   repository: jhandguy/devops-playground/gateway
   tag: 1.0.0
+prometheus:
+  sli: 0.99

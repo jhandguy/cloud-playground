@@ -9,8 +9,10 @@ build:
 	$(shell if [ $$(uname) != "Linux" ]; then echo "env GOOS=linux GOARCH=amd64"; fi) go build .
 	go test ./... -short -cover -race
 
-PORT ?= 8080
-test: export GATEWAY_PORT=$(PORT)
+HTTP_PORT ?= 8080
+METRICS_PORT ?= 9090
+test: export GATEWAY_HTTP_PORT=$(HTTP_PORT)
+test: export GATEWAY_METRICS_PORT=$(METRICS_PORT)
 test: export GATEWAY_API_KEY=$(shell terraform -chdir=../terraform output -json gateway_api_key | jq -r .)
 test: export GATEWAY_URL=$(shell terraform -chdir=../terraform output -json gateway_url | jq -r .)
 test: export S3_URL=$(shell terraform -chdir=../terraform output -json s3_url | jq -r .)

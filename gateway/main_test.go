@@ -37,7 +37,7 @@ func TestIsValidAPIKey(t *testing.T) {
 	assert.False(t, isValidAPIKey(auth, apiKey))
 }
 
-func TestServeAPI(t *testing.T) {
+func TestRouteAPI(t *testing.T) {
 	var isCreateItemCalled, isCreateObjectCalled bool
 	var isGetItemCalled, isGetObjectCalled bool
 	var isDeleteItemCalled, isDeleteObjectCalled bool
@@ -110,7 +110,7 @@ func TestServeAPI(t *testing.T) {
 		return next
 	}
 
-	router := serveAPI(api, middleware)
+	router := routeAPI(api, middleware)
 
 	byt, err := json.Marshal(expMsg)
 	if err != nil {
@@ -160,7 +160,7 @@ func TestIntegration(t *testing.T) {
 
 	go main()
 
-	port := viper.GetString("gateway-port")
+	port := viper.GetString("gateway-http-port")
 	url := fmt.Sprintf("localhost:%s", port)
 	testGateway(t, url)
 }

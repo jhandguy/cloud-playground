@@ -8,6 +8,9 @@ A Playground to experiment with various DevOps tools and technologies.
 
 - Minikube
 - LocalStack
+- Prometheus
+- Grafana
+- AlertManager
 
 ## Technologies
 

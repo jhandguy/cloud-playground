@@ -92,7 +92,7 @@ func serveAPI(api *item.API, listener net.Listener, interceptors ...grpc.UnarySe
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
 
 	if err := s.Serve(listener); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatalf("failed to serve API: %v", err)
 	}
 }
 

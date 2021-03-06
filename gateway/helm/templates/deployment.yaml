@@ -42,11 +42,17 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.secret }}
                   key: gateway_api_key
-            - name: GATEWAY_PORT
+            - name: GATEWAY_HTTP_PORT
               value: "8080"
+            - name: GATEWAY_METRICS_PORT
+              value: "9090"
           ports:
-            - containerPort: 8080
+            - name: http
               protocol: TCP
+              containerPort: 8080
+            - name: metrics
+              protocol: TCP
+              containerPort: 9090
           readinessProbe:
             httpGet:
               path: /health

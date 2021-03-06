@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -16,6 +18,7 @@ import (
 	"github.com/jhandguy/devops-playground/gateway/item"
 	"github.com/jhandguy/devops-playground/gateway/message"
 	"github.com/jhandguy/devops-playground/gateway/object"
+	"github.com/jhandguy/devops-playground/gateway/prometheus"
 )
 
 func newMessageAPI() *message.API {
@@ -71,11 +74,16 @@ func ensureValidAPIKey(next http.Handler) http.Handler {
 	})
 }
 
-func serveAPI(api *message.API, middleware mux.MiddlewareFunc) *mux.Router {
-	getHealth := func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}
+func serveMetrics(path string, listener net.Listener) {
+	router := mux.NewRouter()
+	router.Handle(path, promhttp.Handler()).Methods(http.MethodGet)
 
+	if err := http.Serve(listener, router); err != nil {
+		log.Fatalf("failed to serve metrics: %v", err)
+	}
+}
+
+func routeAPI(api *message.API, middlewares ...mux.MiddlewareFunc) *mux.Router {
 	setContentTypeHeader := func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -83,9 +91,13 @@ func serveAPI(api *message.API, middleware mux.MiddlewareFunc) *mux.Router {
 		})
 	}
 
+	getHealth := func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}
+
 	router := mux.NewRouter()
 	router.Use(setContentTypeHeader)
-	router.Use(middleware)
+	router.Use(middlewares...)
 	router.HandleFunc("/health", getHealth).Methods(http.MethodGet)
 	router.HandleFunc("/message", api.CreateMessage).Methods(http.MethodPost)
 	router.HandleFunc("/message/{id}", api.GetMessage).Methods(http.MethodGet)
@@ -94,22 +106,29 @@ func serveAPI(api *message.API, middleware mux.MiddlewareFunc) *mux.Router {
 	return router
 }
 
+func serveAPI(api *message.API, listener net.Listener, middlewares ...mux.MiddlewareFunc) {
+	router := routeAPI(api, middlewares...)
+
+	if err := http.Serve(listener, router); err != nil {
+		log.Fatalf("failed to serve API: %v", err)
+	}
+}
+
 func main() {
-	port := viper.GetString("gateway-port")
+	port := viper.GetString("gateway-metrics-port")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+	go serveMetrics("/metrics", listener)
 
-	router := serveAPI(newMessageAPI(), ensureValidAPIKey)
-
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%s", port),
-		Handler:      router,
-		WriteTimeout: 10 * time.Second,
-		ReadTimeout:  10 * time.Second,
-		IdleTimeout:  10 * time.Second,
+	port = viper.GetString("gateway-http-port")
+	listener, err = net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
 	}
 
-	if err := server.ListenAndServe(); err != nil {
-		log.Fatalf("failed to serve: %v", err)
-	}
+	serveAPI(newMessageAPI(), listener, prometheus.CollectMetrics, ensureValidAPIKey)
 }
 
 func init() {

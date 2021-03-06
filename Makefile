@@ -60,10 +60,10 @@ test_s3:
 	make -C s3 test GRPC_PORT=8080 METRICS_PORT=9090
 
 test_dynamo:
-	make -C dynamo test PORT=8081
+	make -C dynamo test GRPC_PORT=8081 METRICS_PORT=9091
 
 test_gateway:
-	make -C gateway test PORT=8082
+	make -C gateway test HTTP_PORT=8082 METRICS_PORT=9092
 
 test_cli:
 	make -C cli test

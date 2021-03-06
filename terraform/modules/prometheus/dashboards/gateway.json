@@ -17,7 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 25,
+  "id": 24,
   "links": [],
   "panels": [
     {
@@ -69,7 +69,7 @@
       "pluginVersion": "7.4.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_s3_requests_success[5m])) / sum(rate(devops_playground_s3_requests_total[5m]))",
+          "expr": "sum(rate(devops_playground_gateway_requests_success[5m])) / sum(rate(devops_playground_gateway_requests_total[5m]))",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -129,7 +129,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_s3_requests_success[$__rate_interval])) / sum(rate(devops_playground_s3_requests_total[$__rate_interval]))",
+          "expr": "sum(rate(devops_playground_gateway_requests_success[$__rate_interval])) / sum(rate(devops_playground_gateway_requests_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "SLI",
           "refId": "A"
@@ -228,9 +228,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_s3_requests_total[$__rate_interval])) by (method)",
+          "expr": "sum(rate(devops_playground_gateway_requests_total[$__rate_interval])) by (path, method)",
           "interval": "",
-          "legendFormat": "{{method}}",
+          "legendFormat": "{{path}} - {{method}}",
           "refId": "A"
         }
       ],
@@ -314,7 +314,7 @@
       "reverseYBuckets": false,
       "targets": [
         {
-          "expr": "sum(increase(devops_playground_s3_requests_latency_bucket[$__rate_interval])) by (le)",
+          "expr": "sum(increase(devops_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le)",
           "format": "heatmap",
           "interval": "",
           "legendFormat": "{{le}}",
@@ -395,9 +395,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(rate(devops_playground_s3_requests_latency_bucket[$__rate_interval])) by (le, method))",
+          "expr": "histogram_quantile(0.99, sum(rate(devops_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le, path, method))",
           "interval": "",
-          "legendFormat": "{{method}}",
+          "legendFormat": "{{path}} - {{method}}",
           "refId": "A"
         }
       ],
@@ -494,9 +494,9 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(devops_playground_s3_requests_latency_bucket[$__rate_interval])) by (le, method))",
+          "expr": "histogram_quantile(0.50, sum(rate(devops_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le, path, method))",
           "interval": "",
-          "legendFormat": "{{method}}",
+          "legendFormat": "{{path}} - {{method}}",
           "refId": "A"
         }
       ],
@@ -556,7 +556,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "S3",
-  "uid": "DBMQqGUMz",
-  "version": 2
+  "title": "Gateway",
+  "uid": "vqhHRSUMk",
+  "version": 3
 }
