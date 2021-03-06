@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -20,6 +22,7 @@ import (
 
 	"github.com/jhandguy/devops-playground/dynamo/item"
 	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
+	"github.com/jhandguy/devops-playground/dynamo/prometheus"
 )
 
 var (
@@ -74,8 +77,16 @@ func newItemAPI() *item.API {
 	}
 }
 
-func serveAPI(api *item.API, interceptor grpc.UnaryServerInterceptor, listener net.Listener) {
-	s := grpc.NewServer(grpc.UnaryInterceptor(interceptor))
+func serveMetrics(path string, listener net.Listener) {
+	http.Handle(path, promhttp.Handler())
+
+	if err := http.Serve(listener, nil); err != nil {
+		log.Fatalf("failed to serve metrics: %v", err)
+	}
+}
+
+func serveAPI(api *item.API, listener net.Listener, interceptors ...grpc.UnaryServerInterceptor) {
+	s := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors...))
 
 	pb.RegisterItemServiceServer(s, api)
 	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
@@ -86,13 +97,20 @@ func serveAPI(api *item.API, interceptor grpc.UnaryServerInterceptor, listener n
 }
 
 func main() {
-	port := viper.GetString("dynamo-port")
+	port := viper.GetString("dynamo-metrics-port")
 	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+	go serveMetrics("/metrics", listener)
 
-	serveAPI(newItemAPI(), ensureValidToken, listener)
+	port = viper.GetString("dynamo-grpc-port")
+	listener, err = net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	serveAPI(newItemAPI(), listener, prometheus.CollectMetrics, ensureValidToken)
 }
 
 func init() {

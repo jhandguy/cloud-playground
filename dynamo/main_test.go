@@ -72,7 +72,7 @@ func TestServeAPI(t *testing.T) {
 	listener := bufconn.Listen(bufSize)
 
 	go func() {
-		serveAPI(api, interceptor, listener)
+		serveAPI(api, listener, interceptor)
 	}()
 
 	ctx := context.Background()
@@ -144,7 +144,7 @@ func TestIntegration(t *testing.T) {
 
 	go main()
 
-	port := viper.GetString("dynamo-port")
+	port := viper.GetString("dynamo-grpc-port")
 	url := fmt.Sprintf("localhost:%s", port)
 	testDynamo(url, t)
 }
