@@ -22,3 +22,6 @@ test:
 update:
 	go get -u
 	go mod tidy
+
+docker:
+	docker buildx build --tag ghcr.io/jhandguy/devops-playground/dynamo:latest --tag ghcr.io/jhandguy/devops-playground/dynamo:1.0.0 --file Dockerfile . --push

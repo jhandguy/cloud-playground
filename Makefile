@@ -91,3 +91,15 @@ update_gateway:
 
 update_cli:
 	make -C cli update
+
+docker:
+	make -j docker_s3 docker_dynamo docker_gateway
+
+docker_s3:
+	make -C s3 docker
+
+docker_dynamo:
+	make -C dynamo docker
+
+docker_gateway:
+	make -C gateway docker

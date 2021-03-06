@@ -22,3 +22,6 @@ test:
 update:
 	go get -u
 	go mod tidy
+
+docker:
+	docker buildx build --tag ghcr.io/jhandguy/devops-playground/s3:latest --tag ghcr.io/jhandguy/devops-playground/s3:1.0.0 --file Dockerfile . --push

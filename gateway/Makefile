@@ -25,3 +25,6 @@ test:
 update:
 	go get -u
 	go mod tidy
+
+docker:
+	docker buildx build --tag ghcr.io/jhandguy/devops-playground/gateway:latest --tag ghcr.io/jhandguy/devops-playground/gateway:1.0.0 --file Dockerfile . --push
