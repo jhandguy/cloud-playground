@@ -49,12 +49,6 @@ A Playground to experiment with various DevOps tools and technologies.
           -------
 ```
 
-## Automation
-
-```shell
-make all
-```
-
 ### Create Infrastructure
 
 ```shell

@@ -1,4 +1,4 @@
-all: compile lint build setup test teardown
+ci: compile lint build setup test teardown
 
 setup: setup_minikube setup_terraform
 

@@ -226,4 +226,4 @@ jobs:
           TF_VAR_dynamo_image_tag: ${{ env.DYNAMO_IMAGE_TAG }}
           TF_VAR_gateway_image_repository: ${{ env.GATEWAY_IMAGE_REPOSITORY }}
           TF_VAR_gateway_image_tag: ${{ env.GATEWAY_IMAGE_TAG }}
-        run: make all
+        run: make ci
