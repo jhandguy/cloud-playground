@@ -2,17 +2,23 @@ lint:
 	golangci-lint run
 
 build:
-	go build .
+	$(shell if [ $$(uname) != "Linux" ]; then echo "env GOOS=linux GOARCH=amd64"; fi) go build .
 	go test ./... -short -cover -race
 
+ROUNDS ?= 100
 test: export GATEWAY_API_KEY=$(shell terraform -chdir=../terraform output -json gateway_api_key | jq -r .)
 test: export GATEWAY_URL=$(shell terraform -chdir=../terraform output -json gateway_url | jq -r .)
+test: export PUSHGATEWAY_URL=$(shell terraform -chdir=../terraform output -json pushgateway_url | jq -r .)
 test:
 	go test ./... -cover -race
-	./cli message create -i "id" -c "content"
-	./cli message get -i "id"
-	./cli message delete -i "id"
+	go run main.go message create -i "id" -c "content"
+	go run main.go message get -i "id"
+	go run main.go message delete -i "id"
+	go run main.go load test -r $(ROUNDS)
 
 update:
 	go get -u
 	go mod tidy
+
+docker:
+	docker buildx build --tag ghcr.io/jhandguy/devops-playground/cli:latest --tag ghcr.io/jhandguy/devops-playground/cli:1.0.0 --file Dockerfile . --push

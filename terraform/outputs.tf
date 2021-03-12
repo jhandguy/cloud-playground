@@ -66,6 +66,11 @@ output "grafana_url" {
   description = "Grafana URL"
 }
 
+output "pushgateway_url" {
+  value       = module.prometheus.pushgateway_url
+  description = "PushGateway URL"
+}
+
 output "grafana_admin_password" {
   value       = module.prometheus.grafana_admin_password
   description = "Grafana admin password"

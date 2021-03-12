@@ -10,6 +10,8 @@
 *.pg.pb.go
 *.pg_grpc.pb.go
 
+/terraform/tfplan
+
 /dynamo/dynamo
 /s3/s3
 /gateway/gateway

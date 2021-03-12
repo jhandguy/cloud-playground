@@ -16,6 +16,8 @@ env:
   DYNAMO_IMAGE_TAG: 1.0.0
   GATEWAY_IMAGE_REPOSITORY: ${{ github.repository }}/gateway
   GATEWAY_IMAGE_TAG: 1.0.0
+  CLI_IMAGE_REPOSITORY: ${{ github.repository }}/cli
+  CLI_IMAGE_TAG: 1.0.0
 
 jobs:
   s3:
@@ -179,6 +181,27 @@ jobs:
       - name: Build and run short tests
         run: make -C cli build
 
+      - name: Setup docker buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+
+      - name: Build and push docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: cli
+          file: cli/Dockerfile
+          pull: true
+          push: true
+          tags: |
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.CLI_IMAGE_REPOSITORY }}:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ env.CLI_IMAGE_REPOSITORY }}:${{ env.CLI_IMAGE_TAG }}
+
   test:
     needs: [s3, dynamo, gateway, cli]
     runs-on: ubuntu-latest
@@ -226,4 +249,6 @@ jobs:
           TF_VAR_dynamo_image_tag: ${{ env.DYNAMO_IMAGE_TAG }}
           TF_VAR_gateway_image_repository: ${{ env.GATEWAY_IMAGE_REPOSITORY }}
           TF_VAR_gateway_image_tag: ${{ env.GATEWAY_IMAGE_TAG }}
+          TF_VAR_cli_image_repository: ${{ env.CLI_IMAGE_REPOSITORY }}
+          TF_VAR_cli_image_tag: ${{ env.CLI_IMAGE_TAG }}
         run: make ci

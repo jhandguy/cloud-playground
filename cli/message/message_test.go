@@ -23,7 +23,7 @@ func TestEnd2End(t *testing.T) {
 		t.Skip()
 	}
 
-	msg := message{
+	msg := Message{
 		ID:      uuid.NewString(),
 		Content: "content",
 	}

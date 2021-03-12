@@ -17,7 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 24,
+  "id": 25,
   "links": [],
   "panels": [
     {
@@ -255,7 +255,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:193",
-          "format": "ops",
+          "format": "reqps",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -558,5 +558,5 @@
   "timezone": "",
   "title": "Gateway",
   "uid": "vqhHRSUMk",
-  "version": 3
+  "version": 1
 }

@@ -255,7 +255,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:193",
-          "format": "ops",
+          "format": "reqps",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -558,5 +558,5 @@
   "timezone": "",
   "title": "Dynamo",
   "uid": "ihOqQ4UGz",
-  "version": 3
+  "version": 1
 }

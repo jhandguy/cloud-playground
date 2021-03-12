@@ -17,7 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 25,
+  "id": 24,
   "links": [],
   "panels": [
     {
@@ -255,7 +255,7 @@
       "yaxes": [
         {
           "$$hashKey": "object:193",
-          "format": "ops",
+          "format": "reqps",
           "label": null,
           "logBase": 1,
           "max": null,
@@ -558,5 +558,5 @@
   "timezone": "",
   "title": "S3",
   "uid": "DBMQqGUMz",
-  "version": 2
+  "version": 1
 }

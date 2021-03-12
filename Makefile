@@ -10,6 +10,7 @@ setup_terraform:
 	terraform -chdir=terraform plan -var="node_ip=$(shell minikube ip)" -out=tfplan
 	terraform -chdir=terraform apply tfplan
 	rm terraform/tfplan
+	kubectl wait --for=condition=complete --timeout=60s job/cli -n cli
 
 compile:
 	make -j compile_s3 compile_dynamo compile_gateway
@@ -54,7 +55,8 @@ build_cli:
 	make -C cli build
 
 test:
-	make -j test_s3 test_dynamo test_gateway test_cli
+	make -j test_s3 test_dynamo test_gateway
+	make test_cli ROUNDS=10
 
 test_s3:
 	make -C s3 test GRPC_PORT=8080 METRICS_PORT=9090
@@ -93,7 +95,7 @@ update_cli:
 	make -C cli update
 
 docker:
-	make -j docker_s3 docker_dynamo docker_gateway
+	make -j docker_s3 docker_dynamo docker_gateway docker_cli
 
 docker_s3:
 	make -C s3 docker
@@ -103,3 +105,6 @@ docker_dynamo:
 
 docker_gateway:
 	make -C gateway docker
+
+docker_cli:
+	make -C cli docker

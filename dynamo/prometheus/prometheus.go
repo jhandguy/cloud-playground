@@ -46,12 +46,12 @@ func CollectMetrics(ctx context.Context, req interface{}, info *grpc.UnaryServer
 		return handler(ctx, req)
 	}
 
+	startTime := time.Now()
+	res, err := handler(ctx, req)
+
 	totalReqCounter.
 		WithLabelValues(info.FullMethod).
 		Inc()
-
-	startTime := time.Now()
-	res, err := handler(ctx, req)
 
 	latencyHistogram.
 		WithLabelValues(info.FullMethod).

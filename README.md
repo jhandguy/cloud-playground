@@ -11,6 +11,7 @@ A Playground to experiment with various DevOps tools and technologies.
 - Prometheus
 - Grafana
 - AlertManager
+- PushGateway
 
 ## Technologies
 

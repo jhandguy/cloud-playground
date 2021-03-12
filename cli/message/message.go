@@ -39,11 +39,17 @@ var deleteMessageCmd = &cobra.Command{
 
 var (
 	id, content string
+	client      *resty.Client
 )
+
+func handleMissingFlag(err error) {
+	if err != nil {
+		log.Fatalf("missing required flag: %v", err)
+	}
+}
 
 func init() {
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("gateway")
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 
 	Cmd.AddCommand(createMessageCmd)
@@ -51,10 +57,10 @@ func init() {
 	Cmd.AddCommand(deleteMessageCmd)
 
 	Cmd.PersistentFlags().StringP("token", "t", "", "gateway auth token")
-	handleMissingFlag(viper.BindPFlag("api-key", Cmd.PersistentFlags().Lookup("token")))
+	handleMissingFlag(viper.BindPFlag("gateway-api-key", Cmd.PersistentFlags().Lookup("token")))
 
 	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
-	handleMissingFlag(viper.BindPFlag("url", Cmd.PersistentFlags().Lookup("url")))
+	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))
 
 	createMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	createMessageCmd.Flags().StringVarP(&content, "content", "c", "", "content of the message")
@@ -65,38 +71,64 @@ func init() {
 
 	deleteMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	handleMissingFlag(deleteMessageCmd.MarkFlagRequired("id"))
-}
 
-func handleMissingFlag(err error) {
-	if err != nil {
-		log.Fatalf("missing required flag: %v", err)
-	}
-}
+	url := fmt.Sprintf("http://%s", viper.GetString("gateway-url"))
+	token := viper.GetString("gateway-api-key")
 
-type message struct {
-	ID      string `json:"id,omitempty"`
-	Content string `json:"content,omitempty"`
-}
-
-func newClient() *resty.Client {
-	url := fmt.Sprintf("http://%s", viper.GetString("url"))
-	token := viper.GetString("api-key")
-
-	return resty.
+	client = resty.
 		New().
 		SetHostURL(url).
 		SetAuthToken(token)
 }
 
-func createMessage(cmd *cobra.Command, _ []string) {
-	res, err := newClient().
+type Message struct {
+	ID      string `json:"id,omitempty"`
+	Content string `json:"content,omitempty"`
+}
+
+func Create(message Message) (*resty.Response, error) {
+	res, err := client.
 		R().
-		SetResult(message{}).
-		SetBody(message{
-			ID:      id,
-			Content: content,
-		}).
+		SetResult(Message{}).
+		SetBody(message).
 		Post("/message")
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func Get(id string) (*resty.Response, error) {
+	res, err := client.
+		R().
+		SetResult(Message{}).
+		SetPathParam("id", id).
+		Get("/message/{id}")
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func Delete(id string) (*resty.Response, error) {
+	res, err := client.
+		R().
+		SetPathParam("id", id).
+		Delete("/message/{id}")
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func createMessage(cmd *cobra.Command, _ []string) {
+	res, err := Create(Message{
+		ID:      id,
+		Content: content,
+	})
 	if err != nil {
 		log.Fatalf("failed to create message: %v", err)
 	}
@@ -107,11 +139,7 @@ func createMessage(cmd *cobra.Command, _ []string) {
 }
 
 func getMessage(cmd *cobra.Command, _ []string) {
-	res, err := newClient().
-		R().
-		SetResult(message{}).
-		SetPathParam("id", id).
-		Get("/message/{id}")
+	res, err := Get(id)
 	if err != nil {
 		log.Fatalf("failed to get message: %v", err)
 	}
@@ -122,10 +150,7 @@ func getMessage(cmd *cobra.Command, _ []string) {
 }
 
 func deleteMessage(cmd *cobra.Command, _ []string) {
-	res, err := newClient().
-		R().
-		SetPathParam("id", id).
-		Delete("/message/{id}")
+	res, err := Delete(id)
 	if err != nil {
 		log.Fatalf("failed to delete message: %v", err)
 	}

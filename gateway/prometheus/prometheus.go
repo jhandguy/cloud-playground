@@ -66,15 +66,15 @@ func CollectMetrics(next http.Handler) http.Handler {
 			log.Printf("failed to get path template: %v", err)
 		}
 
-		totalReqCounter.
-			WithLabelValues(path, r.Method).
-			Inc()
-
 		rw := &responseWriter{
 			ResponseWriter: w,
 		}
 		startTime := time.Now()
 		next.ServeHTTP(rw, r)
+
+		totalReqCounter.
+			WithLabelValues(path, r.Method).
+			Inc()
 
 		latencyHistogram.
 			WithLabelValues(path, r.Method).

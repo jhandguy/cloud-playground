@@ -5,7 +5,7 @@ variable "node_ip" {
 
 variable "alertmanager_node_port" {
   type        = number
-  description = "Alert manager node port"
+  description = "AlertManager node port"
 }
 
 variable "grafana_node_port" {
@@ -16,6 +16,11 @@ variable "grafana_node_port" {
 variable "prometheus_node_port" {
   type        = number
   description = "Prometheus node port"
+}
+
+variable "pushgateway_node_port" {
+  type        = number
+  description = "PushGateway node port"
 }
 
 variable "grafana_dashboards" {

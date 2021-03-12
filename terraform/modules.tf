@@ -1,7 +1,7 @@
 module "minikube" {
   source = "./modules/minikube"
 
-  node_ports = ["localstack", "dynamo", "s3", "gateway", "prometheus", "alertmanager", "grafana"]
+  node_ports = ["localstack", "dynamo", "s3", "gateway", "prometheus", "alertmanager", "grafana", "pushgateway"]
 }
 
 module "localstack" {
@@ -73,8 +73,23 @@ module "prometheus" {
   source = "./modules/prometheus"
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
-  grafana_dashboards     = ["dynamo", "s3", "gateway"]
+  grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
   grafana_node_port      = module.minikube.node_ports["grafana"]
   node_ip                = var.node_ip
   prometheus_node_port   = module.minikube.node_ports["prometheus"]
+  pushgateway_node_port  = module.minikube.node_ports["pushgateway"]
+}
+
+module "cli" {
+  depends_on = [module.dynamo, module.s3, module.gateway]
+  source     = "./modules/cli"
+
+  cli_image_repository = var.cli_image_repository
+  cli_image_tag        = var.cli_image_tag
+  gateway_api_key      = module.gateway.api_key
+  gateway_url          = module.gateway.url
+  image_registry       = var.image_registry
+  pushgateway_url      = module.prometheus.pushgateway_url
+  registry_password    = var.registry_password
+  registry_username    = var.registry_username
 }
