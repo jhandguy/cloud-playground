@@ -51,6 +51,11 @@ output "gateway_url" {
   description = "Gateway URL"
 }
 
+output "ingress_gateway_url" {
+  value       = module.consul.ingress_gateway_urls["gateway"]
+  description = "Gateway Ingress URL"
+}
+
 output "prometheus_url" {
   value       = module.prometheus.prometheus_url
   description = "Prometheus URL"
@@ -67,7 +72,7 @@ output "grafana_url" {
 }
 
 output "pushgateway_url" {
-  value       = module.prometheus.pushgateway_url
+  value       = module.pushgateway.url
   description = "PushGateway URL"
 }
 

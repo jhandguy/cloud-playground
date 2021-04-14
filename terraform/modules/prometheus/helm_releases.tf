@@ -51,24 +51,3 @@ resource "helm_release" "prometheus" {
     EOF
   ]
 }
-
-resource "helm_release" "pushgateway" {
-  depends_on = [helm_release.prometheus]
-
-  name             = "pushgateway"
-  namespace        = "pushgateway"
-  repository       = "https://prometheus-community.github.io/helm-charts"
-  chart            = "prometheus-pushgateway"
-  create_namespace = true
-  wait             = true
-
-  values = [<<-EOF
-    service:
-      type: NodePort
-      nodePort: ${var.pushgateway_node_port}
-    serviceMonitor:
-      enabled: true
-      namespace: pushgateway
-    EOF
-  ]
-}

@@ -1,0 +1,12 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: IngressGateway
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  listeners:
+    - port: {{ .Values.ingressGateway.port }}
+      protocol: http
+      services:
+        - name: {{ .Release.Name }}
+          hosts: ["*"]

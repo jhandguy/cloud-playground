@@ -5,8 +5,7 @@ resource "kubernetes_config_map" "s3" {
   }
 
   data = {
-    aws_region      = var.aws_region
-    aws_s3_endpoint = var.aws_s3_endpoint
-    aws_s3_bucket   = var.aws_s3_bucket
+    aws_region    = var.aws_region
+    aws_s3_bucket = var.aws_s3_bucket
   }
 }

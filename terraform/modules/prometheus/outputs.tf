@@ -13,11 +13,6 @@ output "prometheus_url" {
   description = "Prometheus URL"
 }
 
-output "pushgateway_url" {
-  value       = "${var.node_ip}:${var.pushgateway_node_port}"
-  description = "PushGateway URL"
-}
-
 output "grafana_admin_password" {
   value       = random_password.admin_password.result
   description = "Grafana admin password"

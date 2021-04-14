@@ -56,7 +56,7 @@ func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServ
 }
 
 func newObjectAPI() *object.API {
-	endpoint := viper.GetString("aws-s3-endpoint")
+	endpoint := fmt.Sprintf("http://%s", viper.GetString("aws-s3-endpoint"))
 	bucket := viper.GetString("aws-s3-bucket")
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{

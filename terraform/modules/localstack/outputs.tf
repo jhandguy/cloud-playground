@@ -1,10 +1,5 @@
-output "localstack_endpoint" {
-  value       = "http://${helm_release.localstack.name}.${helm_release.localstack.namespace}.svc.cluster.local:4566"
-  description = "Localstack endpoint"
-}
-
 output "aws_s3_endpoint" {
-  value = "http://${var.node_ip}:${var.node_port}"
+  value = "${var.node_ip}:${var.node_port}"
 }
 
 output "aws_s3_buckets" {
@@ -15,7 +10,7 @@ output "aws_s3_buckets" {
 }
 
 output "aws_dynamo_endpoint" {
-  value = "http://${var.node_ip}:${var.node_port}"
+  value = "${var.node_ip}:${var.node_port}"
 }
 
 output "aws_dynamo_tables" {

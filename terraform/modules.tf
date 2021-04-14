@@ -1,11 +1,12 @@
 module "minikube" {
   source = "./modules/minikube"
 
-  node_ports = ["localstack", "dynamo", "s3", "gateway", "prometheus", "alertmanager", "grafana", "pushgateway"]
+  node_ports = ["localstack", "dynamo", "s3", "gateway", "prometheus", "alertmanager", "grafana", "pushgateway", "ingress_gateway"]
 }
 
 module "localstack" {
-  source = "./modules/localstack"
+  depends_on = [module.consul]
+  source     = "./modules/localstack"
 
   aws_access_key_id     = var.aws_access_key_id
   aws_dynamo_tables     = ["dynamo"]
@@ -17,11 +18,10 @@ module "localstack" {
 }
 
 module "dynamo" {
-  depends_on = [module.prometheus]
+  depends_on = [module.localstack]
   source     = "./modules/dynamo"
 
   aws_access_key_id       = var.aws_access_key_id
-  aws_dynamo_endpoint     = module.localstack.localstack_endpoint
   aws_dynamo_table        = module.localstack.aws_dynamo_tables["dynamo"]
   aws_region              = var.aws_region
   aws_secret_access_key   = var.aws_secret_access_key
@@ -35,13 +35,12 @@ module "dynamo" {
 }
 
 module "s3" {
-  depends_on = [module.prometheus]
+  depends_on = [module.localstack]
   source     = "./modules/s3"
 
   aws_access_key_id     = var.aws_access_key_id
   aws_region            = var.aws_region
   aws_s3_bucket         = module.localstack.aws_s3_buckets["s3"]
-  aws_s3_endpoint       = module.localstack.localstack_endpoint
   aws_secret_access_key = var.aws_secret_access_key
   image_registry        = var.image_registry
   node_ip               = var.node_ip
@@ -53,20 +52,19 @@ module "s3" {
 }
 
 module "gateway" {
-  depends_on = [module.prometheus]
+  depends_on = [module.consul]
   source     = "./modules/gateway"
 
   dynamo_token             = module.dynamo.token
-  dynamo_url               = module.dynamo.url
   gateway_image_repository = var.gateway_image_repository
   gateway_image_tag        = var.gateway_image_tag
   image_registry           = var.image_registry
+  ingress_gateway_port     = module.consul.ingress_gateway_port
   node_ip                  = var.node_ip
   node_port                = module.minikube.node_ports["gateway"]
   registry_password        = var.registry_password
   registry_username        = var.registry_username
   s3_token                 = module.s3.token
-  s3_url                   = module.s3.url
 }
 
 module "prometheus" {
@@ -77,7 +75,14 @@ module "prometheus" {
   grafana_node_port      = module.minikube.node_ports["grafana"]
   node_ip                = var.node_ip
   prometheus_node_port   = module.minikube.node_ports["prometheus"]
-  pushgateway_node_port  = module.minikube.node_ports["pushgateway"]
+}
+
+module "pushgateway" {
+  depends_on = [module.consul]
+  source     = "./modules/pushgateway"
+
+  node_ip   = var.node_ip
+  node_port = module.minikube.node_ports["pushgateway"]
 }
 
 module "cli" {
@@ -87,9 +92,19 @@ module "cli" {
   cli_image_repository = var.cli_image_repository
   cli_image_tag        = var.cli_image_tag
   gateway_api_key      = module.gateway.api_key
-  gateway_url          = module.gateway.url
+  gateway_url          = module.consul.ingress_gateway_urls["gateway"]
   image_registry       = var.image_registry
-  pushgateway_url      = module.prometheus.pushgateway_url
+  pushgateway_url      = module.pushgateway.url
   registry_password    = var.registry_password
   registry_username    = var.registry_username
+}
+
+module "consul" {
+  depends_on = [module.prometheus]
+  source     = "./modules/consul"
+
+  node_ip = var.node_ip
+  node_ports = {
+    "gateway" : module.minikube.node_ports["ingress_gateway"]
+  }
 }

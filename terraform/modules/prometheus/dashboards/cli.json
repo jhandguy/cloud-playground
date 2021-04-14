@@ -255,7 +255,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "50h percentile",
+      "title": "50th percentile",
       "type": "gauge"
     }
   ],

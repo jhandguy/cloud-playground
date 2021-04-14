@@ -4,43 +4,16 @@ resource "helm_release" "s3" {
   chart     = "../s3/helm"
   wait      = true
 
-  set {
-    name  = "replicas"
-    value = 1
-  }
-
-  set {
-    name  = "nodePort"
-    value = var.node_port
-  }
-
-  set {
-    name  = "configMap"
-    value = kubernetes_config_map.s3.metadata.0.name
-  }
-
-  set {
-    name  = "secret"
-    value = kubernetes_secret.s3.metadata.0.name
-  }
-
-  set {
-    name  = "image.secret"
-    value = kubernetes_secret.s3_image.metadata.0.name
-  }
-
-  set {
-    name  = "image.registry"
-    value = var.image_registry
-  }
-
-  set {
-    name  = "image.repository"
-    value = var.s3_image_repository
-  }
-
-  set {
-    name  = "image.tag"
-    value = var.s3_image_tag
-  }
+  values = [<<-EOF
+    replicas: 1
+    nodePort: ${var.node_port}
+    configMap: ${kubernetes_config_map.s3.metadata.0.name}
+    secret: ${kubernetes_secret.s3.metadata.0.name}
+    image:
+      secret: ${kubernetes_secret.s3_image.metadata.0.name}
+      registry: ${var.image_registry}
+      repository: ${var.s3_image_repository}
+      tag: ${var.s3_image_tag}
+    EOF
+  ]
 }

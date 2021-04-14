@@ -3,7 +3,7 @@ ci: compile lint build setup test teardown
 setup: setup_minikube setup_terraform
 
 setup_minikube:
-	minikube start --install-addons=false $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
+	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
 
 setup_terraform:
 	terraform -chdir=terraform init

@@ -26,11 +26,6 @@ variable "aws_secret_access_key" {
   description = "AWS secret accest key"
 }
 
-variable "aws_s3_endpoint" {
-  type        = string
-  description = "AWS s3 endpoint"
-}
-
 variable "aws_s3_bucket" {
   type        = string
   description = "AWS s3 bucket"

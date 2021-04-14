@@ -56,7 +56,7 @@ func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServ
 }
 
 func newItemAPI() *item.API {
-	endpoint := viper.GetString("aws-dynamo-endpoint")
+	endpoint := fmt.Sprintf("http://%s", viper.GetString("aws-dynamo-endpoint"))
 	table := viper.GetString("aws-dynamo-table")
 
 	sess := session.Must(session.NewSessionWithOptions(session.Options{

@@ -504,7 +504,7 @@
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "50h percentile",
+      "title": "50th percentile",
       "tooltip": {
         "shared": true,
         "sort": 0,

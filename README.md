@@ -12,6 +12,7 @@ A Playground to experiment with various DevOps tools and technologies.
 - Grafana
 - AlertManager
 - PushGateway
+- Consul
 
 ## Technologies
 
@@ -27,27 +28,33 @@ A Playground to experiment with various DevOps tools and technologies.
 ## Architecture
 
 ```text
- -----------   -----------
-| Dynamo DB | | S3 Bucket |
- -----------   -----------
-      |             |
-     SDK           SDK
-      |             |
-  ----------   ----------   
- |  dynamo  | |    s3    |
-  ----------   ----------
-        |         |
-       gRPC      gRPC
-        |         |
-        -----------
-       |  gateway  |
-        -----------
-             |
-            REST
-             |
-          -------
-         |  cli  |
-          -------
+ -----------------------------------
+|              [CONSUL]             |
+|     -----------   -----------     |
+|    | Dynamo DB | | S3 Bucket |    |
+|     -----------   -----------     |
+|          |             |          |
+|         SDK           SDK         |
+|          |             |          |
+|      ----------   ----------      |   
+|     |  dynamo  | |    s3    |     |
+|      ----------   ----------      |
+|            |         |            |
+|           gRPC      gRPC          |
+|            |         |            |
+|            -----------            |
+|           |  gateway  |           |
+|            -----------            |
+ -----------------------------------
+         -------------------
+        |  Ingress Gateway  |
+         -------------------
+                  |
+                 REST
+                  |
+               -------
+              |  cli  |
+               -------
 ```
 
 ### Create Infrastructure

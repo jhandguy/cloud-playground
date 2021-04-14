@@ -18,11 +18,6 @@ variable "prometheus_node_port" {
   description = "Prometheus node port"
 }
 
-variable "pushgateway_node_port" {
-  type        = number
-  description = "PushGateway node port"
-}
-
 variable "grafana_dashboards" {
   type        = list(string)
   default     = []

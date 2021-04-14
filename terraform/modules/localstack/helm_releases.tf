@@ -6,13 +6,15 @@ resource "helm_release" "localstack" {
   create_namespace = true
   wait             = true
 
-  set {
-    name  = "startServices"
-    value = "s3\\,dynamodb"
-  }
-
-  set {
-    name  = "nodePorts.edgePort"
-    value = var.node_port
-  }
+  values = [<<-EOF
+    startServices: s3,dynamodb
+    service:
+      edgeService:
+        nodePort: ${var.node_port}
+    podAnnotations:
+      'consul.hashicorp.com/connect-inject': "true"
+      'consul.hashicorp.com/connect-service': "localstack"
+      'consul.hashicorp.com/connect-service-port': "edge"
+    EOF
+  ]
 }

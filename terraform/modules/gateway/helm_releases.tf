@@ -4,43 +4,18 @@ resource "helm_release" "gateway" {
   chart     = "../gateway/helm"
   wait      = true
 
-  set {
-    name  = "replicas"
-    value = 1
-  }
-
-  set {
-    name  = "nodePort"
-    value = var.node_port
-  }
-
-  set {
-    name  = "configMap"
-    value = kubernetes_config_map.gateway.metadata.0.name
-  }
-
-  set {
-    name  = "secret"
-    value = kubernetes_secret.gateway.metadata.0.name
-  }
-
-  set {
-    name  = "image.secret"
-    value = kubernetes_secret.gateway_image.metadata.0.name
-  }
-
-  set {
-    name  = "image.registry"
-    value = var.image_registry
-  }
-
-  set {
-    name  = "image.repository"
-    value = var.gateway_image_repository
-  }
-
-  set {
-    name  = "image.tag"
-    value = var.gateway_image_tag
-  }
+  values = [<<-EOF
+    replicas: 1
+    nodePort: ${var.node_port}
+    configMap: ${kubernetes_config_map.gateway.metadata.0.name}
+    secret: ${kubernetes_secret.gateway.metadata.0.name}
+    image:
+      secret: ${kubernetes_secret.gateway_image.metadata.0.name}
+      registry: ${var.image_registry}
+      repository: ${var.gateway_image_repository}
+      tag: ${var.gateway_image_tag}
+    ingressGateway:
+      port: ${var.ingress_gateway_port}
+    EOF
+  ]
 }

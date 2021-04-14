@@ -5,8 +5,7 @@ resource "kubernetes_config_map" "dynamo" {
   }
 
   data = {
-    aws_region          = var.aws_region
-    aws_dynamo_endpoint = var.aws_dynamo_endpoint
-    aws_dynamo_table    = var.aws_dynamo_table
+    aws_region       = var.aws_region
+    aws_dynamo_table = var.aws_dynamo_table
   }
 }

@@ -26,11 +26,6 @@ variable "aws_secret_access_key" {
   description = "AWS secret access key"
 }
 
-variable "aws_dynamo_endpoint" {
-  type        = string
-  description = "AWS dynamo endpoint"
-}
-
 variable "aws_dynamo_table" {
   type        = string
   description = "AWS dynamo table"

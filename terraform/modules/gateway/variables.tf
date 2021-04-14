@@ -8,6 +8,11 @@ variable "node_port" {
   description = "Node port"
 }
 
+variable "ingress_gateway_port" {
+  type        = number
+  description = "Ingress Gateway port"
+}
+
 variable "registry_username" {
   type        = string
   sensitive   = true
@@ -38,20 +43,10 @@ variable "gateway_image_tag" {
   description = "Gateway image tag"
 }
 
-variable "s3_url" {
-  type        = string
-  description = "S3 URL"
-}
-
 variable "s3_token" {
   type        = string
   sensitive   = true
   description = "S3 token"
-}
-
-variable "dynamo_url" {
-  type        = string
-  description = "Dynamo URL"
 }
 
 variable "dynamo_token" {

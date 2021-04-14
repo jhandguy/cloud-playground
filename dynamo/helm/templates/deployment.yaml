@@ -12,16 +12,18 @@ spec:
   template:
     metadata:
       labels: *labels
+      annotations:
+        'consul.hashicorp.com/connect-inject': "true"
+        'consul.hashicorp.com/connect-service': "{{ .Release.Name }}"
+        'consul.hashicorp.com/connect-service-port': "grpc"
+        'consul.hashicorp.com/connect-service-upstreams': "localstack:8081"
     spec:
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           env:
             - name: AWS_DYNAMO_ENDPOINT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.configMap }}
-                  key: aws_dynamo_endpoint
+              value: "localhost:8081"
             - name: AWS_DYNAMO_TABLE
               valueFrom:
                 configMapKeyRef:
