@@ -1,0 +1,25 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceRouter
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  routes:
+    {{- range $name, $deployment := .Values.deployments }}
+    - match:
+        http:
+          header:
+            - name: x-debug
+              exact: '{{ $name }}'
+      destination:
+        service: {{ $.Release.Name }}
+        serviceSubset: {{ $name }}
+    - match:
+        http:
+          queryParam:
+            - name: x-debug
+              exact: '{{ $name }}'
+      destination:
+        service: {{ $.Release.Name }}
+        serviceSubset: {{ $name }}
+    {{- end }}

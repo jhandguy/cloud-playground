@@ -1,0 +1,11 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceSplitter
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  splits:
+    {{- range $name, $deployment := .Values.deployments }}
+    - serviceSubset: {{ $name }}
+      weight: {{ $deployment.weight }}
+    {{- end }}

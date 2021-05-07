@@ -59,6 +59,14 @@ func newMessageAPI() *message.API {
 	}
 }
 
+func setDebugHeader(next http.Handler) http.Handler {
+	deployment := viper.GetString("gateway-deployment")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("x-debug", deployment)
+		next.ServeHTTP(w, r)
+	})
+}
+
 func isValidAPIKey(authorization, apiKey string) bool {
 	return strings.TrimPrefix(authorization, "Bearer ") == apiKey
 }
@@ -128,7 +136,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	serveAPI(newMessageAPI(), listener, prometheus.CollectMetrics, ensureValidAPIKey)
+	serveAPI(newMessageAPI(), listener, setDebugHeader, prometheus.CollectMetrics, ensureValidAPIKey)
 }
 
 func init() {

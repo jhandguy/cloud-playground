@@ -40,6 +40,7 @@ var deleteMessageCmd = &cobra.Command{
 var (
 	id, content string
 	client      *resty.Client
+	debug       string
 )
 
 func handleMissingFlag(err error) {
@@ -62,6 +63,8 @@ func init() {
 	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
 	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))
 
+	Cmd.PersistentFlags().StringVarP(&debug, "debug", "d", "", "debug header")
+
 	createMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	createMessageCmd.Flags().StringVarP(&content, "content", "c", "", "content of the message")
 	handleMissingFlag(createMessageCmd.MarkFlagRequired("content"))
@@ -78,7 +81,8 @@ func init() {
 	client = resty.
 		New().
 		SetHostURL(url).
-		SetAuthToken(token)
+		SetAuthToken(token).
+		SetHeader("x-debug", debug)
 }
 
 type Message struct {

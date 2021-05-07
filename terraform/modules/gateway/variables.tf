@@ -3,9 +3,9 @@ variable "node_ip" {
   description = "Node ip"
 }
 
-variable "node_port" {
-  type        = number
-  description = "Node port"
+variable "node_ports" {
+  type        = map(number)
+  description = "Node ports"
 }
 
 variable "ingress_gateway_port" {
@@ -29,18 +29,6 @@ variable "image_registry" {
   type        = string
   sensitive   = true
   description = "Image registry"
-}
-
-variable "gateway_image_repository" {
-  type        = string
-  sensitive   = true
-  description = "Gateway image repository"
-}
-
-variable "gateway_image_tag" {
-  type        = string
-  sensitive   = true
-  description = "Gateway image tag"
 }
 
 variable "s3_token" {

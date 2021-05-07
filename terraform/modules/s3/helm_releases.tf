@@ -12,8 +12,6 @@ resource "helm_release" "s3" {
     image:
       secret: ${kubernetes_secret.s3_image.metadata.0.name}
       registry: ${var.image_registry}
-      repository: ${var.s3_image_repository}
-      tag: ${var.s3_image_tag}
     EOF
   ]
 }

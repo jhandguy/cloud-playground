@@ -1,10 +1,13 @@
+{{- range $name, $deployment := .Values.deployments }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ $.Release.Name }}-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
   labels: &labels
-    app: {{ .Release.Name }}
+    app: {{ $.Release.Name }}
+    version: {{ $name }}
 spec:
   type: NodePort
   ports:
@@ -12,7 +15,7 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 8080
-      {{- with .Values.nodePort }}
+      {{- with $deployment.nodePort }}
       nodePort: {{ . }}
       {{- end }}
     - name: metrics
@@ -20,3 +23,4 @@ spec:
       port: 9090
       targetPort: 9090
   selector: *labels
+{{- end }}

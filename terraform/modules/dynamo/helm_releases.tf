@@ -12,8 +12,6 @@ resource "helm_release" "dynamo" {
     image:
       secret: ${kubernetes_secret.dynamo_image.metadata.0.name}
       registry: ${var.image_registry}
-      repository: ${var.dynamo_image_repository}
-      tag: ${var.dynamo_image_tag}
     EOF
   ]
 }

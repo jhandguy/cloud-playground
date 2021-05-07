@@ -16,18 +16,6 @@ variable "image_registry" {
   description = "Image registry"
 }
 
-variable "cli_image_repository" {
-  type        = string
-  sensitive   = true
-  description = "CLI image repository"
-}
-
-variable "cli_image_tag" {
-  type        = string
-  sensitive   = true
-  description = "CLI image tag"
-}
-
 variable "gateway_api_key" {
   type        = string
   sensitive   = true

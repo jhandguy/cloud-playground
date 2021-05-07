@@ -42,9 +42,14 @@ A Playground to experiment with various DevOps tools and technologies.
 |            |         |            |
 |           gRPC      gRPC          |
 |            |         |            |
-|            -----------            |
-|           |  gateway  |           |
-|            -----------            |
+|         -----------------         |
+|        |     gateway     |        |
+|        | _______ _______ |        |
+|        |  prod  | canary |        |
+|         -----------------         |
+|            ||       ||            |
+|           50%       50%           |
+|            ||       ||            |
  -----------------------------------
          -------------------
         |  Ingress Gateway  |

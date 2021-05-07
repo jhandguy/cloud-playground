@@ -5,8 +5,14 @@ image:
   secret: gateway-image
   registry: ghcr.io
   repository: jhandguy/devops-playground/gateway
-  tag: 1.0.0
 prometheus:
   sli: 0.99
 ingressGateway:
   port: 8080
+deployments:
+  prod:
+    tag: 1.0.0
+    weight: 50
+  canary:
+    tag: 1.0.0
+    weight: 50

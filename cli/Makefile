@@ -7,7 +7,7 @@ build:
 
 ROUNDS ?= 50
 test: export GATEWAY_API_KEY=$(shell terraform -chdir=../terraform output -json gateway_api_key | jq -r .)
-test: export GATEWAY_URL=$(shell terraform -chdir=../terraform output -json gateway_url | jq -r .)
+test: export GATEWAY_URL=$(shell terraform -chdir=../terraform output -json ingress_gateway_url | jq -r .)
 test: export PUSHGATEWAY_URL=$(shell terraform -chdir=../terraform output -json pushgateway_url | jq -r .)
 test:
 	go test ./... -cover -race

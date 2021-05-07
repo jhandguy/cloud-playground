@@ -17,7 +17,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 26,
+  "id": 22,
   "links": [],
   "panels": [
     {
@@ -27,7 +27,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "decimals": 0,
           "mappings": [],
           "thresholds": {
@@ -53,7 +52,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
         "y": 0
       },
@@ -71,7 +70,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "7.5.5",
       "targets": [
         {
           "expr": "sum(devops_playground_cli_requests_success) by (path, method) / sum(devops_playground_cli_requests_total) by (path, method)",
@@ -95,7 +94,75 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 10,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.5",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "sum(devops_playground_cli_requests_success{deployment=\"prod\"}) / sum(devops_playground_cli_requests_total)",
+          "format": "time_series",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "prod",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "sum(devops_playground_cli_requests_success{deployment=\"canary\"}) / sum(devops_playground_cli_requests_total)",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "canary",
+          "refId": "B"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Traffic Split",
+      "transformations": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -113,7 +180,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 0
+        "y": 8
       },
       "id": 6,
       "options": {
@@ -129,7 +196,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "7.5.5",
       "targets": [
         {
           "expr": "sum(devops_playground_cli_requests_latency_bucket) by (le)",
@@ -150,7 +217,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -169,7 +235,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 8,
       "options": {
@@ -185,7 +251,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "7.5.5",
       "targets": [
         {
           "expr": "histogram_quantile(0.99, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",
@@ -208,7 +274,6 @@
           "color": {
             "mode": "thresholds"
           },
-          "custom": {},
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -227,7 +292,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 9,
       "options": {
@@ -243,7 +308,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "7.4.2",
+      "pluginVersion": "7.5.5",
       "targets": [
         {
           "expr": "histogram_quantile(0.50, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",

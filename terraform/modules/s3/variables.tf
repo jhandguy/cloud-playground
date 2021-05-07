@@ -48,15 +48,3 @@ variable "image_registry" {
   sensitive   = true
   description = "Image registry"
 }
-
-variable "s3_image_repository" {
-  type        = string
-  sensitive   = true
-  description = "S3 image repository"
-}
-
-variable "s3_image_tag" {
-  type        = string
-  sensitive   = true
-  description = "S3 image tag"
-}

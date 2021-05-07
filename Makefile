@@ -1,17 +1,5 @@
 ci: compile lint build setup test teardown
 
-setup: setup_minikube setup_terraform
-
-setup_minikube:
-	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
-
-setup_terraform:
-	terraform -chdir=terraform init
-	terraform -chdir=terraform plan -var="node_ip=$(shell minikube ip)" -out=tfplan
-	terraform -chdir=terraform apply tfplan
-	rm terraform/tfplan
-	kubectl wait --for=condition=complete --timeout=60s job/cli -n cli
-
 compile:
 	make -j compile_s3 compile_dynamo compile_gateway
 
@@ -53,6 +41,18 @@ build_gateway:
 
 build_cli:
 	make -C cli build
+
+setup: setup_minikube setup_terraform
+
+setup_minikube:
+	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
+
+setup_terraform:
+	terraform -chdir=terraform init
+	terraform -chdir=terraform plan -var="node_ip=$(shell minikube ip)" -out=tfplan
+	terraform -chdir=terraform apply tfplan
+	rm terraform/tfplan
+	kubectl wait --for=condition=complete --timeout=60s job/cli -n cli
 
 test:
 	make -j test_s3 test_dynamo test_gateway

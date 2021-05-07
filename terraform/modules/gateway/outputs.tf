@@ -4,7 +4,9 @@ output "api_key" {
   description = "API key"
 }
 
-output "url" {
-  value       = "${var.node_ip}:${var.node_port}"
-  description = "URL"
+output "urls" {
+  value = {
+    for name, node_port in var.node_ports : name => "${var.node_ip}:${node_port}"
+  }
+  description = "URLs"
 }

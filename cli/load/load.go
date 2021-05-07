@@ -40,9 +40,9 @@ var (
 	successReqCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "devops_playground_cli_requests_success",
-			Help: "Successful requests counter per path and method",
+			Help: "Successful requests counter per path, method and deployment",
 		},
-		[]string{"path", "method"},
+		[]string{"path", "method", "deployment"},
 	)
 
 	latencyHistogram = prometheus.NewHistogramVec(
@@ -106,8 +106,10 @@ func createMessage() (*message.Message, error) {
 		return nil, fmt.Errorf("failed to create message: %d", res.StatusCode())
 	}
 
+	deployment := res.Header().Get("x-debug")
+
 	successReqCounter.
-		WithLabelValues("message", "create").
+		WithLabelValues("message", "create", deployment).
 		Inc()
 
 	return res.Result().(*message.Message), nil
@@ -133,8 +135,10 @@ func getMessage(id string) (*message.Message, error) {
 		return nil, fmt.Errorf("failed to get message: %d", res.StatusCode())
 	}
 
+	deployment := res.Header().Get("x-debug")
+
 	successReqCounter.
-		WithLabelValues("message", "get").
+		WithLabelValues("message", "get", deployment).
 		Inc()
 
 	return res.Result().(*message.Message), nil
@@ -160,8 +164,10 @@ func deleteMessage(id string) error {
 		return fmt.Errorf("failed to delete message: %d", res.StatusCode())
 	}
 
+	deployment := res.Header().Get("x-debug")
+
 	successReqCounter.
-		WithLabelValues("message", "delete").
+		WithLabelValues("message", "delete", deployment).
 		Inc()
 
 	return nil

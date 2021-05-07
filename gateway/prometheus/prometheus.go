@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -16,7 +17,7 @@ var (
 			Name: "devops_playground_gateway_requests_total",
 			Help: "Total requests counter per path and method",
 		},
-		[]string{"path", "method"},
+		[]string{"path", "method", "deployment"},
 	)
 
 	successReqCounter = prometheus.NewCounterVec(
@@ -24,7 +25,7 @@ var (
 			Name: "devops_playground_gateway_requests_success",
 			Help: "Successful requests counter per path and method",
 		},
-		[]string{"path", "method"},
+		[]string{"path", "method", "deployment"},
 	)
 
 	latencyHistogram = prometheus.NewHistogramVec(
@@ -32,7 +33,7 @@ var (
 			Name: "devops_playground_gateway_requests_latency",
 			Help: "Requests latency histogram per path and method",
 		},
-		[]string{"path", "method"},
+		[]string{"path", "method", "deployment"},
 	)
 )
 
@@ -54,6 +55,7 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 }
 
 func CollectMetrics(next http.Handler) http.Handler {
+	deployment := viper.GetString("gateway-deployment")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.RequestURI, "/health") || strings.Contains(r.RequestURI, "/metrics") {
 			next.ServeHTTP(w, r)
@@ -73,16 +75,16 @@ func CollectMetrics(next http.Handler) http.Handler {
 		next.ServeHTTP(rw, r)
 
 		totalReqCounter.
-			WithLabelValues(path, r.Method).
+			WithLabelValues(path, r.Method, deployment).
 			Inc()
 
 		latencyHistogram.
-			WithLabelValues(path, r.Method).
+			WithLabelValues(path, r.Method, deployment).
 			Observe(time.Since(startTime).Seconds())
 
 		if rw.statusCode < http.StatusBadRequest {
 			successReqCounter.
-				WithLabelValues(path, r.Method).
+				WithLabelValues(path, r.Method, deployment).
 				Inc()
 		}
 	})

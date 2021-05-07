@@ -48,15 +48,3 @@ variable "image_registry" {
   sensitive   = true
   description = "Image registry"
 }
-
-variable "dynamo_image_repository" {
-  type        = string
-  sensitive   = true
-  description = "Dynamo image repository"
-}
-
-variable "dynamo_image_tag" {
-  type        = string
-  sensitive   = true
-  description = "Dynamo image tag"
-}

@@ -1,12 +1,15 @@
+{{- range $name, $deployment := .Values.deployments }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ $.Release.Name }}-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
   labels: &labels
-    app: {{ .Release.Name }}
+    app: {{ $.Release.Name }}
+    version: {{ $name }}
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: {{ $.Values.replicas }}
   selector:
     matchLabels: *labels
   template:
@@ -14,37 +17,40 @@ spec:
       labels: *labels
       annotations:
         'consul.hashicorp.com/connect-inject': "true"
-        'consul.hashicorp.com/connect-service': "{{ .Release.Name }}"
+        'consul.hashicorp.com/connect-service': "{{ $.Release.Name }}"
         'consul.hashicorp.com/connect-service-port': "http"
         'consul.hashicorp.com/connect-service-upstreams': "s3:8081,dynamo:8082"
+        'consul.hashicorp.com/service-tags': "{{ $name }}"
     spec:
       containers:
-        - name: {{ .Release.Name }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        - name: {{ $.Release.Name }}
+          image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $deployment.tag }}"
           env:
             - name: S3_URL
               value: "localhost:8081"
             - name: S3_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret }}
+                  name: {{ $.Values.secret }}
                   key: s3_token
             - name: DYNAMO_URL
               value: "localhost:8082"
             - name: DYNAMO_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret }}
+                  name: {{ $.Values.secret }}
                   key: dynamo_token
             - name: GATEWAY_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret }}
+                  name: {{ $.Values.secret }}
                   key: gateway_api_key
             - name: GATEWAY_HTTP_PORT
               value: "8080"
             - name: GATEWAY_METRICS_PORT
               value: "9090"
+            - name: GATEWAY_DEPLOYMENT
+              value: {{ $name }}
           ports:
             - name: http
               protocol: TCP
@@ -65,4 +71,5 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 10
       imagePullSecrets:
-        - name: {{ .Values.image.secret }}
+        - name: {{ $.Values.image.secret }}
+{{- end }}

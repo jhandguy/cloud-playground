@@ -10,14 +10,6 @@ on:
 
 env:
   AWS_REGION: eu-central-1
-  S3_IMAGE_REPOSITORY: ${{ github.repository }}/s3
-  S3_IMAGE_TAG: 1.0.0
-  DYNAMO_IMAGE_REPOSITORY: ${{ github.repository }}/dynamo
-  DYNAMO_IMAGE_TAG: 1.0.0
-  GATEWAY_IMAGE_REPOSITORY: ${{ github.repository }}/gateway
-  GATEWAY_IMAGE_TAG: 1.0.0
-  CLI_IMAGE_REPOSITORY: ${{ github.repository }}/cli
-  CLI_IMAGE_TAG: 1.0.0
 
 jobs:
   s3:
@@ -65,8 +57,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.S3_IMAGE_REPOSITORY }}:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.S3_IMAGE_REPOSITORY }}:${{ env.S3_IMAGE_TAG }}
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/s3:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/s3:1.0.0
 
   dynamo:
     runs-on: ubuntu-latest
@@ -113,8 +105,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.DYNAMO_IMAGE_REPOSITORY }}:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.DYNAMO_IMAGE_REPOSITORY }}:${{ env.DYNAMO_IMAGE_TAG }}
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/dynamo:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/dynamo:1.0.0
 
   gateway:
     runs-on: ubuntu-latest
@@ -161,8 +153,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.GATEWAY_IMAGE_REPOSITORY }}:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.GATEWAY_IMAGE_REPOSITORY }}:${{ env.GATEWAY_IMAGE_TAG }}
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/gateway:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/gateway:1.0.0
 
   cli:
     runs-on: ubuntu-latest
@@ -199,8 +191,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.CLI_IMAGE_REPOSITORY }}:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ env.CLI_IMAGE_REPOSITORY }}:${{ env.CLI_IMAGE_TAG }}
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/cli:latest
+            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/cli:1.0.0
 
   test:
     needs: [s3, dynamo, gateway, cli]
@@ -243,12 +235,4 @@ jobs:
           TF_VAR_registry_username: ${{ github.repository_owner }}
           TF_VAR_registry_password: ${{ secrets.CR_PAT }}
           TF_VAR_image_registry: ${{ secrets.IMAGE_REGISTRY }}
-          TF_VAR_s3_image_repository: ${{ env.S3_IMAGE_REPOSITORY }}
-          TF_VAR_s3_image_tag: ${{ env.S3_IMAGE_TAG }}
-          TF_VAR_dynamo_image_repository: ${{ env.DYNAMO_IMAGE_REPOSITORY }}
-          TF_VAR_dynamo_image_tag: ${{ env.DYNAMO_IMAGE_TAG }}
-          TF_VAR_gateway_image_repository: ${{ env.GATEWAY_IMAGE_REPOSITORY }}
-          TF_VAR_gateway_image_tag: ${{ env.GATEWAY_IMAGE_TAG }}
-          TF_VAR_cli_image_repository: ${{ env.CLI_IMAGE_REPOSITORY }}
-          TF_VAR_cli_image_tag: ${{ env.CLI_IMAGE_TAG }}
         run: make ci

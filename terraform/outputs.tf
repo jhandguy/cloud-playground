@@ -46,9 +46,14 @@ output "gateway_api_key" {
   sensitive   = true
 }
 
-output "gateway_url" {
-  value       = module.gateway.url
-  description = "Gateway URL"
+output "canary_gateway_url" {
+  value       = module.gateway.urls["canary"]
+  description = "Canary Gateway URL"
+}
+
+output "prod_gateway_url" {
+  value       = module.gateway.urls["prod"]
+  description = "Prod Gateway URL"
 }
 
 output "ingress_gateway_url" {

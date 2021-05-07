@@ -10,8 +10,6 @@ resource "helm_release" "cli" {
     image:
       secret: ${kubernetes_secret.cli_image.metadata.0.name}
       registry: ${var.image_registry}
-      repository: ${var.cli_image_repository}
-      tag: ${var.cli_image_tag}
     test:
       rounds: 50
     EOF
