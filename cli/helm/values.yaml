@@ -1,7 +1,4 @@
-configMap: cli
-secret: cli
 image:
-  secret: cli-image
   registry: ghcr.io
   repository: jhandguy/devops-playground/cli
   tag: 1.0.0

@@ -9,27 +9,39 @@ spec:
   ttlSecondsAfterFinished: 30
   template:
     spec:
+      serviceAccountName: {{ .Release.Name }}
       restartPolicy: Never
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          volumeMounts:
+            - name: {{ .Release.Name }}
+              mountPath: "/mnt/{{ .Release.Name }}"
+              readOnly: true
           env:
             - name: GATEWAY_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret }}
+                  name: {{ .Release.Name }}
                   key: gateway_api_key
             - name: GATEWAY_URL
               valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.configMap }}
+                secretKeyRef:
+                  name: {{ .Release.Name }}
                   key: gateway_url
             - name: PUSHGATEWAY_URL
               valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.configMap }}
+                secretKeyRef:
+                  name: {{ .Release.Name }}
                   key: pushgateway_url
           command: ["/cli"]
           args: ["load", "test", "-r={{ .Values.test.rounds}}"]
       imagePullSecrets:
-        - name: {{ .Values.image.secret }}
+        - name: {{ .Release.Name }}-image
+      volumes:
+        - name: {{ .Release.Name }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ .Release.Name }}

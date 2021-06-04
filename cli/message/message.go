@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Cmd message command
 var Cmd = &cobra.Command{
 	Use:   "message",
 	Short: "Message sub commands",

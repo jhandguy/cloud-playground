@@ -3,6 +3,11 @@ variable "node_ip" {
   description = "Node ip"
 }
 
+variable "node_port" {
+  type        = number
+  description = "Node port"
+}
+
 variable "node_ports" {
   type        = map(number)
   description = "Node ports"

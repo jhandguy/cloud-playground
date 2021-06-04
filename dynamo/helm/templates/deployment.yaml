@@ -18,36 +18,41 @@ spec:
         'consul.hashicorp.com/connect-service-port': "grpc"
         'consul.hashicorp.com/connect-service-upstreams': "localstack:8081"
     spec:
+      serviceAccountName: {{ .Release.Name }}
       containers:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          volumeMounts:
+            - name: {{ .Release.Name }}
+              mountPath: "/mnt/{{ .Release.Name }}"
+              readOnly: true
           env:
             - name: AWS_DYNAMO_ENDPOINT
               value: "localhost:8081"
-            - name: AWS_DYNAMO_TABLE
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.configMap }}
-                  key: aws_dynamo_table
             - name: AWS_REGION
               valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.configMap }}
+                secretKeyRef:
+                  name: {{ .Release.Name }}
                   key: aws_region
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret }}
+                  name: {{ .Release.Name }}
                   key: aws_access_key_id
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret }}
+                  name: {{ .Release.Name }}
                   key: aws_secret_access_key
+            - name: AWS_DYNAMO_TABLE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: aws_dynamo_table
             - name: DYNAMO_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.secret }}
+                  name: {{ .Release.Name }}
                   key: dynamo_token
             - name: DYNAMO_GRPC_PORT
               value: "8080"
@@ -69,4 +74,11 @@ spec:
               command: ["/bin/grpc_health_probe", "-addr=:8080"]
             initialDelaySeconds: 10
       imagePullSecrets:
-        - name: {{ .Values.image.secret }}
+        - name: {{ .Release.Name }}-image
+      volumes:
+        - name: {{ .Release.Name }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ .Release.Name }}

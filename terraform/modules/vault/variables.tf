@@ -8,8 +8,7 @@ variable "node_port" {
   description = "Node port"
 }
 
-variable "image_registry" {
-  type        = string
-  sensitive   = true
-  description = "Image registry"
+variable "secrets" {
+  type        = map(map(string))
+  description = "Secrets"
 }

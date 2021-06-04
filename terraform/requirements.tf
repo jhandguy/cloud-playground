@@ -1,9 +1,6 @@
 terraform {
   required_version = "~> 0.15"
   required_providers {
-    kubernetes = {
-      source = "hashicorp/kubernetes"
-    }
     helm = {
       source = "hashicorp/helm"
     }
@@ -12,6 +9,9 @@ terraform {
     }
     random = {
       source = "hashicorp/random"
+    }
+    null = {
+      source = "hashicorp/null"
     }
     grafana = {
       source = "grafana/grafana"

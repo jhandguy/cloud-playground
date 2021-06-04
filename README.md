@@ -13,6 +13,9 @@ A Playground to experiment with various DevOps tools and technologies.
 - AlertManager
 - PushGateway
 - Consul
+- Vault
+- CSI
+
 
 ## Technologies
 
@@ -24,12 +27,14 @@ A Playground to experiment with various DevOps tools and technologies.
 
 - Golang
 - YAML
+- HCL
 
 ## Architecture
 
 ```text
  -----------------------------------
-|              [CONSUL]             |
+|         [CONSUL + VAULT]          |
+|                                   |
 |     -----------   -----------     |
 |    | Dynamo DB | | S3 Bucket |    |
 |     -----------   -----------     |

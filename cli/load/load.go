@@ -15,6 +15,7 @@ import (
 	"github.com/jhandguy/devops-playground/cli/message"
 )
 
+// Cmd load command
 var Cmd = &cobra.Command{
 	Use:   "load",
 	Short: "Load sub commands",

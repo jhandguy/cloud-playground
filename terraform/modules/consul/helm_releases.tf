@@ -19,6 +19,11 @@ resource "helm_release" "consul" {
       enabled: true
     server:
       replicas: 1
+    ui:
+      service:
+        type: NodePort
+        nodePort:
+          http: ${var.node_port}
     ingressGateways:
       enabled: true
       defaults:

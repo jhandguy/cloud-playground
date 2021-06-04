@@ -8,7 +8,6 @@ linters:
     - goconst
     - gocritic
     - goimports
-    - golint
     - goprintffuncname
     - gosimple
     - govet

@@ -9,7 +9,7 @@ output "aws_s3_bucket" {
 }
 
 output "s3_token" {
-  value       = module.s3.token
+  value       = random_password.s3_token.result
   description = "S3 token"
   sensitive   = true
 }
@@ -30,7 +30,7 @@ output "aws_dynamo_table" {
 }
 
 output "dynamo_token" {
-  value       = module.dynamo.token
+  value       = random_password.dynamo_token.result
   description = "Dynamo token"
   sensitive   = true
 }
@@ -41,7 +41,7 @@ output "dynamo_url" {
 }
 
 output "gateway_api_key" {
-  value       = module.gateway.api_key
+  value       = random_password.gateway_api_key.result
   description = "Gateway API key"
   sensitive   = true
 }
@@ -84,5 +84,21 @@ output "pushgateway_url" {
 output "grafana_admin_password" {
   value       = module.prometheus.grafana_admin_password
   description = "Grafana admin password"
+  sensitive   = true
+}
+
+output "consul_url" {
+  value       = module.consul.url
+  description = "Consul URL"
+}
+
+output "vault_url" {
+  value       = module.vault.url
+  description = "Vault URL"
+}
+
+output "vault_root_token" {
+  value       = module.vault.root_token
+  description = "Vault root token"
   sensitive   = true
 }

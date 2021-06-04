@@ -52,7 +52,6 @@ setup_terraform:
 	terraform -chdir=terraform plan -var="node_ip=$(shell minikube ip)" -out=tfplan
 	terraform -chdir=terraform apply tfplan
 	rm terraform/tfplan
-	kubectl wait --for=condition=complete --timeout=60s job/cli -n cli
 
 test:
 	make -j test_s3 test_dynamo test_gateway

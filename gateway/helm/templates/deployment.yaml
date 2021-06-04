@@ -22,28 +22,33 @@ spec:
         'consul.hashicorp.com/connect-service-upstreams': "s3:8081,dynamo:8082"
         'consul.hashicorp.com/service-tags': "{{ $name }}"
     spec:
+      serviceAccountName: {{ $.Release.Name }}
       containers:
         - name: {{ $.Release.Name }}
           image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $deployment.tag }}"
+          volumeMounts:
+            - name: {{ $.Release.Name }}
+              mountPath: "/mnt/{{ $.Release.Name }}"
+              readOnly: true
           env:
             - name: S3_URL
               value: "localhost:8081"
+            - name: DYNAMO_URL
+              value: "localhost:8082"
             - name: S3_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.secret }}
+                  name: {{ $.Release.Name }}
                   key: s3_token
-            - name: DYNAMO_URL
-              value: "localhost:8082"
             - name: DYNAMO_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.secret }}
+                  name: {{ $.Release.Name }}
                   key: dynamo_token
             - name: GATEWAY_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.secret }}
+                  name: {{ $.Release.Name }}
                   key: gateway_api_key
             - name: GATEWAY_HTTP_PORT
               value: "8080"
@@ -71,5 +76,12 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 10
       imagePullSecrets:
-        - name: {{ $.Values.image.secret }}
+        - name: {{ $.Release.Name }}-image
+      volumes:
+        - name: {{ $.Release.Name }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ $.Release.Name }}
 {{- end }}
