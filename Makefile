@@ -45,7 +45,7 @@ build_cli:
 setup: setup_minikube setup_terraform
 
 setup_minikube:
-	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
+	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true --cpus=4"; fi)
 
 setup_terraform:
 	terraform -chdir=terraform init
