@@ -20,12 +20,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install protobuf
+      - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
-          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
-          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+          brew update
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc
 
       - name: Compile proto files
         run: make -C s3 compile
@@ -68,12 +66,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install protobuf
+      - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
-          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
-          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+          brew update
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc
 
       - name: Compile proto files
         run: make -C dynamo compile
@@ -116,12 +112,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install protobuf
+      - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
-          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
-          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+          brew update
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc
 
       - name: Compile proto files
         run: make -C gateway compile
@@ -203,28 +197,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install minikube
+      - name: Install dependencies
         run: |
-          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+          brew update
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform
 
-      - name: Install terraform
-        run: |
-          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
-          sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
-          sudo apt-get update && sudo apt-get install terraform
-
-      - name: Install protobuf
-        run: |
-          sudo apt-get update && sudo apt-get install golang-goprotobuf-dev
-          go get -u google.golang.org/protobuf/cmd/protoc-gen-go
-          go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
-
-      - name: Install golangci-lint
-        run: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-
-      - name: Build and run all tests
+      - name: Run all tests
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

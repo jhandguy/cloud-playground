@@ -2,6 +2,7 @@ compile:
 	protoc --go_out=. --go-grpc_out=. proto/item/item.pg.proto
 
 lint:
+	helm lint helm
 	golangci-lint run
 
 build:

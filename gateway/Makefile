@@ -3,6 +3,7 @@ compile:
 	protoc --go_out=. --go-grpc_out=. --proto_path=../s3 proto/object/object.pg.proto
 
 lint:
+	helm lint helm
 	golangci-lint run
 
 build:

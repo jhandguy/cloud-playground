@@ -1,4 +1,4 @@
-ci: compile lint build setup test teardown
+ci: lint_terraform setup compile build test teardown
 
 compile:
 	make -j compile_s3 compile_dynamo compile_gateway
@@ -13,19 +13,14 @@ compile_gateway:
 	make -C gateway compile
 
 lint:
-	make -j lint_terraform lint_helm lint_golang
-
-lint_terraform:
-	terraform fmt -recursive -check
-
-lint_helm:
-	helm lint s3/helm dynamo/helm
-
-lint_golang:
+	make lint_terraform
 	make -C s3 lint
 	make -C dynamo lint
 	make -C gateway lint
 	make -C cli lint
+
+lint_terraform:
+	terraform fmt -recursive -check
 
 build:
 	make -j build_s3 build_dynamo build_gateway build_cli

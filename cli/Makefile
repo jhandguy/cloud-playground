@@ -1,4 +1,5 @@
 lint:
+	helm lint helm
 	golangci-lint run
 
 build:
