@@ -8,9 +8,6 @@ on:
       - main
   pull_request:
 
-env:
-  AWS_REGION: eu-central-1
-
 jobs:
   s3:
     runs-on: ubuntu-latest
@@ -204,13 +201,7 @@ jobs:
 
       - name: Run all tests
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ env.AWS_REGION }}
-          TF_VAR_aws_region: ${{ env.AWS_REGION }}
-          TF_VAR_aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          TF_VAR_aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_image_registry: ${{ secrets.IMAGE_REGISTRY }}
           TF_VAR_registry_username: ${{ github.repository_owner }}
           TF_VAR_registry_password: ${{ secrets.CR_PAT }}
-          TF_VAR_image_registry: ${{ secrets.IMAGE_REGISTRY }}
         run: make ci

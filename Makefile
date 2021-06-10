@@ -1,3 +1,11 @@
+export AWS_REGION=eu-central-1
+export AWS_ACCESS_KEY_ID=aws-access-key-id
+export AWS_SECRET_ACCESS_KEY=aws-secret-access-key
+export AWS_DEFAULT_REGION=$(AWS_REGION)
+export TF_VAR_aws_region=$(AWS_REGION)
+export TF_VAR_aws_access_key_id=$(AWS_ACCESS_KEY_ID)
+export TF_VAR_aws_secret_access_key=$(AWS_SECRET_ACCESS_KEY)
+
 ci: lint_terraform setup compile build test teardown
 
 compile:
