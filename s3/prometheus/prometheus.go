@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"google.golang.org/grpc"
 )
 
@@ -35,7 +36,7 @@ var (
 )
 
 func init() {
-	prometheus.MustRegister(prometheus.NewBuildInfoCollector())
+	prometheus.MustRegister(collectors.NewBuildInfoCollector())
 	prometheus.MustRegister(totalReqCounter)
 	prometheus.MustRegister(successReqCounter)
 	prometheus.MustRegister(latencyHistogram)

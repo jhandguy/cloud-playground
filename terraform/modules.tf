@@ -33,13 +33,10 @@ module "localstack" {
   depends_on = [module.consul]
   source     = "./modules/localstack"
 
-  aws_access_key_id     = var.aws_access_key_id
-  aws_dynamo_tables     = ["dynamo"]
-  aws_region            = var.aws_region
-  aws_s3_buckets        = ["s3"]
-  aws_secret_access_key = var.aws_secret_access_key
-  node_ip               = var.node_ip
-  node_port             = module.minikube.node_ports["localstack"]
+  aws_dynamo_tables = ["dynamo"]
+  aws_s3_buckets    = ["s3"]
+  node_ip           = var.node_ip
+  node_port         = module.minikube.node_ports["localstack"]
 }
 
 module "dynamo" {
@@ -122,16 +119,16 @@ module "vault" {
   secrets = {
     "s3" : {
       "aws_region"            = var.aws_region
-      "aws_access_key_id"     = var.aws_access_key_id,
-      "aws_secret_access_key" = var.aws_secret_access_key,
+      "aws_access_key_id"     = var.aws_access_key_id
+      "aws_secret_access_key" = var.aws_secret_access_key
       "aws_s3_bucket"         = module.localstack.aws_s3_buckets["s3"]
       "s3_token"              = random_password.s3_token.result
       "docker_config_json"    = local.docker_config_json
     },
     "dynamo" : {
       "aws_region"            = var.aws_region
-      "aws_access_key_id"     = var.aws_access_key_id,
-      "aws_secret_access_key" = var.aws_secret_access_key,
+      "aws_access_key_id"     = var.aws_access_key_id
+      "aws_secret_access_key" = var.aws_secret_access_key
       "aws_dynamo_table"      = module.localstack.aws_dynamo_tables["dynamo"]
       "dynamo_token"          = random_password.dynamo_token.result
       "docker_config_json"    = local.docker_config_json

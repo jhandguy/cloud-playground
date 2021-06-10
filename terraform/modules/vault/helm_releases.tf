@@ -5,7 +5,7 @@ resource "helm_release" "vault" {
   chart            = "vault"
   create_namespace = true
   wait             = true
-  version          = "0.11.0" // TODO: serviceNodePort is breaking in version 0.12.0
+  version          = "0.11.0" // TODO: version 0.12.0 is breaking
 
   values = [<<-EOF
     injector:
@@ -29,7 +29,7 @@ resource "helm_release" "vault" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      kubectl wait --for=condition=ready pod/vault-0 -n vault
+      kubectl wait --for=condition=ready --timeout=60s pod/vault-0 -n vault
       kubectl exec vault-0 -n vault -- vault auth enable kubernetes
       kubectl exec vault-0 -n vault -- sh -c 'vault write auth/kubernetes/config \
         issuer="https://kubernetes.default.svc.cluster.local" \

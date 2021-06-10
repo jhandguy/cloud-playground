@@ -4,22 +4,23 @@ import (
 	"testing"
 
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCollectors(t *testing.T) {
-	collectors := []prometheus.Collector{
-		prometheus.NewBuildInfoCollector(),
+	colls := []prometheus.Collector{
+		collectors.NewBuildInfoCollector(),
 		totalReqCounter,
 		successReqCounter,
 		latencyHistogram,
 	}
 
-	for _, collector := range collectors {
-		err := prometheus.Register(collector)
+	for _, coll := range colls {
+		err := prometheus.Register(coll)
 		are, ok := err.(prometheus.AlreadyRegisteredError)
 		if ok {
-			assert.Equal(t, collector, are.ExistingCollector)
+			assert.Equal(t, coll, are.ExistingCollector)
 		}
 		assert.True(t, ok)
 	}

@@ -79,7 +79,10 @@ teardown_minikube:
 	minikube delete
 
 update:
-	make -j update_s3 update_dynamo update_gateway update_cli
+	make -j update_terraform update_s3 update_dynamo update_gateway update_cli
+
+update_terraform:
+	terraform -chdir=terraform init -upgrade
 
 update_s3:
 	make -C s3 update
