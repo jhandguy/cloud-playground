@@ -6,10 +6,8 @@ resource "helm_release" "cli" {
   wait             = true
 
   values = [<<-EOF
-    image:
-      registry: ${var.image_registry}
     test:
-      rounds: 50
+      rounds: ${var.test_rounds}
     EOF
   ]
 

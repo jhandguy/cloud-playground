@@ -36,8 +36,6 @@ spec:
                   key: pushgateway_url
           command: ["/cli"]
           args: ["load", "test", "-r={{ .Values.test.rounds}}"]
-      imagePullSecrets:
-        - name: {{ .Release.Name }}-image
       volumes:
         - name: {{ .Release.Name }}
           csi:

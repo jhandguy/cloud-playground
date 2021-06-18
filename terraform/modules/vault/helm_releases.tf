@@ -5,7 +5,6 @@ resource "helm_release" "vault" {
   chart            = "vault"
   create_namespace = true
   wait             = true
-  version          = "0.11.0" // TODO: version 0.12.0 is breaking
 
   values = [<<-EOF
     injector:

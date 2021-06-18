@@ -52,8 +52,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/s3:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/s3:1.0.0
+            ghcr.io/${{ github.repository }}/s3:latest
+            ghcr.io/${{ github.repository }}/s3:1.0.0
 
   dynamo:
     runs-on: ubuntu-latest
@@ -98,8 +98,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/dynamo:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/dynamo:1.0.0
+            ghcr.io/${{ github.repository }}/dynamo:latest
+            ghcr.io/${{ github.repository }}/dynamo:1.0.0
 
   gateway:
     runs-on: ubuntu-latest
@@ -144,8 +144,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/gateway:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/gateway:1.0.0
+            ghcr.io/${{ github.repository }}/gateway:latest
+            ghcr.io/${{ github.repository }}/gateway:1.0.0
 
   cli:
     runs-on: ubuntu-latest
@@ -182,8 +182,8 @@ jobs:
           pull: true
           push: true
           tags: |
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/cli:latest
-            ${{ secrets.IMAGE_REGISTRY }}/${{ github.repository }}/cli:1.0.0
+            ghcr.io/${{ github.repository }}/cli:latest
+            ghcr.io/${{ github.repository }}/cli:1.0.0
 
   test:
     needs: [s3, dynamo, gateway, cli]
@@ -200,8 +200,4 @@ jobs:
           brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform
 
       - name: Run all tests
-        env:
-          TF_VAR_image_registry: ${{ secrets.IMAGE_REGISTRY }}
-          TF_VAR_registry_username: ${{ github.repository_owner }}
-          TF_VAR_registry_password: ${{ secrets.CR_PAT }}
         run: make ci

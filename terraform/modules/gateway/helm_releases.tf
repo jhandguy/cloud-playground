@@ -7,8 +7,6 @@ resource "helm_release" "gateway" {
 
   values = [<<-EOF
     replicas: 1
-    image:
-      registry: ${var.image_registry}
     ingressGateway:
       port: ${var.ingress_gateway_port}
     deployments:

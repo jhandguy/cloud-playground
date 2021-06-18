@@ -8,8 +8,6 @@ resource "helm_release" "dynamo" {
   values = [<<-EOF
     replicas: 1
     nodePort: ${var.node_port}
-    image:
-      registry: ${var.image_registry}
     EOF
   ]
 }

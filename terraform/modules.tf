@@ -1,15 +1,3 @@
-locals {
-  docker_config_json = <<-EOF
-{
-  \"auths\": {
-    \"${var.image_registry}\": {
-      \"auth\": \"${base64encode("${var.registry_username}:${var.registry_password}")}\"
-    }
-  }
-}
-EOF
-}
-
 module "minikube" {
   source = "./modules/minikube"
 
@@ -43,25 +31,22 @@ module "dynamo" {
   depends_on = [module.vault, module.localstack]
   source     = "./modules/dynamo"
 
-  image_registry = var.image_registry
-  node_ip        = var.node_ip
-  node_port      = module.minikube.node_ports["dynamo"]
+  node_ip   = var.node_ip
+  node_port = module.minikube.node_ports["dynamo"]
 }
 
 module "s3" {
   depends_on = [module.vault, module.localstack]
   source     = "./modules/s3"
 
-  image_registry = var.image_registry
-  node_ip        = var.node_ip
-  node_port      = module.minikube.node_ports["s3"]
+  node_ip   = var.node_ip
+  node_port = module.minikube.node_ports["s3"]
 }
 
 module "gateway" {
   depends_on = [module.vault]
   source     = "./modules/gateway"
 
-  image_registry       = var.image_registry
   ingress_gateway_port = module.consul.ingress_gateway_port
   node_ip              = var.node_ip
   node_ports = {
@@ -91,8 +76,6 @@ module "pushgateway" {
 module "cli" {
   depends_on = [module.dynamo, module.s3, module.gateway]
   source     = "./modules/cli"
-
-  image_registry = var.image_registry
 }
 
 module "consul" {
@@ -123,7 +106,6 @@ module "vault" {
       "aws_secret_access_key" = var.aws_secret_access_key
       "aws_s3_bucket"         = module.localstack.aws_s3_buckets["s3"]
       "s3_token"              = random_password.s3_token.result
-      "docker_config_json"    = local.docker_config_json
     },
     "dynamo" : {
       "aws_region"            = var.aws_region
@@ -131,19 +113,16 @@ module "vault" {
       "aws_secret_access_key" = var.aws_secret_access_key
       "aws_dynamo_table"      = module.localstack.aws_dynamo_tables["dynamo"]
       "dynamo_token"          = random_password.dynamo_token.result
-      "docker_config_json"    = local.docker_config_json
     },
     "gateway" : {
-      "gateway_api_key"    = random_password.gateway_api_key.result
-      "dynamo_token"       = random_password.dynamo_token.result
-      "s3_token"           = random_password.s3_token.result
-      "docker_config_json" = local.docker_config_json
+      "gateway_api_key" = random_password.gateway_api_key.result
+      "dynamo_token"    = random_password.dynamo_token.result
+      "s3_token"        = random_password.s3_token.result
     },
     "cli" : {
-      "gateway_url"        = module.consul.ingress_gateway_urls["gateway"]
-      "pushgateway_url"    = module.pushgateway.url
-      "gateway_api_key"    = random_password.gateway_api_key.result
-      "docker_config_json" = local.docker_config_json
+      "gateway_url"     = module.consul.ingress_gateway_urls["gateway"]
+      "pushgateway_url" = module.pushgateway.url
+      "gateway_api_key" = random_password.gateway_api_key.result
     }
   }
 }

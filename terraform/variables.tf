@@ -20,22 +20,3 @@ variable "aws_secret_access_key" {
   sensitive   = true
   description = "AWS secret access key"
 }
-
-variable "image_registry" {
-  type        = string
-  sensitive   = true
-  description = "Image registry"
-  default     = "ghcr.io"
-}
-
-variable "registry_username" {
-  type        = string
-  sensitive   = true
-  description = "Registry username"
-}
-
-variable "registry_password" {
-  type        = string
-  sensitive   = true
-  description = "Registry password"
-}

@@ -75,8 +75,6 @@ spec:
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 10
-      imagePullSecrets:
-        - name: {{ $.Release.Name }}-image
       volumes:
         - name: {{ $.Release.Name }}
           csi:

@@ -12,9 +12,3 @@ variable "ingress_gateway_port" {
   type        = number
   description = "Ingress Gateway port"
 }
-
-variable "image_registry" {
-  type        = string
-  sensitive   = true
-  description = "Image registry"
-}

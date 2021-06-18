@@ -1,5 +1,4 @@
-variable "image_registry" {
-  type        = string
-  sensitive   = true
-  description = "Image registry"
+variable "test_rounds" {
+  type    = number
+  default = 50
 }

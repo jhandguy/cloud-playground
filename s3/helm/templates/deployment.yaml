@@ -73,8 +73,6 @@ spec:
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:8080"]
             initialDelaySeconds: 10
-      imagePullSecrets:
-        - name: {{ .Release.Name }}-image
       volumes:
         - name: {{ .Release.Name }}
           csi:
