@@ -59,7 +59,7 @@ func init() {
 	Cmd.AddCommand(deleteMessageCmd)
 
 	Cmd.PersistentFlags().StringP("token", "t", "", "gateway auth token")
-	handleMissingFlag(viper.BindPFlag("gateway-api-key", Cmd.PersistentFlags().Lookup("token")))
+	handleMissingFlag(viper.BindPFlag("gateway-token", Cmd.PersistentFlags().Lookup("token")))
 
 	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
 	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))
@@ -77,7 +77,7 @@ func init() {
 	handleMissingFlag(deleteMessageCmd.MarkFlagRequired("id"))
 
 	url := fmt.Sprintf("http://%s", viper.GetString("gateway-url"))
-	token := viper.GetString("gateway-api-key")
+	token := viper.GetString("gateway-token")
 
 	client = resty.
 		New().

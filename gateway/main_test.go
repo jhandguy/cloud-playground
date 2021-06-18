@@ -21,20 +21,20 @@ import (
 	objectPb "github.com/jhandguy/devops-playground/gateway/pb/object"
 )
 
-func TestIsValidAPIKey(t *testing.T) {
-	apiKey := "api-key"
+func TestIsValidToken(t *testing.T) {
+	token := "token"
 
-	auth := fmt.Sprintf("Bearer %s", apiKey)
-	assert.True(t, isValidAPIKey(auth, apiKey))
+	auth := fmt.Sprintf("Bearer %s", token)
+	assert.True(t, isValidToken(auth, token))
 
 	auth = ""
-	assert.False(t, isValidAPIKey(auth, apiKey))
+	assert.False(t, isValidToken(auth, token))
 
-	auth = apiKey
-	assert.True(t, isValidAPIKey(auth, apiKey))
+	auth = token
+	assert.True(t, isValidToken(auth, token))
 
 	auth = "wrong"
-	assert.False(t, isValidAPIKey(auth, apiKey))
+	assert.False(t, isValidToken(auth, token))
 }
 
 func TestRouteAPI(t *testing.T) {
@@ -175,11 +175,11 @@ func TestSystem(t *testing.T) {
 }
 
 func testGateway(t *testing.T, url string) {
-	apiKey := viper.GetString("gateway-api-key")
+	token := viper.GetString("gateway-token")
 	client := resty.
 		New().
 		SetHostURL(fmt.Sprintf("http://%s", url)).
-		SetAuthToken(apiKey).
+		SetAuthToken(token).
 		SetDebug(true)
 
 	expMsg := message.Message{

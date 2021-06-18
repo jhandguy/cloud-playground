@@ -40,9 +40,9 @@ output "dynamo_url" {
   description = "Dynamo URL"
 }
 
-output "gateway_api_key" {
-  value       = random_password.gateway_api_key.result
-  description = "Gateway API key"
+output "gateway_token" {
+  value       = random_password.gateway_token.result
+  description = "Gateway token"
   sensitive   = true
 }
 

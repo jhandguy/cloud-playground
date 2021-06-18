@@ -72,7 +72,7 @@ func init() {
 	Cmd.AddCommand(testLoadCmd)
 
 	Cmd.PersistentFlags().StringP("token", "t", "", "gateway auth token")
-	handleMissingFlag(viper.BindPFlag("gateway-api-key", Cmd.PersistentFlags().Lookup("token")))
+	handleMissingFlag(viper.BindPFlag("gateway-token", Cmd.PersistentFlags().Lookup("token")))
 
 	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
 	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))

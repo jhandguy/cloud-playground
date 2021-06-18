@@ -49,7 +49,7 @@ func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServ
 		return nil, errMissingMetadata
 	}
 
-	if !isValidToken(md["x-api-key"], token) {
+	if !isValidToken(md["x-token"], token) {
 		return nil, errInvalidToken
 	}
 	return handler(ctx, req)

@@ -19,11 +19,11 @@ spec:
               mountPath: "/mnt/{{ .Release.Name }}"
               readOnly: true
           env:
-            - name: GATEWAY_API_KEY
+            - name: GATEWAY_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}
-                  key: gateway_api_key
+                  key: gateway_token
             - name: GATEWAY_URL
               valueFrom:
                 secretKeyRef:

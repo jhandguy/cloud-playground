@@ -28,7 +28,7 @@ func newMessageAPI() *message.API {
 	dynamoToken := viper.GetString("dynamo-token")
 
 	newS3Context := func() (context.Context, context.CancelFunc) {
-		md := metadata.New(map[string]string{"x-api-key": s3Token})
+		md := metadata.New(map[string]string{"x-token": s3Token})
 		return context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), 10*time.Second)
 	}
 
@@ -37,7 +37,7 @@ func newMessageAPI() *message.API {
 	}
 
 	newDynamoContext := func() (context.Context, context.CancelFunc) {
-		md := metadata.New(map[string]string{"x-api-key": dynamoToken})
+		md := metadata.New(map[string]string{"x-token": dynamoToken})
 		return context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), 10*time.Second)
 	}
 
@@ -67,14 +67,14 @@ func setDebugHeader(next http.Handler) http.Handler {
 	})
 }
 
-func isValidAPIKey(authorization, apiKey string) bool {
-	return strings.TrimPrefix(authorization, "Bearer ") == apiKey
+func isValidToken(authorization, token string) bool {
+	return strings.TrimPrefix(authorization, "Bearer ") == token
 }
 
-func ensureValidAPIKey(next http.Handler) http.Handler {
-	apiKey := viper.GetString("gateway-api-key")
+func ensureValidToken(next http.Handler) http.Handler {
+	token := viper.GetString("gateway-token")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isValidAPIKey(r.Header.Get("Authorization"), apiKey) || strings.Contains(r.RequestURI, "/health") {
+		if isValidToken(r.Header.Get("Authorization"), token) || strings.Contains(r.RequestURI, "/health") {
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -136,7 +136,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	serveAPI(newMessageAPI(), listener, setDebugHeader, prometheus.CollectMetrics, ensureValidAPIKey)
+	serveAPI(newMessageAPI(), listener, setDebugHeader, prometheus.CollectMetrics, ensureValidToken)
 }
 
 func init() {

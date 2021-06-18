@@ -45,11 +45,11 @@ spec:
                 secretKeyRef:
                   name: {{ $.Release.Name }}
                   key: dynamo_token
-            - name: GATEWAY_API_KEY
+            - name: GATEWAY_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ $.Release.Name }}
-                  key: gateway_api_key
+                  key: gateway_token
             - name: GATEWAY_HTTP_PORT
               value: "8080"
             - name: GATEWAY_METRICS_PORT

@@ -161,7 +161,7 @@ func TestSystem(t *testing.T) {
 func testS3(url string, t *testing.T) {
 	token := viper.GetString("s3-token")
 
-	md := metadata.New(map[string]string{"x-api-key": token})
+	md := metadata.New(map[string]string{"x-token": token})
 	ctx, cancel := context.WithTimeout(metadata.NewOutgoingContext(context.Background(), md), 10*time.Second)
 	defer cancel()
 

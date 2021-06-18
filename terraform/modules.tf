@@ -115,14 +115,14 @@ module "vault" {
       "dynamo_token"          = random_password.dynamo_token.result
     },
     "gateway" : {
-      "gateway_api_key" = random_password.gateway_api_key.result
-      "dynamo_token"    = random_password.dynamo_token.result
-      "s3_token"        = random_password.s3_token.result
+      "gateway_token" = random_password.gateway_token.result
+      "dynamo_token"  = random_password.dynamo_token.result
+      "s3_token"      = random_password.s3_token.result
     },
     "cli" : {
       "gateway_url"     = module.consul.ingress_gateway_urls["gateway"]
       "pushgateway_url" = module.pushgateway.url
-      "gateway_api_key" = random_password.gateway_api_key.result
+      "gateway_token"   = random_password.gateway_token.result
     }
   }
 }
