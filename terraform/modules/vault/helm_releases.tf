@@ -8,8 +8,7 @@ resource "helm_release" "vault" {
 
   values = [<<-EOF
     injector:
-      metrics:
-        enabled: true
+      enabled: false
     server:
       dev:
         enabled: true

@@ -9,8 +9,6 @@ resource "helm_release" "consul" {
   values = [<<-EOF
     global:
       datacenter: consul
-      metrics:
-        enabled: true
     connectInject:
       enabled: true
     controller:
