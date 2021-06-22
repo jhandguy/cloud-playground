@@ -4,5 +4,6 @@ resource "aws_s3_bucket" "s3" {
     for index in range(0, length(var.aws_s3_buckets)) : var.aws_s3_buckets[index] => random_id.buckets[index].hex
   }
 
-  bucket = each.value
+  bucket        = each.value
+  force_destroy = true
 }
