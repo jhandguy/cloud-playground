@@ -11,6 +11,8 @@ resource "helm_release" "consul" {
       datacenter: consul
     connectInject:
       enabled: true
+      transparentProxy:
+        defaultEnabled: false
     controller:
       enabled: true
     client:

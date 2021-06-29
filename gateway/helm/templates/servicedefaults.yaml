@@ -1,7 +1,17 @@
 apiVersion: consul.hashicorp.com/v1alpha1
 kind: ServiceDefaults
 metadata:
-  name: {{ .Release.Name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ $.Release.Name }}
+  namespace: {{ $.Release.Namespace }}
 spec:
   protocol: http
+{{- range $name, $service := .Values.services }}
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceDefaults
+metadata:
+  name: {{ $.Release.Name }}-{{ $name }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  protocol: http
+{{- end }}

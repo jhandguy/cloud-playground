@@ -1,4 +1,4 @@
-{{- range $name, $deployment := .Values.deployments }}
+{{- range $name, $service := .Values.services }}
 ---
 apiVersion: v1
 kind: Service
@@ -7,7 +7,6 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels: &labels
     app: {{ $.Release.Name }}
-    version: {{ $name }}
 spec:
   type: NodePort
   ports:
@@ -15,7 +14,7 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 8080
-      {{- with $deployment.nodePort }}
+      {{- with $service.nodePort }}
       nodePort: {{ . }}
       {{- end }}
     - name: metrics

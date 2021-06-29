@@ -1,4 +1,4 @@
-{{- range $name, $deployment := .Values.deployments }}
+{{- range $name, $service := .Values.services }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -7,7 +7,6 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels: &labels
     app: {{ $.Release.Name }}
-    version: {{ $name }}
 spec:
   replicas: {{ $.Values.replicas }}
   selector:
@@ -17,15 +16,14 @@ spec:
       labels: *labels
       annotations:
         'consul.hashicorp.com/connect-inject': "true"
-        'consul.hashicorp.com/connect-service': "{{ $.Release.Name }}"
+        'consul.hashicorp.com/connect-service': "{{ $.Release.Name }}-{{ $name }}"
         'consul.hashicorp.com/connect-service-port': "http"
         'consul.hashicorp.com/connect-service-upstreams': "s3:8081,dynamo:8082"
-        'consul.hashicorp.com/service-tags': "{{ $name }}"
     spec:
       serviceAccountName: {{ $.Release.Name }}
       containers:
         - name: {{ $.Release.Name }}
-          image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $deployment.tag }}"
+          image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $service.tag }}"
           volumeMounts:
             - name: {{ $.Release.Name }}
               mountPath: "/mnt/{{ $.Release.Name }}"

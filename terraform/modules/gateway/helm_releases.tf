@@ -9,7 +9,7 @@ resource "helm_release" "gateway" {
     replicas: 1
     ingressGateway:
       port: ${var.ingress_gateway_port}
-    deployments:
+    services:
 %{for name, node_port in var.node_ports~}
       ${name}:
         nodePort: ${node_port}

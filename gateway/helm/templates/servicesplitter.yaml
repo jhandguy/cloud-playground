@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   splits:
-    {{- range $name, $deployment := .Values.deployments }}
-    - serviceSubset: {{ $name }}
-      weight: {{ $deployment.weight }}
+    {{- range $name, $service := .Values.services }}
+    - service: {{ $.Release.Name }}-{{ $name }}
+      weight: {{ $service.weight }}
     {{- end }}

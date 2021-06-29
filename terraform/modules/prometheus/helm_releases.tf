@@ -5,7 +5,6 @@ resource "helm_release" "prometheus" {
   chart            = "kube-prometheus-stack"
   create_namespace = true
   wait             = true
-  version          = "16.5.0" // TODO: remove once grafana terraform provider works with Grafana 8
 
   values = [<<-EOF
     alertmanager:

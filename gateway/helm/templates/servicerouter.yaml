@@ -5,21 +5,19 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   routes:
-    {{- range $name, $deployment := .Values.deployments }}
+    {{- range $name, $service := .Values.services }}
     - match:
         http:
           header:
             - name: x-debug
               exact: '{{ $name }}'
       destination:
-        service: {{ $.Release.Name }}
-        serviceSubset: {{ $name }}
+        service: {{ $.Release.Name }}-{{ $name }}
     - match:
         http:
           queryParam:
             - name: x-debug
               exact: '{{ $name }}'
       destination:
-        service: {{ $.Release.Name }}
-        serviceSubset: {{ $name }}
+        service: {{ $.Release.Name }}-{{ $name }}
     {{- end }}
