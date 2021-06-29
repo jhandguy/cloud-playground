@@ -5,6 +5,7 @@ resource "helm_release" "csi" {
   chart            = "secrets-store-csi-driver"
   create_namespace = true
   wait             = true
+  version          = "0.0.23"
 
   values = [<<-EOF
     syncSecret:

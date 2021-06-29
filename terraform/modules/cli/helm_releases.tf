@@ -4,6 +4,7 @@ resource "helm_release" "cli" {
   chart            = "../cli/helm"
   create_namespace = true
   wait             = true
+  version          = "1.0.0"
 
   values = [<<-EOF
     test:

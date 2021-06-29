@@ -5,6 +5,7 @@ resource "helm_release" "localstack" {
   chart            = "localstack"
   create_namespace = true
   wait             = true
+  version          = "0.2.1"
 
   values = [<<-EOF
     startServices: s3,dynamodb
