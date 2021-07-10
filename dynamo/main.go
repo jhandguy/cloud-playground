@@ -15,7 +15,6 @@ import (
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -69,10 +68,11 @@ func newItemAPI() *item.API {
 
 	return &item.API{
 		DynamoDB: item.DynamoDB{
-			Table:                 table,
-			PutItemWithContext:    client.PutItemWithContext,
-			GetItemWithContext:    client.GetItemWithContext,
-			DeleteItemWithContext: client.DeleteItemWithContext,
+			Table:                    table,
+			DescribeTableWithContext: client.DescribeTableWithContext,
+			PutItemWithContext:       client.PutItemWithContext,
+			GetItemWithContext:       client.GetItemWithContext,
+			DeleteItemWithContext:    client.DeleteItemWithContext,
 		},
 	}
 }
@@ -89,7 +89,7 @@ func serveAPI(api *item.API, listener net.Listener, interceptors ...grpc.UnarySe
 	s := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors...))
 
 	pb.RegisterItemServiceServer(s, api)
-	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
+	grpc_health_v1.RegisterHealthServer(s, api)
 
 	if err := s.Serve(listener); err != nil {
 		log.Fatalf("failed to serve API: %v", err)
@@ -102,7 +102,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	go serveMetrics("/metrics", listener)
+	go serveMetrics("/monitoring/metrics", listener)
 
 	port = viper.GetString("dynamo-grpc-port")
 	listener, err = net.Listen("tcp", fmt.Sprintf(":%s", port))

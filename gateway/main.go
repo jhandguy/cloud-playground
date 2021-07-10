@@ -47,14 +47,16 @@ func newMessageAPI() *message.API {
 
 	return &message.API{
 		ObjectAPI: &object.API{
+			CheckHealth:  object.CheckHealth(newS3Context, newS3ClientConn),
 			CreateObject: object.CreateObject(newS3Context, newS3ClientConn),
 			GetObject:    object.GetObject(newS3Context, newS3ClientConn),
 			DeleteObject: object.DeleteObject(newS3Context, newS3ClientConn),
 		},
 		ItemAPI: &item.API{
-			CreateItem: item.CreateItem(newDynamoContext, newDynamoClientConn),
-			GetItem:    item.GetItem(newDynamoContext, newDynamoClientConn),
-			DeleteItem: item.DeleteItem(newDynamoContext, newDynamoClientConn),
+			CheckHealth: item.CheckHealth(newDynamoContext, newDynamoClientConn),
+			CreateItem:  item.CreateItem(newDynamoContext, newDynamoClientConn),
+			GetItem:     item.GetItem(newDynamoContext, newDynamoClientConn),
+			DeleteItem:  item.DeleteItem(newDynamoContext, newDynamoClientConn),
 		},
 	}
 }
@@ -74,7 +76,7 @@ func isValidToken(authorization, token string) bool {
 func ensureValidToken(next http.Handler) http.Handler {
 	token := viper.GetString("gateway-token")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isValidToken(r.Header.Get("Authorization"), token) || strings.Contains(r.RequestURI, "/health") {
+		if isValidToken(r.Header.Get("Authorization"), token) || strings.Contains(r.RequestURI, "/monitoring/") {
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusUnauthorized)
@@ -99,14 +101,11 @@ func routeAPI(api *message.API, middlewares ...mux.MiddlewareFunc) *mux.Router {
 		})
 	}
 
-	getHealth := func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}
-
 	router := mux.NewRouter()
 	router.Use(setContentTypeHeader)
 	router.Use(middlewares...)
-	router.HandleFunc("/health", getHealth).Methods(http.MethodGet)
+	router.HandleFunc("/monitoring/readiness", api.CheckReadiness).Methods(http.MethodGet)
+	router.HandleFunc("/monitoring/liveness", api.CheckLiveness).Methods(http.MethodGet)
 	router.HandleFunc("/message", api.CreateMessage).Methods(http.MethodPost)
 	router.HandleFunc("/message/{id}", api.GetMessage).Methods(http.MethodGet)
 	router.HandleFunc("/message/{id}", api.DeleteMessage).Methods(http.MethodDelete)
@@ -128,7 +127,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	go serveMetrics("/metrics", listener)
+	go serveMetrics("/monitoring/metrics", listener)
 
 	port = viper.GetString("gateway-http-port")
 	listener, err = net.Listen("tcp", fmt.Sprintf(":%s", port))

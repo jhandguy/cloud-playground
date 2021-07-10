@@ -1,7 +1,15 @@
 replicas: 1
+resources:
+  limits:
+    cpu: 50m
+    memory: 50Mi
+  requests:
+    cpu: 25m
+    memory: 50Mi
 image:
   registry: ghcr.io
   repository: jhandguy/devops-playground/gateway
+  tag: 1.0.0
 prometheus:
   sli: 0.99
 ingressGateway:

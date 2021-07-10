@@ -61,18 +61,45 @@ spec:
             - name: metrics
               protocol: TCP
               containerPort: 9090
-          readinessProbe:
+          resources:
+            {{- with $.Values.resources }}
+            requests:
+              memory: {{ .requests.memory }}
+              cpu: {{ .requests.cpu }}
+            limits:
+              memory: {{ .limits.memory }}
+              cpu: {{ .limits.cpu }}
+            {{- end }}
+          startupProbe:
             httpGet:
-              path: /health
+              path: /monitoring/readiness
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 5
-          livenessProbe:
+            periodSeconds: 1
+            failureThreshold: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
             httpGet:
-              path: /health
+              path: /monitoring/readiness
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 10
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            failureThreshold: 5
+            successThreshold: 1
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /monitoring/liveness
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 1
+            failureThreshold: 10
+            successThreshold: 1
+            timeoutSeconds: 5
       volumes:
         - name: {{ $.Release.Name }}
           csi:

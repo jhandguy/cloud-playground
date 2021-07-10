@@ -8,21 +8,51 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"google.golang.org/grpc/health/grpc_health_v1"
 
 	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
 )
 
 type API struct {
 	DynamoDB DynamoDB
+	grpc_health_v1.HealthServer
 	pb.ItemServiceServer
 }
 
 type DynamoDB struct {
 	Table string
 
-	PutItemWithContext    func(ctx aws.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error)
-	GetItemWithContext    func(ctx aws.Context, input *dynamodb.GetItemInput, opts ...request.Option) (*dynamodb.GetItemOutput, error)
-	DeleteItemWithContext func(ctx aws.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error)
+	DescribeTableWithContext func(ctx aws.Context, input *dynamodb.DescribeTableInput, opts ...request.Option) (*dynamodb.DescribeTableOutput, error)
+	PutItemWithContext       func(ctx aws.Context, input *dynamodb.PutItemInput, opts ...request.Option) (*dynamodb.PutItemOutput, error)
+	GetItemWithContext       func(ctx aws.Context, input *dynamodb.GetItemInput, opts ...request.Option) (*dynamodb.GetItemOutput, error)
+	DeleteItemWithContext    func(ctx aws.Context, input *dynamodb.DeleteItemInput, opts ...request.Option) (*dynamodb.DeleteItemOutput, error)
+}
+
+func (api *API) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+	switch req.GetService() {
+	case "readiness":
+		_, err := api.DynamoDB.DescribeTableWithContext(ctx, &dynamodb.DescribeTableInput{
+			TableName: aws.String(api.DynamoDB.Table),
+		})
+		if err != nil {
+			log.Printf("failed readiness check: %v", err)
+			return &grpc_health_v1.HealthCheckResponse{
+				Status: grpc_health_v1.HealthCheckResponse_NOT_SERVING,
+			}, nil
+		}
+
+		return &grpc_health_v1.HealthCheckResponse{
+			Status: grpc_health_v1.HealthCheckResponse_SERVING,
+		}, nil
+	case "liveness":
+		return &grpc_health_v1.HealthCheckResponse{
+			Status: grpc_health_v1.HealthCheckResponse_SERVING,
+		}, nil
+	default:
+		return &grpc_health_v1.HealthCheckResponse{
+			Status: grpc_health_v1.HealthCheckResponse_SERVICE_UNKNOWN,
+		}, nil
+	}
 }
 
 func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.CreateItemResponse, error) {

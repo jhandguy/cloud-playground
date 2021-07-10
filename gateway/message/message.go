@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/jhandguy/devops-playground/gateway/item"
 	"github.com/jhandguy/devops-playground/gateway/object"
@@ -23,6 +24,51 @@ type Message struct {
 type API struct {
 	ItemAPI   *item.API
 	ObjectAPI *object.API
+}
+
+func (api *API) CheckReadiness(w http.ResponseWriter, _ *http.Request) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	var resps []*grpc_health_v1.HealthCheckResponse
+	var errs []error
+	go func() {
+		defer wg.Done()
+		req := grpc_health_v1.HealthCheckRequest{Service: "liveness"}
+		resp, err := api.ObjectAPI.CheckHealth(&req)
+		resps = append(resps, resp)
+		errs = append(errs, err)
+	}()
+
+	go func() {
+		defer wg.Done()
+		req := grpc_health_v1.HealthCheckRequest{Service: "liveness"}
+		resp, err := api.ItemAPI.CheckHealth(&req)
+		resps = append(resps, resp)
+		errs = append(errs, err)
+	}()
+
+	wg.Wait()
+
+	for _, err := range errs {
+		if err != nil {
+			log.Printf("failed readiness check: %v", err)
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+	}
+
+	for _, resp := range resps {
+		if status := resp.GetStatus(); status != grpc_health_v1.HealthCheckResponse_SERVING {
+			log.Printf("failed readiness check: %v", grpc_health_v1.HealthCheckResponse_ServingStatus_name[int32(status)])
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+	}
+}
+
+func (api *API) CheckLiveness(w http.ResponseWriter, _ *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }
 
 func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
@@ -70,8 +116,14 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 
 	wg.Wait()
 
-	if objErr != nil || itmErr != nil {
-		log.Printf("failed to create message: %v", err)
+	if objErr != nil {
+		log.Printf("failed to create object: %v", objErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if itmErr != nil {
+		log.Printf("failed to create item: %v", itmErr)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

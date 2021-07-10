@@ -9,21 +9,51 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"google.golang.org/grpc/health/grpc_health_v1"
 
 	pb "github.com/jhandguy/devops-playground/s3/pb/object"
 )
 
 type API struct {
 	S3 S3
+	grpc_health_v1.HealthServer
 	pb.ObjectServiceServer
 }
 
 type S3 struct {
 	Bucket string
 
+	HeadBucketWithContext   func(ctx aws.Context, input *s3.HeadBucketInput, opts ...request.Option) (*s3.HeadBucketOutput, error)
 	PutObjectWithContext    func(ctx aws.Context, input *s3.PutObjectInput, opts ...request.Option) (*s3.PutObjectOutput, error)
 	GetObjectWithContext    func(ctx aws.Context, input *s3.GetObjectInput, opts ...request.Option) (*s3.GetObjectOutput, error)
 	DeleteObjectWithContext func(ctx aws.Context, input *s3.DeleteObjectInput, opts ...request.Option) (*s3.DeleteObjectOutput, error)
+}
+
+func (api *API) Check(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+	switch req.GetService() {
+	case "readiness":
+		_, err := api.S3.HeadBucketWithContext(ctx, &s3.HeadBucketInput{
+			Bucket: aws.String(api.S3.Bucket),
+		})
+		if err != nil {
+			log.Printf("failed readiness check: %v", err)
+			return &grpc_health_v1.HealthCheckResponse{
+				Status: grpc_health_v1.HealthCheckResponse_NOT_SERVING,
+			}, nil
+		}
+
+		return &grpc_health_v1.HealthCheckResponse{
+			Status: grpc_health_v1.HealthCheckResponse_SERVING,
+		}, nil
+	case "liveness":
+		return &grpc_health_v1.HealthCheckResponse{
+			Status: grpc_health_v1.HealthCheckResponse_SERVING,
+		}, nil
+	default:
+		return &grpc_health_v1.HealthCheckResponse{
+			Status: grpc_health_v1.HealthCheckResponse_SERVICE_UNKNOWN,
+		}, nil
+	}
 }
 
 func (api *API) CreateObject(ctx context.Context, req *pb.CreateObjectRequest) (*pb.CreateObjectResponse, error) {

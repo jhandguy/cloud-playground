@@ -5,7 +5,7 @@ resource "helm_release" "prometheus" {
   chart            = "kube-prometheus-stack"
   create_namespace = true
   wait             = true
-  version          = "16.12.0"
+  version          = "16.12.1"
 
   values = [<<-EOF
     alertmanager:

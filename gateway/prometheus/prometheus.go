@@ -58,7 +58,7 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 func CollectMetrics(next http.Handler) http.Handler {
 	deployment := viper.GetString("gateway-deployment")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.Contains(r.RequestURI, "/health") || strings.Contains(r.RequestURI, "/metrics") {
+		if strings.Contains(r.RequestURI, "/monitoring/") {
 			next.ServeHTTP(w, r)
 			return
 		}

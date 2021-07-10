@@ -44,7 +44,7 @@ module "s3" {
 }
 
 module "gateway" {
-  depends_on = [module.vault]
+  depends_on = [module.vault, module.dynamo, module.s3]
   source     = "./modules/gateway"
 
   ingress_gateway_port = module.consul.ingress_gateway_port
