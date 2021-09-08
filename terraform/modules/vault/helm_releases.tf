@@ -5,7 +5,7 @@ resource "helm_release" "vault" {
   chart            = "vault"
   create_namespace = true
   wait             = true
-  version          = "0.15.0"
+  version          = "0.16.0"
 
   values = [<<-EOF
     injector:
@@ -28,7 +28,7 @@ resource "helm_release" "vault" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      kubectl wait --for=condition=ready --timeout=60s pod/vault-0 -n vault
+      kubectl wait --for=condition=ready --timeout=180s pod/vault-0 -n vault
       kubectl exec vault-0 -n vault -- vault auth enable kubernetes
       kubectl exec vault-0 -n vault -- sh -c 'vault write auth/kubernetes/config \
         issuer="https://kubernetes.default.svc.cluster.local" \

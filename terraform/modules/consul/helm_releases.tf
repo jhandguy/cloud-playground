@@ -5,13 +5,14 @@ resource "helm_release" "consul" {
   chart            = "consul"
   create_namespace = true
   wait             = true
-  version          = "0.32.1"
+  version          = "0.34.1"
 
   values = [<<-EOF
     global:
       datacenter: consul
     connectInject:
       enabled: true
+      replicas: 1
       transparentProxy:
         defaultEnabled: false
     controller:

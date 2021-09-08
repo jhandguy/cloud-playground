@@ -5,7 +5,7 @@ resource "helm_release" "prometheus" {
   chart            = "kube-prometheus-stack"
   create_namespace = true
   wait             = true
-  version          = "18.0.1"
+  version          = "18.0.10"
 
   values = [<<-EOF
     alertmanager:
@@ -28,8 +28,8 @@ resource "helm_release" "prometheus" {
         type: NodePort
         nodePort: ${var.prometheus_node_port}
       prometheusSpec:
-        scrapeInterval: 1s
-        evaluationInterval: 1s
+        scrapeInterval: 30s
+        evaluationInterval: 30s
         ruleSelector:
           matchExpressions:
             - key: release

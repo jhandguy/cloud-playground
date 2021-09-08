@@ -48,7 +48,7 @@ build_cli:
 setup: setup_minikube setup_terraform
 
 setup_minikube:
-	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true --cpus=4"; fi)
+	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
 
 setup_terraform:
 	terraform -chdir=terraform init
@@ -58,7 +58,7 @@ setup_terraform:
 
 test:
 	make -j test_s3 test_dynamo test_gateway
-	make test_cli ROUNDS=10
+	make test_cli
 
 test_s3:
 	make -C s3 test GRPC_PORT=8080 METRICS_PORT=9090
@@ -86,6 +86,7 @@ update:
 
 update_terraform:
 	terraform -chdir=terraform init -upgrade
+	terraform -chdir=terraform providers lock
 
 update_s3:
 	make -C s3 update
