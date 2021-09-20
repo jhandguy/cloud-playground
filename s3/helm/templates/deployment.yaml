@@ -17,6 +17,12 @@ spec:
         'consul.hashicorp.com/connect-service': "{{ .Release.Name }}"
         'consul.hashicorp.com/connect-service-port': "grpc"
         'consul.hashicorp.com/connect-service-upstreams': "localstack:8081"
+        {{- with .Values.resources }}
+        'consul.hashicorp.com/sidecar-proxy-memory-request': "{{ .requests.memory }}"
+        'consul.hashicorp.com/sidecar-proxy-cpu-request': "{{ .requests.cpu }}"
+        'consul.hashicorp.com/sidecar-proxy-memory-limit': "{{ .limits.memory }}"
+        'consul.hashicorp.com/sidecar-proxy-cpu-limit': "{{ .limits.cpu }}"
+        {{- end }}
     spec:
       serviceAccountName: {{ .Release.Name }}
       containers:

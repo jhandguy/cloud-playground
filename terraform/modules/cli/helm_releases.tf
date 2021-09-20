@@ -13,6 +13,9 @@ resource "helm_release" "cli" {
   ]
 
   provisioner "local-exec" {
-    command = "kubectl wait --for=condition=complete --timeout=60s job/cli -n cli"
+    command = <<-EOF
+      kubectl wait --for=condition=complete --timeout=60s job/cli -n cli
+      kubectl logs job/cli -c cli -n cli
+    EOF
   }
 }

@@ -16,6 +16,8 @@ resource "helm_release" "localstack" {
       'consul.hashicorp.com/connect-inject': "true"
       'consul.hashicorp.com/connect-service': "localstack"
       'consul.hashicorp.com/connect-service-port': "edge"
+    persistence:
+      enabled: true
     EOF
   ]
 }

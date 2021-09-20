@@ -56,7 +56,8 @@ module "gateway" {
 }
 
 module "prometheus" {
-  source = "./modules/prometheus"
+  depends_on = [module.metrics]
+  source     = "./modules/prometheus"
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
@@ -91,6 +92,10 @@ module "consul" {
 
 module "csi" {
   source = "./modules/csi"
+}
+
+module "metrics" {
+  source = "./modules/metrics"
 }
 
 module "vault" {

@@ -6,6 +6,10 @@ resources:
   requests:
     cpu: 25m
     memory: 50Mi
+horizontalPodAutoscaler:
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 50
 image:
   registry: ghcr.io
   repository: jhandguy/devops-playground/dynamo
