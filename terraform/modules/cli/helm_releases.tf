@@ -4,6 +4,7 @@ resource "helm_release" "cli" {
   chart            = "../cli/helm"
   create_namespace = true
   wait             = true
+  wait_for_jobs    = true
   version          = "1.0.0"
 
   values = [<<-EOF
@@ -11,11 +12,4 @@ resource "helm_release" "cli" {
       rounds: ${var.test_rounds}
     EOF
   ]
-
-  provisioner "local-exec" {
-    command = <<-EOF
-      kubectl wait --for=condition=complete --timeout=60s job/cli -n cli
-      kubectl logs job/cli -c cli -n cli
-    EOF
-  }
 }

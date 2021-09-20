@@ -8,6 +8,10 @@ resource "helm_release" "gateway" {
 
   values = [<<-EOF
     replicas: 1
+    horizontalPodAutoscaler:
+      minReplicas: 1
+      maxReplicas: 1
+      targetCPUUtilizationPercentage: 50
     ingressGateway:
       port: ${var.ingress_gateway_port}
     services:

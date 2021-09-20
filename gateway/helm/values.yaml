@@ -1,11 +1,15 @@
 replicas: 1
 resources:
   limits:
-    cpu: 50m
+    cpu: 20m
     memory: 50Mi
   requests:
-    cpu: 25m
+    cpu: 10m
     memory: 50Mi
+horizontalPodAutoscaler:
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 50
 image:
   registry: ghcr.io
   repository: jhandguy/devops-playground/gateway

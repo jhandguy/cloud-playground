@@ -19,6 +19,12 @@ spec:
         'consul.hashicorp.com/connect-service': "{{ $.Release.Name }}-{{ $name }}"
         'consul.hashicorp.com/connect-service-port': "http"
         'consul.hashicorp.com/connect-service-upstreams': "s3:8081,dynamo:8082"
+        {{- with $.Values.resources }}
+        'consul.hashicorp.com/sidecar-proxy-memory-request': "{{ .requests.memory }}"
+        'consul.hashicorp.com/sidecar-proxy-cpu-request': "{{ .requests.cpu }}"
+        'consul.hashicorp.com/sidecar-proxy-memory-limit': "{{ .limits.memory }}"
+        'consul.hashicorp.com/sidecar-proxy-cpu-limit': "{{ .limits.cpu }}"
+        {{- end }}
     spec:
       serviceAccountName: {{ $.Release.Name }}
       containers:
