@@ -11,6 +11,7 @@ resource "helm_release" "vault" {
     injector:
       enabled: false
     server:
+      updateStrategyType: RollingUpdate
       dev:
         enabled: true
         devRootToken: "${random_password.root_token.result}"

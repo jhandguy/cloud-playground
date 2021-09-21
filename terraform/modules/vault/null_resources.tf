@@ -3,7 +3,6 @@ resource "null_resource" "auth" {
 
   provisioner "local-exec" {
     command = <<-EOF
-      kubectl wait --for=condition=ready --timeout=60s pod/vault-0 -n vault
       kubectl exec vault-0 -n vault -- vault auth enable kubernetes
       kubectl exec vault-0 -n vault -- sh -c 'vault write auth/kubernetes/config \
         issuer="https://kubernetes.default.svc.cluster.local" \
