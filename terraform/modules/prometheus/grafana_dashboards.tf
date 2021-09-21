@@ -1,4 +1,4 @@
-resource "grafana_dashboard" "s3" {
+resource "grafana_dashboard" "dashboards" {
   depends_on = [helm_release.prometheus]
   for_each   = toset(var.grafana_dashboards)
 
