@@ -10,6 +10,7 @@ A Playground to experiment with various DevOps tools and technologies.
 - LocalStack
 - Prometheus
 - Grafana
+- Loki
 - AlertManager
 - PushGateway
 - Consul

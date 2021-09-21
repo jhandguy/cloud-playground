@@ -20,6 +20,10 @@ compile_dynamo:
 compile_gateway:
 	make -C gateway compile
 
+format:
+	terraform fmt -recursive
+	terraform-docs markdown table terraform --output-file README.md --recursive
+
 lint:
 	make lint_terraform
 	make -C s3 lint
@@ -83,6 +87,7 @@ teardown_minikube:
 
 update:
 	make -j update_terraform update_s3 update_dynamo update_gateway update_cli
+	make -j format
 
 update_terraform:
 	terraform -chdir=terraform init -upgrade

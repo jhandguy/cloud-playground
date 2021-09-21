@@ -1,4 +1,5 @@
 variable "test_rounds" {
-  type    = number
-  default = 50
+  type        = number
+  description = "Test rounds"
+  default     = 50
 }

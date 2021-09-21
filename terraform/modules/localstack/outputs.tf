@@ -1,5 +1,6 @@
 output "aws_s3_endpoint" {
-  value = "${var.node_ip}:${var.node_port}"
+  value       = "${var.node_ip}:${var.node_port}"
+  description = "AWS S3 endpoint"
 }
 
 output "aws_s3_buckets" {
@@ -10,7 +11,8 @@ output "aws_s3_buckets" {
 }
 
 output "aws_dynamo_endpoint" {
-  value = "${var.node_ip}:${var.node_port}"
+  value       = "${var.node_ip}:${var.node_port}"
+  description = "AWS DynamoDB endpoint"
 }
 
 output "aws_dynamo_tables" {
