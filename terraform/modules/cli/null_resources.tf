@@ -1,4 +1,4 @@
-resource "null_resource" "auth" {
+resource "null_resource" "logs" {
   depends_on = [helm_release.cli]
 
   provisioner "local-exec" {
