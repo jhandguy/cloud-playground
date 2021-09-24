@@ -7,7 +7,8 @@ resource "helm_release" "metrics" {
   wait             = true
   version          = "3.5.0"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     args:
       - --metric-resolution=10s
       - --kubelet-insecure-tls

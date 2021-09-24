@@ -7,7 +7,8 @@ resource "helm_release" "consul" {
   wait             = true
   version          = "0.34.1"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     global:
       datacenter: consul
     connectInject:

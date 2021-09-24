@@ -7,7 +7,8 @@ resource "helm_release" "prometheus" {
   wait             = true
   version          = "18.0.10"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     alertmanager:
       service:
         type: NodePort

@@ -7,7 +7,8 @@ resource "helm_release" "vault" {
   wait             = true
   version          = "0.16.0"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     injector:
       enabled: false
     server:

@@ -7,7 +7,8 @@ resource "helm_release" "localstack" {
   wait             = true
   version          = "0.3.3"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     startServices: s3,dynamodb
     service:
       edgeService:

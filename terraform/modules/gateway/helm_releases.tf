@@ -6,7 +6,8 @@ resource "helm_release" "gateway" {
   wait             = true
   version          = "1.0.0"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     replicas: 1
     horizontalPodAutoscaler:
       minReplicas: 1

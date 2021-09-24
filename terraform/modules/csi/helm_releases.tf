@@ -7,7 +7,8 @@ resource "helm_release" "csi" {
   wait             = true
   version          = "0.2.0"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     syncSecret:
       enabled: true
     EOF

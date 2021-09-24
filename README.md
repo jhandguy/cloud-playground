@@ -17,7 +17,6 @@ A Playground to experiment with various DevOps tools and technologies.
 - Vault
 - CSI
 
-
 ## Technologies
 
 - Terraform

@@ -7,7 +7,8 @@ resource "helm_release" "pushgateway" {
   wait             = true
   version          = "1.11.0"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     service:
       type: NodePort
       nodePort: ${var.node_port}

@@ -7,7 +7,8 @@ resource "helm_release" "cli" {
   wait_for_jobs    = true
   version          = "1.0.0"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     test:
       rounds: ${var.test_rounds}
     EOF

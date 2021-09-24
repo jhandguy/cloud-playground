@@ -7,7 +7,8 @@ resource "helm_release" "loki" {
   wait             = true
   version          = "2.4.1"
 
-  values = [<<-EOF
+  values = [
+    <<-EOF
     loki:
       service:
         type: NodePort
