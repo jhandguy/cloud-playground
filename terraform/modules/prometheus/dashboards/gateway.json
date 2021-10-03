@@ -107,7 +107,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_success[$__rate_interval])) by (deployment) / sum(rate(devops_playground_gateway_requests_total[$__rate_interval])) by (deployment)",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[$__rate_interval])) by (deployment) / sum(rate(devops_playground_gateway_requests_count[$__rate_interval])) by (deployment)",
           "interval": "",
           "legendFormat": "{{deployment}}",
           "refId": "A"
@@ -115,7 +115,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "SLI",
+      "title": "Success Share",
       "type": "timeseries"
     },
     {
@@ -169,7 +169,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_success[5m])) by (deployment) / sum(rate(devops_playground_gateway_requests_total[5m])) by (deployment)",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[5m])) by (deployment) / sum(rate(devops_playground_gateway_requests_count[5m])) by (deployment)",
           "interval": "",
           "legendFormat": "{{deployment}}",
           "refId": "A"
@@ -177,7 +177,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "SLI (5m)",
+      "title": "Success Share (5m)",
       "type": "gauge"
     },
     {
@@ -231,7 +231,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_total{deployment=\"prod\"}[5m])) / sum(rate(devops_playground_gateway_requests_total[5m]))",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{deployment=\"prod\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
           "instant": false,
           "interval": "",
           "legendFormat": "prod",
@@ -239,7 +239,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_total{deployment=\"canary\"}[5m])) / sum(rate(devops_playground_gateway_requests_total[5m]))",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{deployment=\"canary\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -326,7 +326,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_gateway_requests_total[$__rate_interval])) by (path, method)",
+          "expr": "sum(rate(devops_playground_gateway_requests_count[$__rate_interval])) by (path, method)",
           "interval": "",
           "legendFormat": "{{path}} - {{method}}",
           "refId": "A"
@@ -481,7 +481,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "99th percentile",
+      "title": "99th Percentile",
       "type": "timeseries"
     },
     {
@@ -566,8 +566,116 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "50th percentile",
+      "title": "50th Percentile",
       "type": "timeseries"
+    },
+    {
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=\"gateway\", container=\"gateway\", stream=\"stderr\"}[$__interval]))",
+          "legendFormat": "Count",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 13,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "expr": "{namespace=\"gateway\", container=\"gateway\", stream=\"stderr\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs",
+      "type": "logs"
     }
   ],
   "schemaVersion": 30,

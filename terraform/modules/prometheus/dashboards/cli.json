@@ -81,7 +81,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(devops_playground_cli_requests_success) by (path, method) / sum(devops_playground_cli_requests_total) by (path, method)",
+          "expr": "sum(devops_playground_cli_requests_count{success=\"true\"}) by (path, method) / sum(devops_playground_cli_requests_count) by (path, method)",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -91,7 +91,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "SLI",
+      "title": "Success Share",
       "transformations": [],
       "type": "gauge"
     },
@@ -143,7 +143,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(devops_playground_cli_requests_success{deployment=\"prod\"}) / sum(devops_playground_cli_requests_total)",
+          "expr": "sum(devops_playground_cli_requests_count{deployment=\"prod\"}) / sum(devops_playground_cli_requests_count)",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -152,7 +152,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(devops_playground_cli_requests_success{deployment=\"canary\"}) / sum(devops_playground_cli_requests_total)",
+          "expr": "sum(devops_playground_cli_requests_count{deployment=\"canary\"}) / sum(devops_playground_cli_requests_count)",
           "hide": false,
           "instant": true,
           "interval": "",
@@ -274,7 +274,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "99th percentile",
+      "title": "99th Percentile",
       "type": "gauge"
     },
     {
@@ -330,7 +330,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "50th percentile",
+      "title": "50th Percentile",
       "type": "gauge"
     }
   ],

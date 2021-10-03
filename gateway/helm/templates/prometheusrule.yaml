@@ -9,17 +9,31 @@ spec:
   groups:
     - name: Gateway
       rules:
-        - alert: GatewaySliCritical
-          expr: sum(rate(devops_playground_gateway_requests_success[5m])) / sum(rate(devops_playground_gateway_requests_total[5m])) < {{ .Values.prometheus.sli }}
+        - alert: GatewaySuccessShareCritical
+          expr: sum(rate(devops_playground_gateway_requests_count{success="true"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
           for: 2m
           labels:
             severity: critical
           annotations:
-            summary: "Gateway SLI is below the threshold for more than 2m minutes"
-        - alert: GatewaySliWarning
-          expr: sum(rate(devops_playground_gateway_requests_success[5m])) / sum(rate(devops_playground_gateway_requests_total[5m])) < {{ .Values.prometheus.sli }}
+            summary: "Gateway Success Share is below the threshold for more than 2 minutes"
+        - alert: GatewaySuccessShareWarning
+          expr: sum(rate(devops_playground_gateway_requests_count{success="true"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
           for: 1m
           labels:
             severity: warning
           annotations:
-            summary: "Gateway SLI is below the threshold"
+            summary: "Gateway Success Share is below the threshold"
+        - alert: GatewayLatency99thPercentileCritical
+          expr: histogram_quantile(0.99, sum(rate(devops_playground_gateway_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Gateway Latency 99th Percentile is above the threshold for more than 2 minutes"
+        - alert: GatewayLatency99thPercentileWarning
+          expr: histogram_quantile(0.99, sum(rate(devops_playground_gateway_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Gateway Latency 99th Percentile is above the threshold"

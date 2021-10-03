@@ -30,26 +30,18 @@ var testLoadCmd = &cobra.Command{
 }
 
 var (
-	totalReqCounter = prometheus.NewCounterVec(
+	requestCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "devops_playground_cli_requests_total",
-			Help: "Total requests counter per path and method",
+			Name: "devops_playground_cli_requests_count",
+			Help: "Request counter per path, method and deployment",
 		},
-		[]string{"path", "method"},
-	)
-
-	successReqCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "devops_playground_cli_requests_success",
-			Help: "Successful requests counter per path, method and deployment",
-		},
-		[]string{"path", "method", "deployment"},
+		[]string{"path", "method", "deployment", "success"},
 	)
 
 	latencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "devops_playground_cli_requests_latency",
-			Help: "Requests latency histogram per path and method",
+			Help: "Request latency histogram per path and method",
 		},
 		[]string{"path", "method"},
 	)
@@ -82,18 +74,13 @@ func init() {
 
 	testLoadCmd.Flags().IntVarP(&rounds, "rounds", "r", 100, "number of test rounds")
 
-	prometheus.MustRegister(totalReqCounter)
-	prometheus.MustRegister(successReqCounter)
+	prometheus.MustRegister(requestCounter)
 	prometheus.MustRegister(latencyHistogram)
 }
 
 func createMessage() (*message.Message, error) {
 	startTime := time.Now()
 	res, err := message.Create(message.Message{Content: "content"})
-
-	totalReqCounter.
-		WithLabelValues("message", "create").
-		Inc()
 
 	latencyHistogram.
 		WithLabelValues("message", "create").
@@ -102,15 +89,18 @@ func createMessage() (*message.Message, error) {
 	if err != nil {
 		return nil, err
 	}
+	deployment := res.Header().Get("x-debug")
 
 	if res.IsError() {
+		requestCounter.
+			WithLabelValues("message", "create", deployment, "false").
+			Inc()
+
 		return nil, fmt.Errorf("failed to create message: %d", res.StatusCode())
 	}
 
-	deployment := res.Header().Get("x-debug")
-
-	successReqCounter.
-		WithLabelValues("message", "create", deployment).
+	requestCounter.
+		WithLabelValues("message", "create", deployment, "true").
 		Inc()
 
 	return res.Result().(*message.Message), nil
@@ -120,10 +110,6 @@ func getMessage(id string) (*message.Message, error) {
 	startTime := time.Now()
 	res, err := message.Get(id)
 
-	totalReqCounter.
-		WithLabelValues("message", "get").
-		Inc()
-
 	latencyHistogram.
 		WithLabelValues("message", "get").
 		Observe(time.Since(startTime).Seconds())
@@ -131,15 +117,18 @@ func getMessage(id string) (*message.Message, error) {
 	if err != nil {
 		return nil, err
 	}
+	deployment := res.Header().Get("x-debug")
 
 	if res.IsError() {
+		requestCounter.
+			WithLabelValues("message", "get", deployment, "false").
+			Inc()
+
 		return nil, fmt.Errorf("failed to get message: %d", res.StatusCode())
 	}
 
-	deployment := res.Header().Get("x-debug")
-
-	successReqCounter.
-		WithLabelValues("message", "get", deployment).
+	requestCounter.
+		WithLabelValues("message", "get", deployment, "true").
 		Inc()
 
 	return res.Result().(*message.Message), nil
@@ -149,10 +138,6 @@ func deleteMessage(id string) error {
 	startTime := time.Now()
 	res, err := message.Delete(id)
 
-	totalReqCounter.
-		WithLabelValues("message", "delete").
-		Inc()
-
 	latencyHistogram.
 		WithLabelValues("message", "delete").
 		Observe(time.Since(startTime).Seconds())
@@ -160,15 +145,18 @@ func deleteMessage(id string) error {
 	if err != nil {
 		return err
 	}
+	deployment := res.Header().Get("x-debug")
 
 	if res.IsError() {
+		requestCounter.
+			WithLabelValues("message", "delete", deployment, "false").
+			Inc()
+
 		return fmt.Errorf("failed to delete message: %d", res.StatusCode())
 	}
 
-	deployment := res.Header().Get("x-debug")
-
-	successReqCounter.
-		WithLabelValues("message", "delete", deployment).
+	requestCounter.
+		WithLabelValues("message", "delete", deployment, "true").
 		Inc()
 
 	return nil
@@ -177,8 +165,7 @@ func deleteMessage(id string) error {
 func pushMetrics() {
 	url := fmt.Sprintf("http://%s", viper.GetString("pushgateway-url"))
 	if err := push.New(url, "cli").
-		Collector(totalReqCounter).
-		Collector(successReqCounter).
+		Collector(requestCounter).
 		Collector(latencyHistogram).
 		Push(); err != nil {
 		log.Fatal(err)

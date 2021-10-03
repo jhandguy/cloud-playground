@@ -9,17 +9,31 @@ spec:
   groups:
     - name: S3
       rules:
-        - alert: S3SliCritical
-          expr: sum(rate(devops_playground_s3_requests_success[5m])) / sum(rate(devops_playground_s3_requests_total[5m])) < {{ .Values.prometheus.sli }}
+        - alert: S3SuccessShareCritical
+          expr: sum(rate(devops_playground_s3_requests_count{success="true"}[5m])) / sum(rate(devops_playground_s3_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
           for: 2m
           labels:
             severity: critical
           annotations:
-            summary: "S3 SLI is below the threshold for more than 2m minutes"
-        - alert: S3SliWarning
-          expr: sum(rate(devops_playground_s3_requests_success[5m])) / sum(rate(devops_playground_s3_requests_total[5m])) < {{ .Values.prometheus.sli }}
+            summary: "S3 Success Share is below the threshold for more than 2 minutes"
+        - alert: S3SuccessShareWarning
+          expr: sum(rate(devops_playground_s3_requests_count{success="true"}[5m])) / sum(rate(devops_playground_s3_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
           for: 1m
           labels:
             severity: warning
           annotations:
-            summary: "S3 SLI is below the threshold"
+            summary: "S3 Success Share is below the threshold"
+        - alert: S3Latency99thPercentileCritical
+          expr: histogram_quantile(0.99, sum(rate(devops_playground_s3_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "S3 Latency 99th Percentile is above the threshold for more than 2 minutes"
+        - alert: S3Latency99thPercentileWarning
+          expr: histogram_quantile(0.99, sum(rate(devops_playground_s3_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "S3 Latency 99th Percentile is above the threshold"

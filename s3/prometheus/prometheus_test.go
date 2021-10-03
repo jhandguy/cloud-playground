@@ -11,8 +11,7 @@ import (
 func TestCollectors(t *testing.T) {
 	colls := []prometheus.Collector{
 		collectors.NewBuildInfoCollector(),
-		totalReqCounter,
-		successReqCounter,
+		requestCounter,
 		latencyHistogram,
 	}
 

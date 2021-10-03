@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -10,26 +11,18 @@ import (
 )
 
 var (
-	totalReqCounter = prometheus.NewCounterVec(
+	requestCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "devops_playground_s3_requests_total",
-			Help: "Total requests counter per method",
+			Name: "devops_playground_s3_requests_count",
+			Help: "Request counter per method",
 		},
-		[]string{"method"},
-	)
-
-	successReqCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "devops_playground_s3_requests_success",
-			Help: "Successful requests counter per method",
-		},
-		[]string{"method"},
+		[]string{"method", "success"},
 	)
 
 	latencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "devops_playground_s3_requests_latency",
-			Help: "Requests latency histogram per method",
+			Help: "Request latency histogram per method",
 		},
 		[]string{"method"},
 	)
@@ -37,8 +30,7 @@ var (
 
 func init() {
 	prometheus.MustRegister(collectors.NewBuildInfoCollector())
-	prometheus.MustRegister(totalReqCounter)
-	prometheus.MustRegister(successReqCounter)
+	prometheus.MustRegister(requestCounter)
 	prometheus.MustRegister(latencyHistogram)
 }
 
@@ -50,19 +42,18 @@ func CollectMetrics(ctx context.Context, req interface{}, info *grpc.UnaryServer
 	startTime := time.Now()
 	res, err := handler(ctx, req)
 
-	totalReqCounter.
-		WithLabelValues(info.FullMethod).
+	success := false
+	if err == nil {
+		success = true
+	}
+
+	requestCounter.
+		WithLabelValues(info.FullMethod, strconv.FormatBool(success)).
 		Inc()
 
 	latencyHistogram.
 		WithLabelValues(info.FullMethod).
 		Observe(time.Since(startTime).Seconds())
-
-	if err == nil {
-		successReqCounter.
-			WithLabelValues(info.FullMethod).
-			Inc()
-	}
 
 	return res, err
 }

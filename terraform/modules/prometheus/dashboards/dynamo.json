@@ -76,7 +76,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_dynamo_requests_success[5m])) / sum(rate(devops_playground_dynamo_requests_total[5m]))",
+          "expr": "sum(rate(devops_playground_dynamo_requests_count{success=\"true\"}[5m])) / sum(rate(devops_playground_dynamo_requests_count[5m]))",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -84,7 +84,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "SLI (5m)",
+      "title": "Success Share (5m)",
       "type": "gauge"
     },
     {
@@ -167,15 +167,15 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_dynamo_requests_success[$__rate_interval])) / sum(rate(devops_playground_dynamo_requests_total[$__rate_interval]))",
+          "expr": "sum(rate(devops_playground_dynamo_requests_count{success=\"true\"}[$__rate_interval])) / sum(rate(devops_playground_dynamo_requests_count[$__rate_interval]))",
           "interval": "",
-          "legendFormat": "SLI",
+          "legendFormat": "Success Share",
           "refId": "A"
         }
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "SLI",
+      "title": "Success Share",
       "type": "timeseries"
     },
     {
@@ -252,7 +252,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_dynamo_requests_total[$__rate_interval])) by (method)",
+          "expr": "sum(rate(devops_playground_dynamo_requests_count[$__rate_interval])) by (method)",
           "interval": "",
           "legendFormat": "{{method}}",
           "refId": "A"
@@ -407,7 +407,7 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "99th percentile",
+      "title": "99th Percentile",
       "type": "timeseries"
     },
     {
@@ -492,8 +492,116 @@
       ],
       "timeFrom": null,
       "timeShift": null,
-      "title": "50th percentile",
+      "title": "50th Percentile",
       "type": "timeseries"
+    },
+    {
+      "datasource": "Loki",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({namespace=\"dynamo\", container=\"dynamo\", stream=\"stderr\"}[$__interval]))",
+          "legendFormat": "Count",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Loki",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 13,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": false,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "targets": [
+        {
+          "expr": "{namespace=\"dynamo\", container=\"dynamo\", stream=\"stderr\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "Error Logs",
+      "type": "logs"
     }
   ],
   "schemaVersion": 30,

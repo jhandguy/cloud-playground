@@ -3,6 +3,7 @@ package prometheus
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,26 +14,18 @@ import (
 )
 
 var (
-	totalReqCounter = prometheus.NewCounterVec(
+	requestCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "devops_playground_gateway_requests_total",
-			Help: "Total requests counter per path and method",
+			Name: "devops_playground_gateway_requests_count",
+			Help: "Request counter per path and method",
 		},
-		[]string{"path", "method", "deployment"},
-	)
-
-	successReqCounter = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "devops_playground_gateway_requests_success",
-			Help: "Successful requests counter per path and method",
-		},
-		[]string{"path", "method", "deployment"},
+		[]string{"path", "method", "deployment", "success"},
 	)
 
 	latencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
 			Name: "devops_playground_gateway_requests_latency",
-			Help: "Requests latency histogram per path and method",
+			Help: "Request latency histogram per path and method",
 		},
 		[]string{"path", "method", "deployment"},
 	)
@@ -40,8 +33,7 @@ var (
 
 func init() {
 	prometheus.MustRegister(collectors.NewBuildInfoCollector())
-	prometheus.MustRegister(totalReqCounter)
-	prometheus.MustRegister(successReqCounter)
+	prometheus.MustRegister(requestCounter)
 	prometheus.MustRegister(latencyHistogram)
 }
 
@@ -75,18 +67,17 @@ func CollectMetrics(next http.Handler) http.Handler {
 		startTime := time.Now()
 		next.ServeHTTP(rw, r)
 
-		totalReqCounter.
-			WithLabelValues(path, r.Method, deployment).
+		success := false
+		if rw.statusCode < http.StatusBadRequest {
+			success = true
+		}
+
+		requestCounter.
+			WithLabelValues(path, r.Method, deployment, strconv.FormatBool(success)).
 			Inc()
 
 		latencyHistogram.
 			WithLabelValues(path, r.Method, deployment).
 			Observe(time.Since(startTime).Seconds())
-
-		if rw.statusCode < http.StatusBadRequest {
-			successReqCounter.
-				WithLabelValues(path, r.Method, deployment).
-				Inc()
-		}
 	})
 }

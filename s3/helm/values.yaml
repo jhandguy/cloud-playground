@@ -15,4 +15,5 @@ image:
   repository: jhandguy/devops-playground/s3
   tag: 1.0.0
 prometheus:
-  sli: 0.99
+  successShareThreshold: 0.99
+  latency99thPercentileThreshold: 2
