@@ -1,0 +1,16 @@
+- name: Dynamo
+  rules:
+    - alert: DynamoErrorCountCritical
+      expr: sum(count_over_time({namespace="dynamo", container="dynamo", stream="stderr"}[5m])) > 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Dynamo Error Count is above 0 for more than 2 minutes"
+    - alert: DynamoErrorCountWarning
+      expr: sum(count_over_time({namespace="dynamo", container="dynamo", stream="stderr"}[5m])) > 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Dynamo Error Count is above 0"

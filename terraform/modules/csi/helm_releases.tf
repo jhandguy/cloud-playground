@@ -1,7 +1,7 @@
 resource "helm_release" "csi" {
   name             = "csi"
   namespace        = "csi"
-  repository       = "https://raw.githubusercontent.com/kubernetes-sigs/secrets-store-csi-driver/master/charts"
+  repository       = "https://kubernetes-sigs.github.io/secrets-store-csi-driver/charts"
   chart            = "secrets-store-csi-driver"
   create_namespace = true
   wait             = true

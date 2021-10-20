@@ -1,0 +1,16 @@
+- name: S3
+  rules:
+    - alert: S3ErrorCountCritical
+      expr: sum(count_over_time({namespace="s3", container="s3", stream="stderr"}[5m])) > 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "S3 Error Count is above 0 for more than 2 minutes"
+    - alert: S3ErrorCountWarning
+      expr: sum(count_over_time({namespace="s3", container="s3", stream="stderr"}[5m])) > 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "S3 Error Count is above 0"

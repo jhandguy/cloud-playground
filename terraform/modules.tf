@@ -80,7 +80,10 @@ module "loki" {
   depends_on = [module.prometheus]
   source     = "./modules/loki"
 
-  node_port = module.minikube.node_ports["loki"]
+  alerting_rules         = ["dynamo", "s3", "gateway", "cli"]
+  alertmanager_node_port = module.minikube.node_ports["alertmanager"]
+  node_ip                = var.node_ip
+  node_port              = module.minikube.node_ports["loki"]
 }
 
 module "cli" {

@@ -1,0 +1,16 @@
+- name: Gateway
+  rules:
+    - alert: GatewayErrorCountCritical
+      expr: sum(count_over_time({namespace="gateway", container="gateway", stream="stderr"}[5m])) > 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Gateway Error Count is above 0 for more than 2 minutes"
+    - alert: GatewayErrorCountWarning
+      expr: sum(count_over_time({namespace="gateway", container="gateway", stream="stderr"}[5m])) > 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Gateway Error Count is above 0"

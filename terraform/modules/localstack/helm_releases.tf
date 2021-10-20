@@ -1,7 +1,7 @@
 resource "helm_release" "localstack" {
   name             = "localstack"
   namespace        = "localstack"
-  repository       = "http://helm.localstack.cloud"
+  repository       = "https://localstack.github.io/helm-charts"
   chart            = "localstack"
   create_namespace = true
   wait             = true
