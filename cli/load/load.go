@@ -3,6 +3,7 @@ package load
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"strings"
 	"sync"
 	"time"
@@ -180,10 +181,17 @@ func testLoad(cmd *cobra.Command, _ []string) {
 		log.Fatal(err)
 	}
 
+	sleep := func(sec int) {
+		duration := time.Duration(rand.Intn(sec))
+		time.Sleep(duration * time.Second)
+	}
+
 	for r := 0; r < rounds; r++ {
 		wg.Add(1)
 
 		go func() {
+			sleep(40)
+
 			msg, err := createMessage()
 			if err != nil {
 				failures++
@@ -191,12 +199,16 @@ func testLoad(cmd *cobra.Command, _ []string) {
 				return
 			}
 
+			sleep(10)
+
 			msg, err = getMessage(msg.ID)
 			if err != nil {
 				failures++
 				wg.Done()
 				return
 			}
+
+			sleep(10)
 
 			err = deleteMessage(msg.ID)
 			if err != nil {
