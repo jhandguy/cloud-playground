@@ -20,6 +20,11 @@ test: export DYNAMO_URL=$(shell terraform -chdir=../terraform output -json dynam
 test:
 	go test ./... -cover -race
 
+load: export DYNAMO_TOKEN=$(shell terraform -chdir=../terraform output -json dynamo_token | jq -r .)
+load: export DYNAMO_URL=$(shell terraform -chdir=../terraform output -json dynamo_url | jq -r .)
+load:
+	k6 run k6/script.js
+
 update:
 	go get -u
 	go mod tidy

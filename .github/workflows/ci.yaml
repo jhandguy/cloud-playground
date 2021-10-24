@@ -197,7 +197,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
 
       - name: Run all tests
         run: make ci

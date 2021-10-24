@@ -16,6 +16,7 @@ A Playground to experiment with various DevOps tools and technologies.
 - Consul
 - Vault
 - CSI
+- K6
 
 ## Technologies
 
@@ -70,7 +71,7 @@ A Playground to experiment with various DevOps tools and technologies.
 ### Install Prerequisites
 
 ```shell
-brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform
+brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
 ```
 
 ### Create Infrastructure

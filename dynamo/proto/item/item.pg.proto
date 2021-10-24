@@ -20,15 +20,15 @@ message GetItemRequest {
 }
 
 message GetItemResponse {
-    Item Item = 1;
+    Item item = 1;
 }
 
 message CreateItemRequest {
-    Item Item = 1;
+    Item item = 1;
 }
 
 message CreateItemResponse {
-    Item Item = 1;
+    Item item = 1;
 }
 
 message DeleteItemRequest {

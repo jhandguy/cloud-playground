@@ -23,6 +23,11 @@ test: export DYNAMO_TOKEN=$(shell terraform -chdir=../terraform output -json dyn
 test:
 	go test ./... -cover -race
 
+load: export GATEWAY_TOKEN=$(shell terraform -chdir=../terraform output -json gateway_token | jq -r .)
+load: export GATEWAY_URL=$(shell terraform -chdir=../terraform output -json ingress_gateway_url | jq -r .)
+load:
+	k6 run k6/script.js
+
 update:
 	go get -u
 	go mod tidy

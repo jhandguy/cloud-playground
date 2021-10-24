@@ -6,7 +6,7 @@ export TF_VAR_aws_region=$(AWS_REGION)
 export TF_VAR_aws_access_key_id=$(AWS_ACCESS_KEY_ID)
 export TF_VAR_aws_secret_access_key=$(AWS_SECRET_ACCESS_KEY)
 
-ci: lint_terraform setup compile build test teardown
+ci: lint_terraform setup compile build test load teardown
 
 compile:
 	make -j compile_s3 compile_dynamo compile_gateway
@@ -75,6 +75,20 @@ test_gateway:
 
 test_cli:
 	make -C cli test
+
+load:
+	make load_s3
+	make load_dynamo
+	make load_gateway
+
+load_s3:
+	make -C s3 load
+
+load_dynamo:
+	make -C dynamo load
+
+load_gateway:
+	make -C gateway load
 
 teardown: teardown_terraform teardown_minikube
 

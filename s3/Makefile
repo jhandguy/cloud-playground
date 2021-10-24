@@ -20,6 +20,11 @@ test: export S3_URL=$(shell terraform -chdir=../terraform output -json s3_url | 
 test:
 	go test ./... -cover -race
 
+load: export S3_TOKEN=$(shell terraform -chdir=../terraform output -json s3_token | jq -r .)
+load: export S3_URL=$(shell terraform -chdir=../terraform output -json s3_url | jq -r .)
+load:
+	k6 run k6/script.js
+
 update:
 	go get -u
 	go mod tidy
