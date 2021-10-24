@@ -5,7 +5,7 @@ resource "helm_release" "csi" {
   chart            = "secrets-store-csi-driver"
   create_namespace = true
   wait             = true
-  version          = "0.2.0"
+  version          = "1.0.0"
 
   values = [
     <<-EOF

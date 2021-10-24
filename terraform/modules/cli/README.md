@@ -27,7 +27,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_test_rounds"></a> [test\_rounds](#input\_test\_rounds) | Test rounds | `number` | `50` | no |
+| <a name="input_test_rounds"></a> [test\_rounds](#input\_test\_rounds) | Test rounds | `number` | `100` | no |
 
 ## Outputs
 

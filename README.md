@@ -31,6 +31,11 @@ A Playground to experiment with various DevOps tools and technologies.
 - HCL
 - JavaScript
 
+## Protocols
+
+- gRPC
+- REST
+
 ## Architecture
 
 ```text
