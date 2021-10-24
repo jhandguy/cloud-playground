@@ -29,6 +29,7 @@ A Playground to experiment with various DevOps tools and technologies.
 - Golang
 - YAML
 - HCL
+- JavaScript
 
 ## Architecture
 
@@ -68,7 +69,7 @@ A Playground to experiment with various DevOps tools and technologies.
                -------
 ```
 
-### Install Prerequisites
+### Install Required Tools
 
 ```shell
 brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
@@ -84,6 +85,12 @@ make setup
 
 ```shell
 make test
+```
+
+### Run Load Tests
+
+```shell
+make load
 ```
 
 ### Destroy Infrastructure
