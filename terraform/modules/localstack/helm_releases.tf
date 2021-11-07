@@ -13,10 +13,12 @@ resource "helm_release" "localstack" {
     service:
       edgeService:
         nodePort: ${var.node_port}
+%{if var.consul_enabled}
     podAnnotations:
       'consul.hashicorp.com/connect-inject': "true"
       'consul.hashicorp.com/connect-service': "localstack"
       'consul.hashicorp.com/connect-service-port': "edge"
+%{endif}
     persistence:
       enabled: true
     EOF

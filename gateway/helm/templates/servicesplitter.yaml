@@ -1,3 +1,4 @@
+{{- if .Values.consul.enabled }}
 apiVersion: consul.hashicorp.com/v1alpha1
 kind: ServiceSplitter
 metadata:
@@ -9,3 +10,4 @@ spec:
     - service: {{ $.Release.Name }}-{{ $name }}
       weight: {{ $service.weight }}
     {{- end }}
+{{- end }}

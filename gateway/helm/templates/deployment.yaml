@@ -15,6 +15,7 @@ spec:
     metadata:
       labels: *labels
       annotations:
+        {{- if $.Values.consul.enabled }}
         'consul.hashicorp.com/connect-inject': "true"
         'consul.hashicorp.com/connect-service': "{{ $.Release.Name }}-{{ $name }}"
         'consul.hashicorp.com/connect-service-port': "http"
@@ -25,20 +26,37 @@ spec:
         'consul.hashicorp.com/sidecar-proxy-memory-limit': "{{ .limits.memory }}"
         'consul.hashicorp.com/sidecar-proxy-cpu-limit': "{{ .limits.cpu }}"
         {{- end }}
+        {{- end }}
     spec:
       serviceAccountName: {{ $.Release.Name }}
       containers:
         - name: {{ $.Release.Name }}
           image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $service.tag }}"
           volumeMounts:
+            {{- if $.Values.csi.enabled }}
             - name: {{ $.Release.Name }}
               mountPath: "/mnt/{{ $.Release.Name }}"
               readOnly: true
+            {{- end }}
           env:
             - name: S3_URL
+              {{- if $.Values.consul.enabled }}
               value: "localhost:8081"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: s3_url
+              {{- end }}
             - name: DYNAMO_URL
+              {{- if $.Values.consul.enabled }}
               value: "localhost:8082"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: dynamo_url
+              {{- end }}
             - name: S3_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -107,10 +125,12 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
       volumes:
+        {{- if $.Values.csi.enabled }}
         - name: {{ $.Release.Name }}
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
               secretProviderClass: {{ $.Release.Name }}
+        {{- end }}
 {{- end }}

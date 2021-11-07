@@ -21,6 +21,7 @@ export default function () {
     const params = {
         headers: {
             'Authorization': __ENV.GATEWAY_TOKEN,
+            'Host': __ENV.GATEWAY_HOST,
             'Content-Type': 'application/json',
         },
     };

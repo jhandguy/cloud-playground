@@ -17,6 +17,8 @@ A Playground to experiment with various DevOps tools and technologies.
 - Vault
 - CSI
 - K6
+- IngressNGINX
+- CertManager
 
 ## Technologies
 
@@ -40,8 +42,6 @@ A Playground to experiment with various DevOps tools and technologies.
 
 ```text
  -----------------------------------
-|         [CONSUL + VAULT]          |
-|                                   |
 |     -----------   -----------     |
 |    | Dynamo DB | | S3 Bucket |    |
 |     -----------   -----------     |
@@ -63,9 +63,9 @@ A Playground to experiment with various DevOps tools and technologies.
 |           50%       50%           |
 |            ||       ||            |
  -----------------------------------
-         -------------------
-        |  Ingress Gateway  |
-         -------------------
+             -----------
+            |  Ingress  |
+             -----------
                   |
                  REST
                   |
@@ -82,24 +82,56 @@ brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
 
 ### Create Infrastructure
 
+#### Consul
+
 ```shell
-make setup
+make setup ENVIRONMENT=consul
+```
+
+#### Nginx
+
+```shell
+make setup ENVIRONMENT=nginx
 ```
 
 ### Run Tests
 
+#### Consul
+
 ```shell
-make test
+make test ENVIRONMENT=consul
+```
+
+#### Nginx
+
+```shell
+make test ENVIRONMENT=nginx
 ```
 
 ### Run Load Tests
 
+#### Consul
+
 ```shell
-make load
+make load ENVIRONMENT=consul
+```
+
+#### Nginx
+
+```shell
+make load ENVIRONMENT=nginx
 ```
 
 ### Destroy Infrastructure
 
+#### Consul
+
 ```shell
-make teardown
+make teardown ENVIRONMENT=consul
+```
+
+#### Nginx
+
+```shell
+make teardown ENVIRONMENT=nginx
 ```

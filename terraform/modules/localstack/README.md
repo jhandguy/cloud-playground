@@ -33,6 +33,7 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws_dynamo_tables"></a> [aws\_dynamo\_tables](#input\_aws\_dynamo\_tables) | AWS DynamoDB tables | `list(string)` | `[]` | no |
 | <a name="input_aws_s3_buckets"></a> [aws\_s3\_buckets](#input\_aws\_s3\_buckets) | AWS S3 buckets | `list(string)` | `[]` | no |
+| <a name="input_consul_enabled"></a> [consul\_enabled](#input\_consul\_enabled) | Enable Consul | `bool` | `false` | no |
 | <a name="input_node_ip"></a> [node\_ip](#input\_node\_ip) | Node ip | `string` | n/a | yes |
 | <a name="input_node_port"></a> [node\_port](#input\_node\_port) | Node port | `number` | n/a | yes |
 
@@ -40,8 +41,10 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_aws_dynamo_cluster_endpoint"></a> [aws\_dynamo\_cluster\_endpoint](#output\_aws\_dynamo\_cluster\_endpoint) | AWS DynamoDB cluster endpoint |
 | <a name="output_aws_dynamo_endpoint"></a> [aws\_dynamo\_endpoint](#output\_aws\_dynamo\_endpoint) | AWS DynamoDB endpoint |
 | <a name="output_aws_dynamo_tables"></a> [aws\_dynamo\_tables](#output\_aws\_dynamo\_tables) | AWS DynamoDB tables |
 | <a name="output_aws_s3_buckets"></a> [aws\_s3\_buckets](#output\_aws\_s3\_buckets) | AWS S3 buckets |
+| <a name="output_aws_s3_cluster_endpoint"></a> [aws\_s3\_cluster\_endpoint](#output\_aws\_s3\_cluster\_endpoint) | AWS S3 cluster endpoint |
 | <a name="output_aws_s3_endpoint"></a> [aws\_s3\_endpoint](#output\_aws\_s3\_endpoint) | AWS S3 endpoint |
 <!-- END_TF_DOCS -->

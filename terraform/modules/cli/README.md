@@ -27,7 +27,10 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_csi_enabled"></a> [csi\_enabled](#input\_csi\_enabled) | Enable CSI | `bool` | `false` | no |
+| <a name="input_secrets"></a> [secrets](#input\_secrets) | Secrets | `map(string)` | `{}` | no |
 | <a name="input_test_rounds"></a> [test\_rounds](#input\_test\_rounds) | Test rounds | `number` | `100` | no |
+| <a name="input_vault_url"></a> [vault\_url](#input\_vault\_url) | Vault URL | `string` | `""` | no |
 
 ## Outputs
 

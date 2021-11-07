@@ -1,3 +1,4 @@
+{{- if .Values.consul.enabled }}
 apiVersion: consul.hashicorp.com/v1alpha1
 kind: IngressGateway
 metadata:
@@ -5,8 +6,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
 spec:
   listeners:
-    - port: {{ .Values.ingressGateway.port }}
+    - port: {{ .Values.consul.ingressGateway.port }}
       protocol: http
       services:
         - name: {{ .Release.Name }}
-          hosts: ["*"]
+          hosts:
+            - {{ $.Values.ingress.host }}
+{{- end }}

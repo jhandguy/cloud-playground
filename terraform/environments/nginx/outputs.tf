@@ -57,8 +57,13 @@ output "prod_gateway_url" {
 }
 
 output "ingress_gateway_url" {
-  value       = module.consul.ingress_gateway_urls["gateway"]
+  value       = module.nginx.url
   description = "Gateway Ingress URL"
+}
+
+output "ingress_gateway_host" {
+  value       = module.gateway.host
+  description = "Gateway Ingress host"
 }
 
 output "prometheus_url" {
@@ -87,18 +92,7 @@ output "grafana_admin_password" {
   sensitive   = true
 }
 
-output "consul_url" {
-  value       = module.consul.url
-  description = "Consul URL"
-}
-
-output "vault_url" {
-  value       = module.vault.url
-  description = "Vault URL"
-}
-
-output "vault_root_token" {
-  value       = module.vault.root_token
-  description = "Vault root token"
-  sensitive   = true
+output "nginx_url" {
+  value       = module.nginx.url
+  description = "NGINX Controller URL"
 }

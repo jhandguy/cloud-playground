@@ -1,3 +1,8 @@
+ENVIRONMENT ?=
+CHDIR = ../terraform/environments/$(ENVIRONMENT)
+GRPC_PORT ?= 8080
+METRICS_PORT ?= 9090
+
 compile:
 	protoc --go_out=. --go-grpc_out=. proto/item/item.pg.proto
 
@@ -9,24 +14,22 @@ build:
 	$(shell if [ $$(uname) != "Linux" ]; then echo "env GOOS=linux GOARCH=amd64"; fi) go build .
 	go test ./... -short -cover -race
 
-GRPC_PORT ?= 8080
-METRICS_PORT ?= 9090
-test: export AWS_DYNAMO_ENDPOINT=$(shell terraform -chdir=../terraform output -json aws_dynamo_endpoint | jq -r .)
-test: export AWS_DYNAMO_TABLE=$(shell terraform -chdir=../terraform output -json aws_dynamo_table | jq -r .)
+test: export AWS_DYNAMO_ENDPOINT=$(shell terraform -chdir=$(CHDIR) output -json aws_dynamo_endpoint | jq -r .)
+test: export AWS_DYNAMO_TABLE=$(shell terraform -chdir=$(CHDIR) output -json aws_dynamo_table | jq -r .)
 test: export DYNAMO_GRPC_PORT=$(GRPC_PORT)
 test: export DYNAMO_METRICS_PORT=$(METRICS_PORT)
-test: export DYNAMO_TOKEN=$(shell terraform -chdir=../terraform output -json dynamo_token | jq -r .)
-test: export DYNAMO_URL=$(shell terraform -chdir=../terraform output -json dynamo_url | jq -r .)
+test: export DYNAMO_TOKEN=$(shell terraform -chdir=$(CHDIR) output -json dynamo_token | jq -r .)
+test: export DYNAMO_URL=$(shell terraform -chdir=$(CHDIR) output -json dynamo_url | jq -r .)
 test:
 	go test ./... -cover -race
 
-load: export DYNAMO_TOKEN=$(shell terraform -chdir=../terraform output -json dynamo_token | jq -r .)
-load: export DYNAMO_URL=$(shell terraform -chdir=../terraform output -json dynamo_url | jq -r .)
+load: export DYNAMO_TOKEN=$(shell terraform -chdir=$(CHDIR) output -json dynamo_token | jq -r .)
+load: export DYNAMO_URL=$(shell terraform -chdir=$(CHDIR) output -json dynamo_url | jq -r .)
 load:
 	k6 run k6/script.js
 
 update:
-	go get -u
+	go get -u -t
 	go mod tidy
 
 docker:

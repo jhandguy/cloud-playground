@@ -70,6 +70,9 @@ func init() {
 	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
 	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))
 
+	Cmd.PersistentFlags().StringP("host", "o", "", "gateway host")
+	handleMissingFlag(viper.BindPFlag("gateway-host", Cmd.PersistentFlags().Lookup("host")))
+
 	Cmd.PersistentFlags().StringP("push", "p", "", "push gateway url")
 	handleMissingFlag(viper.BindPFlag("pushgateway-url", Cmd.PersistentFlags().Lookup("push")))
 

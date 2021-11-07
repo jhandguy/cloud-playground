@@ -6,6 +6,9 @@ export TF_VAR_aws_region=$(AWS_REGION)
 export TF_VAR_aws_access_key_id=$(AWS_ACCESS_KEY_ID)
 export TF_VAR_aws_secret_access_key=$(AWS_SECRET_ACCESS_KEY)
 
+ENVIRONMENT ?=
+CHDIR = terraform/environments/$(ENVIRONMENT)
+
 ci: lint_terraform setup compile build test load teardown
 
 compile:
@@ -22,7 +25,7 @@ compile_gateway:
 
 format:
 	terraform fmt -recursive
-	terraform-docs markdown table terraform --output-file README.md --recursive
+	terraform-docs markdown table $(CHDIR) --output-file README.md --recursive --recursive-path ../../modules
 
 lint:
 	make lint_terraform
@@ -55,10 +58,10 @@ setup_minikube:
 	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
 
 setup_terraform:
-	terraform -chdir=terraform init
-	terraform -chdir=terraform plan -var="node_ip=$(shell minikube ip)" -out=tfplan
-	terraform -chdir=terraform apply tfplan
-	rm terraform/tfplan
+	terraform -chdir=$(CHDIR) init
+	terraform -chdir=$(CHDIR) plan -var="node_ip=$(shell minikube ip)" -out=tfplan
+	terraform -chdir=$(CHDIR) apply tfplan
+	rm $(CHDIR)/tfplan
 
 test:
 	make -j test_s3 test_dynamo test_gateway
@@ -93,7 +96,7 @@ load_gateway:
 teardown: teardown_terraform teardown_minikube
 
 teardown_terraform:
-	terraform -chdir=terraform destroy -var="node_ip=$(shell minikube ip)" -auto-approve
+	terraform -chdir=$(CHDIR) destroy -var="node_ip=$(shell minikube ip)" -auto-approve
 
 teardown_minikube:
 	minikube stop
@@ -104,8 +107,8 @@ update:
 	make -j format
 
 update_terraform:
-	terraform -chdir=terraform init -upgrade
-	terraform -chdir=terraform providers lock
+	terraform -chdir=$(CHDIR) init -upgrade
+	terraform -chdir=$(CHDIR) providers lock
 
 update_s3:
 	make -C s3 update
@@ -120,7 +123,10 @@ update_cli:
 	make -C cli update
 
 docker:
-	make -j docker_s3 docker_dynamo docker_gateway docker_cli
+	make docker_s3
+	make docker_dynamo
+	make docker_gateway
+	make docker_cli
 
 docker_s3:
 	make -C s3 docker

@@ -176,10 +176,12 @@ func TestSystem(t *testing.T) {
 
 func testGateway(t *testing.T, url string) {
 	token := viper.GetString("gateway-token")
+	host := viper.GetString("gateway-host")
 	client := resty.
 		New().
-		SetHostURL(fmt.Sprintf("http://%s", url)).
+		SetBaseURL(fmt.Sprintf("http://%s", url)).
 		SetAuthToken(token).
+		SetHeader("Host", host).
 		SetDebug(true)
 
 	expMsg := message.Message{

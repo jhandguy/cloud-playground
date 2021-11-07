@@ -4,3 +4,8 @@ output "urls" {
   }
   description = "URLs"
 }
+
+output "host" {
+  value       = var.ingress_host
+  description = "Host"
+}

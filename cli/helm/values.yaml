@@ -4,3 +4,5 @@ image:
   tag: 1.0.0
 test:
   rounds: 100
+csi:
+  enabled: false

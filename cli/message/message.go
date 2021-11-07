@@ -39,9 +39,9 @@ var deleteMessageCmd = &cobra.Command{
 }
 
 var (
-	id, content string
-	client      *resty.Client
-	debug       string
+	id, content   string
+	client        *resty.Client
+	debug, canary string
 )
 
 func handleMissingFlag(err error) {
@@ -64,7 +64,11 @@ func init() {
 	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
 	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))
 
+	Cmd.PersistentFlags().StringP("host", "o", "", "gateway host")
+	handleMissingFlag(viper.BindPFlag("gateway-host", Cmd.PersistentFlags().Lookup("host")))
+
 	Cmd.PersistentFlags().StringVarP(&debug, "debug", "d", "", "debug header")
+	Cmd.PersistentFlags().StringVarP(&canary, "canary", "a", "", "canary header")
 
 	createMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	createMessageCmd.Flags().StringVarP(&content, "content", "c", "", "content of the message")
@@ -78,12 +82,15 @@ func init() {
 
 	url := fmt.Sprintf("http://%s", viper.GetString("gateway-url"))
 	token := viper.GetString("gateway-token")
+	host := viper.GetString("gateway-host")
 
 	client = resty.
 		New().
-		SetHostURL(url).
+		SetBaseURL(url).
 		SetAuthToken(token).
-		SetHeader("x-debug", debug)
+		SetHeader("Host", host).
+		SetHeader("x-debug", debug).
+		SetHeader("x-canary", canary)
 }
 
 type Message struct {

@@ -10,7 +10,7 @@
 *.pg.pb.go
 *.pg_grpc.pb.go
 
-/terraform/tfplan
+/terraform/**/tfplan
 
 /dynamo/dynamo
 /s3/s3

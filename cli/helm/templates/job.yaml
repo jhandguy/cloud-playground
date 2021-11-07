@@ -15,9 +15,11 @@ spec:
         - name: {{ .Release.Name }}
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           volumeMounts:
+            {{- if $.Values.csi.enabled }}
             - name: {{ .Release.Name }}
               mountPath: "/mnt/{{ .Release.Name }}"
               readOnly: true
+            {{- end }}
           env:
             - name: GATEWAY_TOKEN
               valueFrom:
@@ -29,6 +31,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}
                   key: gateway_url
+            - name: GATEWAY_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: gateway_host
             - name: PUSHGATEWAY_URL
               valueFrom:
                 secretKeyRef:
@@ -37,9 +44,11 @@ spec:
           command: ["/cli"]
           args: ["load", "test", "-r={{ .Values.test.rounds}}"]
       volumes:
+        {{- if $.Values.csi.enabled }}
         - name: {{ .Release.Name }}
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
               secretProviderClass: {{ .Release.Name }}
+        {{- end }}

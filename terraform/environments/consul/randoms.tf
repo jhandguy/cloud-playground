@@ -12,3 +12,8 @@ resource "random_password" "gateway_token" {
   length  = 32
   special = false
 }
+
+resource "random_pet" "gateway_host" {
+  length    = 3
+  separator = "."
+}

@@ -38,6 +38,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_cluster_url"></a> [cluster\_url](#output\_cluster\_url) | Cluster URL |
 | <a name="output_root_token"></a> [root\_token](#output\_root\_token) | Root token |
 | <a name="output_url"></a> [url](#output\_url) | URL |
 <!-- END_TF_DOCS -->

@@ -19,3 +19,9 @@ variable "aws_dynamo_tables" {
   default     = []
   description = "AWS DynamoDB tables"
 }
+
+variable "consul_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Consul"
+}

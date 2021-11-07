@@ -1,5 +1,5 @@
 module "minikube" {
-  source = "./modules/minikube"
+  source = "../../modules/minikube"
 
   node_ports = [
     "localstack",
@@ -20,45 +20,67 @@ module "minikube" {
 
 module "localstack" {
   depends_on = [module.consul]
-  source     = "./modules/localstack"
+  source     = "../../modules/localstack"
 
   aws_dynamo_tables = ["dynamo"]
   aws_s3_buckets    = ["s3"]
+  consul_enabled    = true
   node_ip           = var.node_ip
   node_port         = module.minikube.node_ports["localstack"]
 }
 
 module "dynamo" {
   depends_on = [module.vault, module.localstack]
-  source     = "./modules/dynamo"
+  source     = "../../modules/dynamo"
 
-  node_ip   = var.node_ip
-  node_port = module.minikube.node_ports["dynamo"]
+  consul_enabled     = true
+  csi_enabled        = true
+  node_ip            = var.node_ip
+  node_port          = module.minikube.node_ports["dynamo"]
+  prometheus_enabled = true
+  vault_url          = module.vault.cluster_url
 }
 
 module "s3" {
   depends_on = [module.vault, module.localstack]
-  source     = "./modules/s3"
+  source     = "../../modules/s3"
 
-  node_ip   = var.node_ip
-  node_port = module.minikube.node_ports["s3"]
+  consul_enabled     = true
+  csi_enabled        = true
+  node_ip            = var.node_ip
+  node_port          = module.minikube.node_ports["s3"]
+  prometheus_enabled = true
+  vault_url          = module.vault.cluster_url
 }
 
 module "gateway" {
   depends_on = [module.vault, module.dynamo, module.s3]
-  source     = "./modules/gateway"
+  source     = "../../modules/gateway"
 
+  consul_enabled       = true
+  csi_enabled          = true
   ingress_gateway_port = module.consul.ingress_gateway_port
+  ingress_host         = random_pet.gateway_host.id
   node_ip              = var.node_ip
   node_ports = {
     "canary" : module.minikube.node_ports["gateway_canary"],
     "prod" : module.minikube.node_ports["gateway_prod"]
   }
+  prometheus_enabled = true
+  vault_url          = module.vault.cluster_url
+}
+
+module "cli" {
+  depends_on = [module.dynamo, module.s3, module.gateway]
+  source     = "../../modules/cli"
+
+  csi_enabled = true
+  vault_url   = module.vault.cluster_url
 }
 
 module "prometheus" {
   depends_on = [module.metrics]
-  source     = "./modules/prometheus"
+  source     = "../../modules/prometheus"
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
@@ -70,7 +92,7 @@ module "prometheus" {
 
 module "pushgateway" {
   depends_on = [module.consul]
-  source     = "./modules/pushgateway"
+  source     = "../../modules/pushgateway"
 
   node_ip   = var.node_ip
   node_port = module.minikube.node_ports["pushgateway"]
@@ -78,7 +100,7 @@ module "pushgateway" {
 
 module "loki" {
   depends_on = [module.prometheus]
-  source     = "./modules/loki"
+  source     = "../../modules/loki"
 
   alerting_rules         = ["dynamo", "s3", "gateway", "cli"]
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
@@ -86,14 +108,17 @@ module "loki" {
   node_port              = module.minikube.node_ports["loki"]
 }
 
-module "cli" {
-  depends_on = [module.dynamo, module.s3, module.gateway]
-  source     = "./modules/cli"
+module "metrics" {
+  source = "../../modules/metrics"
+}
+
+module "csi" {
+  source = "../../modules/csi"
 }
 
 module "consul" {
   depends_on = [module.prometheus]
-  source     = "./modules/consul"
+  source     = "../../modules/consul"
 
   node_ip   = var.node_ip
   node_port = module.minikube.node_ports["consul"]
@@ -102,17 +127,9 @@ module "consul" {
   }
 }
 
-module "csi" {
-  source = "./modules/csi"
-}
-
-module "metrics" {
-  source = "./modules/metrics"
-}
-
 module "vault" {
   depends_on = [module.consul, module.csi]
-  source     = "./modules/vault"
+  source     = "../../modules/vault"
 
   node_ip   = var.node_ip
   node_port = module.minikube.node_ports["vault"]
@@ -138,6 +155,7 @@ module "vault" {
     },
     "cli" : {
       "gateway_url"     = module.consul.ingress_gateway_urls["gateway"]
+      "gateway_host"    = random_pet.gateway_host.id
       "pushgateway_url" = module.pushgateway.url
       "gateway_token"   = random_password.gateway_token.result
     }
