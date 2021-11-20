@@ -17,7 +17,7 @@ spec:
         'consul.hashicorp.com/connect-inject': "true"
         'consul.hashicorp.com/connect-service': "{{ .Release.Name }}"
         'consul.hashicorp.com/connect-service-port': "grpc"
-        'consul.hashicorp.com/connect-service-upstreams': "localstack:8081"
+        'consul.hashicorp.com/connect-service-upstreams': "localstack:8081,tempo:8082"
         {{- with .Values.resources }}
         'consul.hashicorp.com/sidecar-proxy-memory-request': "{{ .requests.memory }}"
         'consul.hashicorp.com/sidecar-proxy-cpu-request': "{{ .requests.cpu }}"
@@ -66,6 +66,15 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}
                   key: aws_s3_bucket
+            - name: TEMPO_URL
+              {{- if $.Values.consul.enabled }}
+              value: "localhost:8082"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: tempo_url
+              {{- end }}
             - name: S3_TOKEN
               valueFrom:
                 secretKeyRef:

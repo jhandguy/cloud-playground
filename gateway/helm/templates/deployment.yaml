@@ -19,7 +19,7 @@ spec:
         'consul.hashicorp.com/connect-inject': "true"
         'consul.hashicorp.com/connect-service': "{{ $.Release.Name }}-{{ $name }}"
         'consul.hashicorp.com/connect-service-port': "http"
-        'consul.hashicorp.com/connect-service-upstreams': "s3:8081,dynamo:8082"
+        'consul.hashicorp.com/connect-service-upstreams': "s3:8081,dynamo:8082,tempo:8083"
         {{- with $.Values.resources }}
         'consul.hashicorp.com/sidecar-proxy-memory-request': "{{ .requests.memory }}"
         'consul.hashicorp.com/sidecar-proxy-cpu-request': "{{ .requests.cpu }}"
@@ -56,6 +56,15 @@ spec:
                 secretKeyRef:
                   name: {{ $.Release.Name }}
                   key: dynamo_url
+              {{- end }}
+            - name: TEMPO_URL
+              {{- if $.Values.consul.enabled }}
+              value: "localhost:8083"
+              {{- else }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: tempo_url
               {{- end }}
             - name: S3_TOKEN
               valueFrom:

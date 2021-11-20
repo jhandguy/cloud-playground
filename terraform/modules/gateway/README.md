@@ -29,6 +29,8 @@ No modules.
 | <a name="input_csi_enabled"></a> [csi\_enabled](#input\_csi\_enabled) | Enable CSI | `bool` | `false` | no |
 | <a name="input_ingress_gateway_port"></a> [ingress\_gateway\_port](#input\_ingress\_gateway\_port) | Ingress Gateway port | `number` | `8080` | no |
 | <a name="input_ingress_host"></a> [ingress\_host](#input\_ingress\_host) | Ingress host | `string` | n/a | yes |
+| <a name="input_max_replicas"></a> [max\_replicas](#input\_max\_replicas) | Maximum replicas | `number` | `1` | no |
+| <a name="input_min_replicas"></a> [min\_replicas](#input\_min\_replicas) | Minimum replicas | `number` | `1` | no |
 | <a name="input_node_ip"></a> [node\_ip](#input\_node\_ip) | Node ip | `string` | n/a | yes |
 | <a name="input_node_ports"></a> [node\_ports](#input\_node\_ports) | Node ports | `map(number)` | `{}` | no |
 | <a name="input_prometheus_enabled"></a> [prometheus\_enabled](#input\_prometheus\_enabled) | Enable Prometheus | `bool` | `false` | no |

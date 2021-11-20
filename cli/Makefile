@@ -2,8 +2,10 @@ ENVIRONMENT ?=
 CHDIR = ../terraform/environments/$(ENVIRONMENT)
 ROUNDS ?= 100
 
-lint:
+lint_helm:
 	helm lint helm
+
+lint:
 	golangci-lint run
 
 build:

@@ -13,8 +13,5 @@ terraform {
     null = {
       source = "hashicorp/null"
     }
-    grafana = {
-      source = "grafana/grafana"
-    }
   }
 }

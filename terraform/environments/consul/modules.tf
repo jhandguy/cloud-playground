@@ -11,7 +11,6 @@ module "minikube" {
     "prometheus",
     "alertmanager",
     "grafana",
-    "loki",
     "pushgateway",
     "consul",
     "vault",
@@ -84,8 +83,8 @@ module "prometheus" {
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
+  grafana_datasources    = ["loki", "tempo"]
   grafana_node_port      = module.minikube.node_ports["grafana"]
-  loki_node_port         = module.minikube.node_ports["loki"]
   node_ip                = var.node_ip
   prometheus_node_port   = module.minikube.node_ports["prometheus"]
 }
@@ -99,13 +98,18 @@ module "pushgateway" {
 }
 
 module "loki" {
-  depends_on = [module.prometheus]
+  depends_on = [module.consul]
   source     = "../../modules/loki"
 
-  alerting_rules         = ["dynamo", "s3", "gateway", "cli"]
-  alertmanager_node_port = module.minikube.node_ports["alertmanager"]
-  node_ip                = var.node_ip
-  node_port              = module.minikube.node_ports["loki"]
+  alerting_rules   = ["dynamo", "s3", "gateway", "cli"]
+  alertmanager_url = module.prometheus.alertmanager_url
+}
+
+module "tempo" {
+  depends_on = [module.consul]
+  source     = "../../modules/tempo"
+
+  consul_enabled = true
 }
 
 module "metrics" {

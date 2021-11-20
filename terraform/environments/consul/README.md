@@ -27,6 +27,7 @@
 | <a name="module_prometheus"></a> [prometheus](#module\_prometheus) | ../../modules/prometheus | n/a |
 | <a name="module_pushgateway"></a> [pushgateway](#module\_pushgateway) | ../../modules/pushgateway | n/a |
 | <a name="module_s3"></a> [s3](#module\_s3) | ../../modules/s3 | n/a |
+| <a name="module_tempo"></a> [tempo](#module\_tempo) | ../../modules/tempo | n/a |
 | <a name="module_vault"></a> [vault](#module\_vault) | ../../modules/vault | n/a |
 
 ## Resources

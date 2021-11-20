@@ -10,8 +10,8 @@ resource "helm_release" "s3" {
     <<-EOF
     replicas: 1
     horizontalPodAutoscaler:
-      minReplicas: 1
-      maxReplicas: 2
+      minReplicas: ${var.min_replicas}
+      maxReplicas: ${var.max_replicas}
       targetCPUUtilizationPercentage: 100
     nodePort: ${var.node_port}
     prometheus:

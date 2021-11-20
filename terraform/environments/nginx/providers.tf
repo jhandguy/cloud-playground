@@ -1,7 +1,3 @@
-provider "kubernetes" {
-  config_context_cluster = "minikube"
-}
-
 provider "helm" {
   kubernetes {
     config_context_cluster = "minikube"
@@ -22,9 +18,4 @@ provider "aws" {
     s3       = "http://${var.node_ip}:${module.minikube.node_ports["localstack"]}"
     dynamodb = "http://${var.node_ip}:${module.minikube.node_ports["localstack"]}"
   }
-}
-
-provider "grafana" {
-  url  = "http://${var.node_ip}:${module.minikube.node_ports["grafana"]}"
-  auth = "admin:${module.prometheus.grafana_admin_password}"
 }

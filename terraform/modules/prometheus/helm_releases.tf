@@ -18,6 +18,17 @@ resource "helm_release" "prometheus" {
         type: NodePort
         nodePort: ${var.grafana_node_port}
       adminPassword: "${random_password.admin_password.result}"
+      additionalDataSources:
+%{for datasource in var.grafana_datasources~}
+        ${indent(8, file("${path.module}/datasources/${datasource}.yaml"))}
+%{endfor~}
+      dashboards:
+        defaults:
+%{for dashboard in var.grafana_dashboards~}
+          ${dashboard}:
+            json: |
+              ${indent(14, file("${path.module}/dashboards/${dashboard}.json"))}
+%{endfor~}
     kubeControllerManager:
       enabled: false
     kubeEtcd:

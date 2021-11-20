@@ -7,8 +7,10 @@ compile:
 	protoc --go_out=. --go-grpc_out=. --proto_path=../dynamo proto/item/item.pg.proto
 	protoc --go_out=. --go-grpc_out=. --proto_path=../s3 proto/object/object.pg.proto
 
-lint:
+lint_helm:
 	helm lint helm
+
+lint:
 	golangci-lint run
 
 build:

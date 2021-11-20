@@ -10,9 +10,6 @@ resource "helm_release" "loki" {
   values = [
     <<-EOF
     loki:
-      service:
-        type: NodePort
-        nodePort: ${var.node_port}
       config:
         ruler:
           storage:
@@ -20,7 +17,7 @@ resource "helm_release" "loki" {
             local:
               directory: /rules
           rule_path: /tmp/scratch
-          alertmanager_url: http://${var.node_ip}:${var.alertmanager_node_port}
+          alertmanager_url: http://${var.alertmanager_url}
           ring:
             kvstore:
               store: inmemory

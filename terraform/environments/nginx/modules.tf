@@ -10,7 +10,6 @@ module "minikube" {
     "prometheus",
     "alertmanager",
     "grafana",
-    "loki",
     "pushgateway",
     "nginx"
   ]
@@ -30,6 +29,7 @@ module "dynamo" {
   depends_on = [module.prometheus, module.localstack]
   source     = "../../modules/dynamo"
 
+  max_replicas       = 2
   node_ip            = var.node_ip
   node_port          = module.minikube.node_ports["dynamo"]
   prometheus_enabled = true
@@ -40,6 +40,7 @@ module "dynamo" {
     "aws_dynamo_endpoint"   = module.localstack.aws_dynamo_cluster_endpoint
     "aws_dynamo_table"      = module.localstack.aws_dynamo_tables["dynamo"]
     "dynamo_token"          = random_password.dynamo_token.result
+    "tempo_url"             = module.tempo.otlp_grpc_url
   }
 }
 
@@ -47,6 +48,7 @@ module "s3" {
   depends_on = [module.prometheus, module.localstack]
   source     = "../../modules/s3"
 
+  max_replicas       = 2
   node_ip            = var.node_ip
   node_port          = module.minikube.node_ports["s3"]
   prometheus_enabled = true
@@ -57,6 +59,7 @@ module "s3" {
     "aws_s3_endpoint"       = module.localstack.aws_s3_cluster_endpoint
     "aws_s3_bucket"         = module.localstack.aws_s3_buckets["s3"]
     "s3_token"              = random_password.s3_token.result
+    "tempo_url"             = module.tempo.otlp_grpc_url
   }
 }
 
@@ -77,6 +80,7 @@ module "gateway" {
     "dynamo_token"  = random_password.dynamo_token.result
     "s3_url"        = module.s3.cluster_url
     "s3_token"      = random_password.s3_token.result
+    "tempo_url"     = module.tempo.otlp_grpc_url
   }
 }
 
@@ -98,8 +102,8 @@ module "prometheus" {
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
+  grafana_datasources    = ["loki", "tempo"]
   grafana_node_port      = module.minikube.node_ports["grafana"]
-  loki_node_port         = module.minikube.node_ports["loki"]
   node_ip                = var.node_ip
   prometheus_node_port   = module.minikube.node_ports["prometheus"]
 }
@@ -116,10 +120,13 @@ module "loki" {
   depends_on = [module.prometheus]
   source     = "../../modules/loki"
 
-  alerting_rules         = ["dynamo", "s3", "gateway", "cli"]
-  alertmanager_node_port = module.minikube.node_ports["alertmanager"]
-  node_ip                = var.node_ip
-  node_port              = module.minikube.node_ports["loki"]
+  alerting_rules   = ["dynamo", "s3", "gateway", "cli"]
+  alertmanager_url = module.prometheus.alertmanager_url
+}
+
+module "tempo" {
+  depends_on = [module.prometheus]
+  source     = "../../modules/tempo"
 }
 
 module "metrics" {

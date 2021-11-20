@@ -19,18 +19,18 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [helm_release.loki](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
+| [helm_release.tempo](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_alerting_rules"></a> [alerting\_rules](#input\_alerting\_rules) | Alerting rules | `list(string)` | `[]` | no |
-| <a name="input_alertmanager_url"></a> [alertmanager\_url](#input\_alertmanager\_url) | AlertManager URL | `string` | n/a | yes |
+| <a name="input_consul_enabled"></a> [consul\_enabled](#input\_consul\_enabled) | Enable Consul | `bool` | `false` | no |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_cluster_url"></a> [cluster\_url](#output\_cluster\_url) | Cluster URL |
+| <a name="output_otlp_grpc_url"></a> [otlp\_grpc\_url](#output\_otlp\_grpc\_url) | OTLP gRPC URL |
 <!-- END_TF_DOCS -->

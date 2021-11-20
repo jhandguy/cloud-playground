@@ -49,3 +49,15 @@ variable "secrets" {
   default     = {}
   description = "Secrets"
 }
+
+variable "min_replicas" {
+  type        = number
+  default     = 1
+  description = "Minimum replicas"
+}
+
+variable "max_replicas" {
+  type        = number
+  default     = 1
+  description = "Maximum replicas"
+}

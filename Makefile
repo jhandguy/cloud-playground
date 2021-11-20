@@ -9,7 +9,7 @@ export TF_VAR_aws_secret_access_key=$(AWS_SECRET_ACCESS_KEY)
 ENVIRONMENT ?=
 CHDIR = terraform/environments/$(ENVIRONMENT)
 
-ci: lint_terraform setup compile build test load teardown
+ci: lint_terraform lint_helm setup compile build test load teardown
 
 compile:
 	make -j compile_s3 compile_dynamo compile_gateway
@@ -29,6 +29,7 @@ format:
 
 lint:
 	make lint_terraform
+	make lint_helm
 	make -C s3 lint
 	make -C dynamo lint
 	make -C gateway lint
@@ -36,6 +37,12 @@ lint:
 
 lint_terraform:
 	terraform fmt -recursive -check
+
+lint_helm:
+	make -C s3 lint_helm
+	make -C dynamo lint_helm
+	make -C gateway lint_helm
+	make -C cli lint_helm
 
 build:
 	make -j build_s3 build_dynamo build_gateway build_cli

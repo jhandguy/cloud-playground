@@ -1,16 +1,6 @@
-variable "node_ip" {
+variable "alertmanager_url" {
   type        = string
-  description = "Node ip"
-}
-
-variable "node_port" {
-  type        = number
-  description = "Node port"
-}
-
-variable "alertmanager_node_port" {
-  type        = number
-  description = "AlertManager node port"
+  description = "AlertManager URL"
 }
 
 variable "alerting_rules" {

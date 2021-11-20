@@ -10,8 +10,8 @@ resource "helm_release" "gateway" {
     <<-EOF
     replicas: 1
     horizontalPodAutoscaler:
-      minReplicas: 1
-      maxReplicas: 1
+      minReplicas: ${var.min_replicas}
+      maxReplicas: ${var.max_replicas}
       targetCPUUtilizationPercentage: 50
     services:
 %{for name, node_port in var.node_ports~}

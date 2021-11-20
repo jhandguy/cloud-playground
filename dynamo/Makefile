@@ -6,8 +6,10 @@ METRICS_PORT ?= 9090
 compile:
 	protoc --go_out=. --go-grpc_out=. proto/item/item.pg.proto
 
-lint:
+lint_helm:
 	helm lint helm
+
+lint:
 	golangci-lint run
 
 build:

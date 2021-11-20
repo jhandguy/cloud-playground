@@ -9,7 +9,6 @@
 
 | Name | Version |
 |------|---------|
-| <a name="provider_grafana"></a> [grafana](#provider\_grafana) | n/a |
 | <a name="provider_helm"></a> [helm](#provider\_helm) | n/a |
 | <a name="provider_random"></a> [random](#provider\_random) | n/a |
 
@@ -21,8 +20,6 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [grafana_dashboard.dashboards](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/dashboard) | resource |
-| [grafana_data_source.loki](https://registry.terraform.io/providers/grafana/grafana/latest/docs/resources/data_source) | resource |
 | [helm_release.prometheus](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [random_password.admin_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 
@@ -32,8 +29,8 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_alertmanager_node_port"></a> [alertmanager\_node\_port](#input\_alertmanager\_node\_port) | AlertManager node port | `number` | n/a | yes |
 | <a name="input_grafana_dashboards"></a> [grafana\_dashboards](#input\_grafana\_dashboards) | Grafana dashboards | `list(string)` | `[]` | no |
+| <a name="input_grafana_datasources"></a> [grafana\_datasources](#input\_grafana\_datasources) | Grafana datasources | `list(string)` | `[]` | no |
 | <a name="input_grafana_node_port"></a> [grafana\_node\_port](#input\_grafana\_node\_port) | Grafana node port | `number` | n/a | yes |
-| <a name="input_loki_node_port"></a> [loki\_node\_port](#input\_loki\_node\_port) | Loki node port | `number` | n/a | yes |
 | <a name="input_node_ip"></a> [node\_ip](#input\_node\_ip) | Node ip | `string` | n/a | yes |
 | <a name="input_prometheus_node_port"></a> [prometheus\_node\_port](#input\_prometheus\_node\_port) | Prometheus node port | `number` | n/a | yes |
 

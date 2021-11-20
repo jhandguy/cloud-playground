@@ -13,14 +13,15 @@ variable "grafana_node_port" {
   description = "Grafana node port"
 }
 
-variable "loki_node_port" {
-  type        = number
-  description = "Loki node port"
-}
-
 variable "prometheus_node_port" {
   type        = number
   description = "Prometheus node port"
+}
+
+variable "grafana_datasources" {
+  type        = list(string)
+  default     = []
+  description = "Grafana datasources"
 }
 
 variable "grafana_dashboards" {
