@@ -2,32 +2,41 @@ package object
 
 import (
 	"context"
-	"log"
 
+	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 
+	"github.com/jhandguy/devops-playground/gateway/opentelemetry"
 	"github.com/jhandguy/devops-playground/gateway/pb/object"
 )
 
 type API struct {
-	CheckHealth  func(req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error)
-	CreateObject func(req *object.CreateObjectRequest) (*object.CreateObjectResponse, error)
-	GetObject    func(req *object.GetObjectRequest) (*object.GetObjectResponse, error)
-	DeleteObject func(req *object.DeleteObjectRequest) (*object.DeleteObjectResponse, error)
+	CheckHealth  func(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error)
+	CreateObject func(ctx context.Context, req *object.CreateObjectRequest) (*object.CreateObjectResponse, error)
+	GetObject    func(ctx context.Context, req *object.GetObjectRequest) (*object.GetObjectResponse, error)
+	DeleteObject func(ctx context.Context, req *object.DeleteObjectRequest) (*object.DeleteObjectResponse, error)
 }
 
 func CheckHealth(
-	newContext func() (context.Context, context.CancelFunc),
+	newContext func(ctx context.Context) (context.Context, context.CancelFunc),
 	newClientConn func(ctx context.Context) (*grpc.ClientConn, error),
-) func(req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
-	return func(req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
-		ctx, cancel := newContext()
+) func(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+	return func(ctx context.Context, req *grpc_health_v1.HealthCheckRequest) (*grpc_health_v1.HealthCheckResponse, error) {
+		tracer := opentelemetry.GetTracer("message/CheckReadiness")
+		if tracer != nil {
+			var span trace.Span
+			ctx, span = tracer.Start(ctx, "object/CheckHealth")
+			defer span.End()
+		}
+
+		ctx, cancel := newContext(ctx)
 		defer cancel()
 
 		dynConn, err := newClientConn(ctx)
 		if err != nil {
-			log.Printf("failed to dial: %v", err)
+			zap.S().Errorw("failed to dial", "error", err)
 			return nil, err
 		}
 		defer func() {
@@ -38,7 +47,7 @@ func CheckHealth(
 
 		resp, err := client.Check(ctx, req)
 		if err != nil {
-			log.Printf("failed health check: %v", err)
+			zap.S().Errorw("failed to check health", "error", err)
 			return nil, err
 		}
 
@@ -47,16 +56,23 @@ func CheckHealth(
 }
 
 func CreateObject(
-	newContext func() (context.Context, context.CancelFunc),
+	newContext func(ctx context.Context) (context.Context, context.CancelFunc),
 	newClientConn func(ctx context.Context) (*grpc.ClientConn, error),
-) func(req *object.CreateObjectRequest) (*object.CreateObjectResponse, error) {
-	return func(req *object.CreateObjectRequest) (*object.CreateObjectResponse, error) {
-		ctx, cancel := newContext()
+) func(ctx context.Context, req *object.CreateObjectRequest) (*object.CreateObjectResponse, error) {
+	return func(ctx context.Context, req *object.CreateObjectRequest) (*object.CreateObjectResponse, error) {
+		tracer := opentelemetry.GetTracer("message/CreateMessage")
+		if tracer != nil {
+			var span trace.Span
+			ctx, span = tracer.Start(ctx, "object/CreateObject")
+			defer span.End()
+		}
+
+		ctx, cancel := newContext(ctx)
 		defer cancel()
 
 		s3Conn, err := newClientConn(ctx)
 		if err != nil {
-			log.Printf("failed to dial: %v", err)
+			zap.S().Errorw("failed to dial", "error", err)
 			return nil, err
 		}
 		defer func() {
@@ -67,25 +83,34 @@ func CreateObject(
 
 		resp, err := client.CreateObject(ctx, req)
 		if err != nil {
-			log.Printf("failed to create object: %v", err)
+			zap.S().Errorw("failed to create object", "error", err)
 			return nil, err
 		}
+
+		zap.S().Infow("successfully created object", "object", resp.GetObject(), "traceID", opentelemetry.GetTraceID(ctx))
 
 		return resp, nil
 	}
 }
 
 func GetObject(
-	newContext func() (context.Context, context.CancelFunc),
+	newContext func(ctx context.Context) (context.Context, context.CancelFunc),
 	newClientConn func(ctx context.Context) (*grpc.ClientConn, error),
-) func(req *object.GetObjectRequest) (*object.GetObjectResponse, error) {
-	return func(req *object.GetObjectRequest) (*object.GetObjectResponse, error) {
-		ctx, cancel := newContext()
+) func(ctx context.Context, req *object.GetObjectRequest) (*object.GetObjectResponse, error) {
+	return func(ctx context.Context, req *object.GetObjectRequest) (*object.GetObjectResponse, error) {
+		tracer := opentelemetry.GetTracer("message/GetMessage")
+		if tracer != nil {
+			var span trace.Span
+			ctx, span = tracer.Start(ctx, "object/GetObject")
+			defer span.End()
+		}
+
+		ctx, cancel := newContext(ctx)
 		defer cancel()
 
 		s3Conn, err := newClientConn(ctx)
 		if err != nil {
-			log.Printf("failed to dial: %v", err)
+			zap.S().Errorw("failed to dial", "error", err)
 			return nil, err
 		}
 		defer func() {
@@ -96,25 +121,34 @@ func GetObject(
 
 		resp, err := client.GetObject(ctx, req)
 		if err != nil {
-			log.Printf("failed to get object: %v", err)
+			zap.S().Errorw("failed to get object", "error", err)
 			return nil, err
 		}
+
+		zap.S().Infow("successfully got object", "object", resp.GetObject(), "traceID", opentelemetry.GetTraceID(ctx))
 
 		return resp, nil
 	}
 }
 
 func DeleteObject(
-	newContext func() (context.Context, context.CancelFunc),
+	newContext func(ctx context.Context) (context.Context, context.CancelFunc),
 	newClientConn func(ctx context.Context) (*grpc.ClientConn, error),
-) func(req *object.DeleteObjectRequest) (*object.DeleteObjectResponse, error) {
-	return func(req *object.DeleteObjectRequest) (*object.DeleteObjectResponse, error) {
-		ctx, cancel := newContext()
+) func(ctx context.Context, req *object.DeleteObjectRequest) (*object.DeleteObjectResponse, error) {
+	return func(ctx context.Context, req *object.DeleteObjectRequest) (*object.DeleteObjectResponse, error) {
+		tracer := opentelemetry.GetTracer("message/DeleteMessage")
+		if tracer != nil {
+			var span trace.Span
+			ctx, span = tracer.Start(ctx, "object/DeleteObject")
+			defer span.End()
+		}
+
+		ctx, cancel := newContext(ctx)
 		defer cancel()
 
 		s3Conn, err := newClientConn(ctx)
 		if err != nil {
-			log.Printf("failed to dial: %v", err)
+			zap.S().Errorw("failed to dial", "error", err)
 			return nil, err
 		}
 		defer func() {
@@ -125,9 +159,11 @@ func DeleteObject(
 
 		resp, err := client.DeleteObject(ctx, req)
 		if err != nil {
-			log.Printf("failed to delete object: %v", err)
+			zap.S().Errorw("failed to delete object", "error", err)
 			return nil, err
 		}
+
+		zap.S().Infow("successfully deleted object", "object", object.Object{Id: req.GetId()}, "traceID", opentelemetry.GetTraceID(ctx))
 
 		return resp, nil
 	}

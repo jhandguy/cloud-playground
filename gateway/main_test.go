@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -50,7 +51,7 @@ func TestRouteAPI(t *testing.T) {
 
 	api := &message.API{
 		ItemAPI: &item.API{
-			CreateItem: func(*itemPb.CreateItemRequest) (*itemPb.CreateItemResponse, error) {
+			CreateItem: func(context.Context, *itemPb.CreateItemRequest) (*itemPb.CreateItemResponse, error) {
 				isCreateItemCalled = true
 
 				return &itemPb.CreateItemResponse{
@@ -60,7 +61,7 @@ func TestRouteAPI(t *testing.T) {
 					},
 				}, nil
 			},
-			GetItem: func(*itemPb.GetItemRequest) (*itemPb.GetItemResponse, error) {
+			GetItem: func(context.Context, *itemPb.GetItemRequest) (*itemPb.GetItemResponse, error) {
 				isGetItemCalled = true
 
 				return &itemPb.GetItemResponse{
@@ -70,14 +71,14 @@ func TestRouteAPI(t *testing.T) {
 					},
 				}, nil
 			},
-			DeleteItem: func(*itemPb.DeleteItemRequest) (*itemPb.DeleteItemResponse, error) {
+			DeleteItem: func(context.Context, *itemPb.DeleteItemRequest) (*itemPb.DeleteItemResponse, error) {
 				isDeleteItemCalled = true
 
 				return &itemPb.DeleteItemResponse{}, nil
 			},
 		},
 		ObjectAPI: &object.API{
-			CreateObject: func(*objectPb.CreateObjectRequest) (*objectPb.CreateObjectResponse, error) {
+			CreateObject: func(context.Context, *objectPb.CreateObjectRequest) (*objectPb.CreateObjectResponse, error) {
 				isCreateObjectCalled = true
 
 				return &objectPb.CreateObjectResponse{
@@ -87,7 +88,7 @@ func TestRouteAPI(t *testing.T) {
 					},
 				}, nil
 			},
-			GetObject: func(*objectPb.GetObjectRequest) (*objectPb.GetObjectResponse, error) {
+			GetObject: func(context.Context, *objectPb.GetObjectRequest) (*objectPb.GetObjectResponse, error) {
 				isGetObjectCalled = true
 
 				return &objectPb.GetObjectResponse{
@@ -97,7 +98,7 @@ func TestRouteAPI(t *testing.T) {
 					},
 				}, nil
 			},
-			DeleteObject: func(*objectPb.DeleteObjectRequest) (*objectPb.DeleteObjectResponse, error) {
+			DeleteObject: func(context.Context, *objectPb.DeleteObjectRequest) (*objectPb.DeleteObjectResponse, error) {
 				isDeleteObjectCalled = true
 
 				return &objectPb.DeleteObjectResponse{}, nil

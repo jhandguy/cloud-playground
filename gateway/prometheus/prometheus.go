@@ -1,7 +1,6 @@
 package prometheus
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 var (
@@ -58,7 +58,7 @@ func CollectMetrics(next http.Handler) http.Handler {
 		route := mux.CurrentRoute(r)
 		path, err := route.GetPathTemplate()
 		if err != nil {
-			log.Printf("failed to get path template: %v", err)
+			zap.S().Errorw("failed to get path template", "error", err)
 		}
 
 		rw := &responseWriter{

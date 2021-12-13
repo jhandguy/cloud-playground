@@ -2,7 +2,6 @@ package object
 
 import (
 	"context"
-	"log"
 	"net"
 	"testing"
 
@@ -34,32 +33,34 @@ func (s *objectServiceServer) DeleteObject(context.Context, *objectPb.DeleteObje
 	return &objectPb.DeleteObjectResponse{}, nil
 }
 
-func newContext() (context.Context, context.CancelFunc) {
-	return context.WithCancel(context.Background())
+func newContext(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithCancel(ctx)
 }
 
-func newClientConn(ctx context.Context) (*grpc.ClientConn, error) {
-	bufSize := 1024 * 1024
-	listener := bufconn.Listen(bufSize)
-	bufDialer := func(context.Context, string) (net.Conn, error) {
-		return listener.Dial()
-	}
-
-	s := grpc.NewServer()
-	objectPb.RegisterObjectServiceServer(s, &objectServiceServer{})
-	grpc_health_v1.RegisterHealthServer(s, health.NewServer())
-
-	go func() {
-		if err := s.Serve(listener); err != nil {
-			log.Fatal(err)
+func newClientConn(t *testing.T) func(ctx context.Context) (*grpc.ClientConn, error) {
+	return func(ctx context.Context) (*grpc.ClientConn, error) {
+		bufSize := 1024 * 1024
+		listener := bufconn.Listen(bufSize)
+		bufDialer := func(context.Context, string) (net.Conn, error) {
+			return listener.Dial()
 		}
-	}()
-	return grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+
+		s := grpc.NewServer()
+		objectPb.RegisterObjectServiceServer(s, &objectServiceServer{})
+		grpc_health_v1.RegisterHealthServer(s, health.NewServer())
+
+		go func() {
+			if err := s.Serve(listener); err != nil {
+				t.Error(err)
+			}
+		}()
+		return grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	}
 }
 
 func TestCreateObject(t *testing.T) {
 	api := API{
-		CreateObject: CreateObject(newContext, newClientConn),
+		CreateObject: CreateObject(newContext, newClientConn(t)),
 	}
 
 	req := &objectPb.CreateObjectRequest{
@@ -69,7 +70,8 @@ func TestCreateObject(t *testing.T) {
 		},
 	}
 
-	res, err := api.CreateObject(req)
+	ctx := context.Background()
+	res, err := api.CreateObject(ctx, req)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
@@ -79,14 +81,15 @@ func TestCreateObject(t *testing.T) {
 
 func TestGetObject(t *testing.T) {
 	api := API{
-		GetObject: GetObject(newContext, newClientConn),
+		GetObject: GetObject(newContext, newClientConn(t)),
 	}
 
 	req := &objectPb.GetObjectRequest{
 		Id: uuid.NewString(),
 	}
 
-	res, err := api.GetObject(req)
+	ctx := context.Background()
+	res, err := api.GetObject(ctx, req)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, res)
@@ -95,14 +98,15 @@ func TestGetObject(t *testing.T) {
 
 func TestDeleteObject(t *testing.T) {
 	api := API{
-		DeleteObject: DeleteObject(newContext, newClientConn),
+		DeleteObject: DeleteObject(newContext, newClientConn(t)),
 	}
 
 	req := &objectPb.DeleteObjectRequest{
 		Id: uuid.NewString(),
 	}
 
-	res, err := api.DeleteObject(req)
+	ctx := context.Background()
+	res, err := api.DeleteObject(ctx, req)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, res)

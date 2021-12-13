@@ -2,6 +2,7 @@ package message
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -43,7 +44,7 @@ func TestCreateMessage(t *testing.T) {
 
 	api := API{
 		ItemAPI: &item.API{
-			CreateItem: func(req *itemPb.CreateItemRequest) (*itemPb.CreateItemResponse, error) {
+			CreateItem: func(ctx context.Context, req *itemPb.CreateItemRequest) (*itemPb.CreateItemResponse, error) {
 				actItemReq = req
 
 				return &itemPb.CreateItemResponse{
@@ -55,7 +56,7 @@ func TestCreateMessage(t *testing.T) {
 			},
 		},
 		ObjectAPI: &object.API{
-			CreateObject: func(req *objectPb.CreateObjectRequest) (*objectPb.CreateObjectResponse, error) {
+			CreateObject: func(ctx context.Context, req *objectPb.CreateObjectRequest) (*objectPb.CreateObjectResponse, error) {
 				actObjectReq = req
 
 				return &objectPb.CreateObjectResponse{
@@ -105,7 +106,7 @@ func TestGetMessage(t *testing.T) {
 
 	api := API{
 		ItemAPI: &item.API{
-			GetItem: func(req *itemPb.GetItemRequest) (*itemPb.GetItemResponse, error) {
+			GetItem: func(ctx context.Context, req *itemPb.GetItemRequest) (*itemPb.GetItemResponse, error) {
 				actItemReq = req
 
 				return &itemPb.GetItemResponse{
@@ -117,7 +118,7 @@ func TestGetMessage(t *testing.T) {
 			},
 		},
 		ObjectAPI: &object.API{
-			GetObject: func(req *objectPb.GetObjectRequest) (*objectPb.GetObjectResponse, error) {
+			GetObject: func(ctx context.Context, req *objectPb.GetObjectRequest) (*objectPb.GetObjectResponse, error) {
 				actObjectReq = req
 
 				return &objectPb.GetObjectResponse{
@@ -167,14 +168,14 @@ func TestDeleteMessage(t *testing.T) {
 
 	api := API{
 		ItemAPI: &item.API{
-			DeleteItem: func(req *itemPb.DeleteItemRequest) (*itemPb.DeleteItemResponse, error) {
+			DeleteItem: func(ctx context.Context, req *itemPb.DeleteItemRequest) (*itemPb.DeleteItemResponse, error) {
 				actItemReq = req
 
 				return &itemPb.DeleteItemResponse{}, nil
 			},
 		},
 		ObjectAPI: &object.API{
-			DeleteObject: func(req *objectPb.DeleteObjectRequest) (*objectPb.DeleteObjectResponse, error) {
+			DeleteObject: func(ctx context.Context, req *objectPb.DeleteObjectRequest) (*objectPb.DeleteObjectResponse, error) {
 				actObjectReq = req
 
 				return &objectPb.DeleteObjectResponse{}, nil
