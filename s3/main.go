@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -20,6 +21,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/jhandguy/devops-playground/s3/object"
+	"github.com/jhandguy/devops-playground/s3/opentelemetry"
 	pb "github.com/jhandguy/devops-playground/s3/pb/object"
 	"github.com/jhandguy/devops-playground/s3/prometheus"
 )
@@ -28,6 +30,43 @@ var (
 	errMissingMetadata = status.Errorf(codes.InvalidArgument, "missing metadata")
 	errInvalidToken    = status.Errorf(codes.Unauthenticated, "invalid token")
 )
+
+func setupLogger() {
+	logger, err := zap.NewProduction()
+	if err != nil {
+		log.Fatalf("failed to create logger: %v", err)
+	}
+	zap.ReplaceGlobals(logger)
+}
+
+func startTracing(ctx context.Context) {
+	if endpoint := viper.GetString("tempo-url"); endpoint != "" {
+		err := opentelemetry.StartTracing(ctx, endpoint)
+		if err != nil {
+			zap.S().Errorw("failed to start tracing", "error", err)
+		}
+	}
+}
+
+func stopTracing(ctx context.Context) {
+	if err := opentelemetry.StopTracing(ctx); err != nil {
+		zap.S().Errorw("failed to stop tracing", "error", err)
+	}
+}
+
+func serveMetrics(path string) {
+	port := viper.GetString("s3-metrics-port")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		zap.S().Errorw("failed to listen", "error", err)
+	}
+
+	http.Handle(path, promhttp.Handler())
+
+	if err := http.Serve(listener, nil); err != nil {
+		zap.S().Errorw("failed to serve metrics", "error", err)
+	}
+}
 
 func isValidToken(authorization []string, token string) bool {
 	if len(authorization) < 1 {
@@ -78,39 +117,37 @@ func newObjectAPI() *object.API {
 	}
 }
 
-func serveMetrics(path string, listener net.Listener) {
-	http.Handle(path, promhttp.Handler())
-
-	if err := http.Serve(listener, nil); err != nil {
-		log.Fatalf("failed to serve metrics: %v", err)
-	}
-}
-
-func serveAPI(api *object.API, listener net.Listener, interceptors ...grpc.UnaryServerInterceptor) {
+func registerAPI(api *object.API, interceptors []grpc.UnaryServerInterceptor) *grpc.Server {
 	s := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors...))
-
 	pb.RegisterObjectServiceServer(s, api)
 	grpc_health_v1.RegisterHealthServer(s, api)
 
+	return s
+}
+
+func serveAPI(api *object.API, interceptors ...grpc.UnaryServerInterceptor) {
+	port := viper.GetString("s3-grpc-port")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+	if err != nil {
+		zap.S().Errorw("failed to listen on http port", "error", err)
+	}
+
+	s := registerAPI(api, interceptors)
 	if err := s.Serve(listener); err != nil {
-		log.Fatalf("failed to serve API: %v", err)
+		zap.S().Errorw("failed to serve API", err)
 	}
 }
 
 func main() {
-	port := viper.GetString("s3-metrics-port")
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	go serveMetrics("/monitoring/metrics", listener)
+	setupLogger()
 
-	port = viper.GetString("s3-grpc-port")
-	listener, err = net.Listen("tcp", fmt.Sprintf(":%s", port))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	serveAPI(newObjectAPI(), listener, prometheus.CollectMetrics, ensureValidToken)
+	ctx := context.Background()
+	startTracing(ctx)
+	defer stopTracing(ctx)
+
+	go serveMetrics("/monitoring/metrics")
+
+	serveAPI(newObjectAPI(), prometheus.CollectMetrics, ensureValidToken)
 }
 
 func init() {

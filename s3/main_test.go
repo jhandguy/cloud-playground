@@ -43,7 +43,7 @@ func TestIsValidToken(t *testing.T) {
 	assert.False(t, isValidToken(auth, token))
 }
 
-func TestServeAPI(t *testing.T) {
+func TestRegisterAPI(t *testing.T) {
 	var isPutObjectWithContextCalled, isGetObjectWithContextCalled, isDeleteObjectWithContextCalled, isInterceptorCalled bool
 
 	api := &object.API{
@@ -72,7 +72,11 @@ func TestServeAPI(t *testing.T) {
 	listener := bufconn.Listen(bufSize)
 
 	go func() {
-		serveAPI(api, listener, interceptor)
+		s := registerAPI(api, []grpc.UnaryServerInterceptor{interceptor})
+		err := s.Serve(listener)
+		if err != nil {
+			t.Errorf("failed to serve API: %v", err)
+		}
 	}()
 
 	ctx := context.Background()
