@@ -2,12 +2,12 @@ package message
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 // Cmd message command
@@ -46,7 +46,7 @@ var (
 
 func handleMissingFlag(err error) {
 	if err != nil {
-		log.Fatalf("missing required flag: %v", err)
+		zap.S().Fatalw("missing required flag", "error", err)
 	}
 }
 
@@ -142,32 +142,29 @@ func createMessage(cmd *cobra.Command, _ []string) {
 		Content: content,
 	})
 	if err != nil {
-		log.Fatalf("failed to create message: %v", err)
+		zap.S().Errorw("failed to create message", "error", err)
+		return
 	}
 
-	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "successfully created message: %v\n", res.Result()); err != nil {
-		log.Fatal(err)
-	}
+	zap.S().Infow("successfully created message", "msg", res.Result())
 }
 
 func getMessage(cmd *cobra.Command, _ []string) {
 	res, err := Get(id)
 	if err != nil {
-		log.Fatalf("failed to get message: %v", err)
+		zap.S().Errorw("failed to get message", "error", err)
+		return
 	}
 
-	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "successfully got message: %v\n", res.Result()); err != nil {
-		log.Fatal(err)
-	}
+	zap.S().Infow("successfully got message", "msg", res.Result())
 }
 
 func deleteMessage(cmd *cobra.Command, _ []string) {
 	res, err := Delete(id)
 	if err != nil {
-		log.Fatalf("failed to delete message: %v", err)
+		zap.S().Errorw("failed to delete message", "error", err)
+		return
 	}
 
-	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "successfully deleted message: %v\n", res.Result()); err != nil {
-		log.Fatal(err)
-	}
+	zap.S().Infow("successfully deleted message", "msg", res.Result())
 }

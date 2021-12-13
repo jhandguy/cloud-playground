@@ -2,7 +2,6 @@ package load
 
 import (
 	"fmt"
-	"log"
 	"math/rand"
 	"strings"
 	"sync"
@@ -12,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/push"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/jhandguy/devops-playground/cli/message"
 )
@@ -54,7 +54,7 @@ var (
 
 func handleMissingFlag(err error) {
 	if err != nil {
-		log.Fatalf("missing required flag: %v", err)
+		zap.S().Fatalw("missing required flag", "error", err)
 	}
 }
 
@@ -172,7 +172,7 @@ func pushMetrics() {
 		Collector(requestCounter).
 		Collector(latencyHistogram).
 		Push(); err != nil {
-		log.Fatal(err)
+		zap.S().Errorw("failed to push metrics", "error", err)
 	}
 }
 
@@ -180,9 +180,7 @@ func testLoad(cmd *cobra.Command, _ []string) {
 	var wg sync.WaitGroup
 	failures := 0
 
-	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Starting load test with %d rounds\n", rounds); err != nil {
-		log.Fatal(err)
-	}
+	zap.S().Infow("Starting load test", "rounds", rounds)
 
 	sleep := func(sec int) {
 		duration := time.Duration(rand.Intn(sec))
@@ -226,9 +224,7 @@ func testLoad(cmd *cobra.Command, _ []string) {
 
 	wg.Wait()
 
-	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Finished load test with %d failures\n", failures); err != nil {
-		log.Fatal(err)
-	}
+	zap.S().Infow("Finished load test", "failures", failures)
 
 	pushMetrics()
 }

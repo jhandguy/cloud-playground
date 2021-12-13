@@ -132,8 +132,7 @@ func serveAPI(api *item.API, interceptors ...grpc.UnaryServerInterceptor) {
 	}
 
 	s := registerAPI(api, interceptors)
-	err = s.Serve(listener)
-	if err != nil {
+	if err := s.Serve(listener); err != nil {
 		zap.S().Errorw("failed to serve API", "error", err)
 	}
 }

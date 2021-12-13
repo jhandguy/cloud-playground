@@ -55,8 +55,7 @@ func serveMetrics(path string) {
 
 	router := mux.NewRouter()
 	router.Handle(path, promhttp.Handler()).Methods(http.MethodGet)
-	err = http.Serve(listener, router)
-	if err != nil {
+	if err := http.Serve(listener, router); err != nil {
 		zap.S().Errorw("failed to serve metrics", "error", err)
 	}
 }
@@ -152,8 +151,7 @@ func serveAPI(api *message.API, middlewares ...mux.MiddlewareFunc) {
 	}
 
 	router := routeAPI(api, middlewares...)
-	err = http.Serve(listener, router)
-	if err != nil {
+	if err := http.Serve(listener, router); err != nil {
 		zap.S().Errorw("failed to serve API", "error", err)
 	}
 }
