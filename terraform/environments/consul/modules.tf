@@ -6,7 +6,7 @@ module "minikube" {
     "dynamo",
     "s3",
     "gateway_canary",
-    "gateway_prod",
+    "gateway_stable",
     "gateway",
     "prometheus",
     "alertmanager",
@@ -63,7 +63,7 @@ module "gateway" {
   node_ip              = var.node_ip
   node_ports = {
     "canary" : module.minikube.node_ports["gateway_canary"],
-    "prod" : module.minikube.node_ports["gateway_prod"]
+    "stable" : module.minikube.node_ports["gateway_stable"]
   }
   prometheus_enabled = true
   vault_url          = module.vault.cluster_url

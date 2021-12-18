@@ -1,0 +1,26 @@
+---
+{{- if and .Values.argoRollouts.enabled .Values.prometheus.enabled }}
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  metrics:
+    - name: success-share
+      interval: 1m
+      initialDelay: 30s
+      successCondition: len(result) == 0 || isNaN(result[0]) || result[0] >= 0.99
+      count: 1
+      provider:
+        prometheus:
+          address: {{ .Values.prometheus.url }}
+          query: |
+            sum(rate(
+              devops_playground_gateway_requests_count{service="{{ .Release.Name }}-canary", success="true"}[1m])
+            ) by (service)
+            /
+            sum(rate(
+              devops_playground_gateway_requests_count{service="{{ .Release.Name }}-canary"}[1m])
+            ) by (service)
+{{- end }}

@@ -25,6 +25,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_argorollouts_enabled"></a> [argorollouts\_enabled](#input\_argorollouts\_enabled) | Enable ArgoRollouts | `bool` | `false` | no |
 | <a name="input_consul_enabled"></a> [consul\_enabled](#input\_consul\_enabled) | Enable Consul | `bool` | `false` | no |
 | <a name="input_csi_enabled"></a> [csi\_enabled](#input\_csi\_enabled) | Enable CSI | `bool` | `false` | no |
 | <a name="input_ingress_gateway_port"></a> [ingress\_gateway\_port](#input\_ingress\_gateway\_port) | Ingress Gateway port | `number` | `8080` | no |

@@ -20,6 +20,7 @@ A Playground to experiment with various DevOps tools and technologies.
 - K6
 - IngressNGINX
 - CertManager
+- ArgoRollouts
 
 ## Technologies
 
@@ -58,7 +59,7 @@ A Playground to experiment with various DevOps tools and technologies.
 |         -----------------         |
 |        |     gateway     |        |
 |        | _______ _______ |        |
-|        |  prod  | canary |        |
+|        | stable | canary |        |
 |         -----------------         |
 |            ||       ||            |
 |           50%       50%           |
@@ -93,6 +94,12 @@ make setup ENVIRONMENT=consul
 
 ```shell
 make setup ENVIRONMENT=nginx
+```
+
+#### Nginx + ArgoRollouts
+
+```shell
+make setup ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true
 ```
 
 ### Run Tests

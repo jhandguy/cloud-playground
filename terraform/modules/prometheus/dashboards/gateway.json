@@ -21,10 +21,11 @@
     ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 25,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "datasource": null,
@@ -107,9 +108,9 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[$__rate_interval])) by (deployment) / sum(rate(devops_playground_gateway_requests_count[$__rate_interval])) by (deployment)",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[$__rate_interval])) by (service) / sum(rate(devops_playground_gateway_requests_count[$__rate_interval])) by (service)",
           "interval": "",
-          "legendFormat": "{{deployment}}",
+          "legendFormat": "{{service}}",
           "refId": "A"
         }
       ],
@@ -154,6 +155,7 @@
       },
       "id": 11,
       "options": {
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -165,13 +167,13 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.2.3",
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[5m])) by (deployment) / sum(rate(devops_playground_gateway_requests_count[5m])) by (deployment)",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[5m])) by (service) / sum(rate(devops_playground_gateway_requests_count[5m])) by (service)",
           "interval": "",
-          "legendFormat": "{{deployment}}",
+          "legendFormat": "{{service}}",
           "refId": "A"
         }
       ],
@@ -216,6 +218,7 @@
       },
       "id": 12,
       "options": {
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -227,19 +230,19 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.2.3",
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{deployment=\"prod\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{service=~\".*-stable\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
           "instant": false,
           "interval": "",
-          "legendFormat": "prod",
+          "legendFormat": "stable",
           "refId": "A"
         },
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{deployment=\"canary\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
+          "expr": "sum(rate(devops_playground_gateway_requests_count{service=~\".*-canary\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -626,7 +629,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 24
+        "y": 32
       },
       "id": 15,
       "options": {
@@ -655,7 +658,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 24
+        "y": 32
       },
       "id": 13,
       "options": {
@@ -678,7 +681,7 @@
       "type": "logs"
     }
   ],
-  "schemaVersion": 30,
+  "schemaVersion": 31,
   "style": "dark",
   "tags": [],
   "templating": {

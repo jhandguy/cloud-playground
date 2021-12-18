@@ -1,38 +1,46 @@
-{{- if not .Values.argoRollouts.enabled }}
-{{- range $name, $service := .Values.services }}
+{{- if .Values.argoRollouts.enabled }}
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
-  name: {{ $.Release.Name }}-{{ $name }}
-  namespace: {{ $.Release.Namespace }}
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
   labels: &labels
-    app: {{ $.Release.Name }}
+    app: {{ .Release.Name }}
 spec:
-  replicas: {{ $.Values.replicas }}
+  replicas: {{ .Values.replicas }}
+  strategy:
+    canary:
+      canaryService: {{ .Release.Name }}-canary
+      stableService: {{ .Release.Name }}-stable
+      trafficRouting:
+        nginx:
+          stableIngress: {{ .Release.Name }}-stable
+          additionalIngressAnnotations:
+            canary-by-header: X-Canary
+      analysis:
+        templates:
+          - templateName: {{ .Chart.Name }}
+        startingStep: 4
+      steps:
+        - setWeight: 25
+        - pause:
+            duration: 60s
+        - setWeight: 50
+        - pause: {}
+        - setWeight: 75
+        - pause:
+            duration: 60s
   selector:
     matchLabels: *labels
   template:
     metadata:
       labels: *labels
-      annotations:
-        {{- if $.Values.consul.enabled }}
-        'consul.hashicorp.com/connect-inject': "true"
-        'consul.hashicorp.com/connect-service': "{{ $.Release.Name }}-{{ $name }}"
-        'consul.hashicorp.com/connect-service-port': "http"
-        'consul.hashicorp.com/connect-service-upstreams': "s3:8081,dynamo:8082,tempo:8083"
-        {{- with $.Values.resources }}
-        'consul.hashicorp.com/sidecar-proxy-memory-request': "{{ .requests.memory }}"
-        'consul.hashicorp.com/sidecar-proxy-cpu-request': "{{ .requests.cpu }}"
-        'consul.hashicorp.com/sidecar-proxy-memory-limit': "{{ .limits.memory }}"
-        'consul.hashicorp.com/sidecar-proxy-cpu-limit': "{{ .limits.cpu }}"
-        {{- end }}
-        {{- end }}
     spec:
       serviceAccountName: {{ $.Release.Name }}
       containers:
         - name: {{ $.Release.Name }}
-          image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ $service.tag }}"
+          image: "{{ $.Values.image.registry }}/{{ $.Values.image.repository }}:{{ .Values.services.stable.tag }}"
           volumeMounts:
             {{- if $.Values.csi.enabled }}
             - name: {{ $.Release.Name }}
@@ -41,32 +49,20 @@ spec:
             {{- end }}
           env:
             - name: S3_URL
-              {{- if $.Values.consul.enabled }}
-              value: "localhost:8081"
-              {{- else }}
               valueFrom:
                 secretKeyRef:
                   name: {{ $.Release.Name }}
                   key: s3_url
-              {{- end }}
             - name: DYNAMO_URL
-              {{- if $.Values.consul.enabled }}
-              value: "localhost:8082"
-              {{- else }}
               valueFrom:
                 secretKeyRef:
                   name: {{ $.Release.Name }}
                   key: dynamo_url
-              {{- end }}
             - name: TEMPO_URL
-              {{- if $.Values.consul.enabled }}
-              value: "localhost:8083"
-              {{- else }}
               valueFrom:
                 secretKeyRef:
                   name: {{ $.Release.Name }}
                   key: tempo_url
-              {{- end }}
             - name: S3_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -141,5 +137,4 @@ spec:
             volumeAttributes:
               secretProviderClass: {{ $.Release.Name }}
         {{- end }}
-{{- end }}
 {{- end }}

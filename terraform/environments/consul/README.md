@@ -66,11 +66,11 @@
 | <a name="output_grafana_url"></a> [grafana\_url](#output\_grafana\_url) | Grafana URL |
 | <a name="output_ingress_gateway_host"></a> [ingress\_gateway\_host](#output\_ingress\_gateway\_host) | Gateway Ingress host |
 | <a name="output_ingress_gateway_url"></a> [ingress\_gateway\_url](#output\_ingress\_gateway\_url) | Gateway Ingress URL |
-| <a name="output_prod_gateway_url"></a> [prod\_gateway\_url](#output\_prod\_gateway\_url) | Prod Gateway URL |
 | <a name="output_prometheus_url"></a> [prometheus\_url](#output\_prometheus\_url) | Prometheus URL |
 | <a name="output_pushgateway_url"></a> [pushgateway\_url](#output\_pushgateway\_url) | PushGateway URL |
 | <a name="output_s3_token"></a> [s3\_token](#output\_s3\_token) | S3 token |
 | <a name="output_s3_url"></a> [s3\_url](#output\_s3\_url) | S3 URL |
+| <a name="output_stable_gateway_url"></a> [stable\_gateway\_url](#output\_stable\_gateway\_url) | Stable Gateway URL |
 | <a name="output_vault_root_token"></a> [vault\_root\_token](#output\_vault\_root\_token) | Vault root token |
 | <a name="output_vault_url"></a> [vault\_url](#output\_vault\_url) | Vault URL |
 <!-- END_TF_DOCS -->

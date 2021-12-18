@@ -1,5 +1,6 @@
 {{- if not .Values.consul.enabled }}
 {{- range $name, $service := $.Values.services }}
+{{- if or (not $.Values.argoRollouts.enabled) (eq $name "stable") }}
 {{- with $.Values.ingress }}
 ---
 apiVersion: networking.k8s.io/v1
@@ -15,7 +16,7 @@ metadata:
     {{- if eq $name "canary" }}
     nginx.ingress.kubernetes.io/canary: "true"
     nginx.ingress.kubernetes.io/canary-weight: "{{ $service.weight }}"
-    nginx.ingress.kubernetes.io/canary-by-header: "x-canary"
+    nginx.ingress.kubernetes.io/canary-by-header: "X-Canary"
     {{- end }}
 spec:
   rules:
@@ -33,6 +34,7 @@ spec:
     - secretName: {{ $.Release.Name }}-{{ $name }}-tls
       hosts:
         - {{ .host }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

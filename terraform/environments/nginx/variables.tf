@@ -20,3 +20,9 @@ variable "aws_secret_access_key" {
   sensitive   = true
   description = "AWS secret access key"
 }
+
+variable "argorollouts_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable ArgoRollouts"
+}

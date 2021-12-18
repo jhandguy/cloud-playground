@@ -75,14 +75,6 @@ func ensureValidToken(next http.Handler) http.Handler {
 	})
 }
 
-func setDebugHeader(next http.Handler) http.Handler {
-	deployment := viper.GetString("gateway-deployment")
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("x-debug", deployment)
-		next.ServeHTTP(w, r)
-	})
-}
-
 func newMessageAPI() *message.API {
 	s3URL := viper.GetString("s3-url")
 	s3Token := viper.GetString("s3-token")
@@ -165,7 +157,7 @@ func main() {
 
 	go serveMetrics("/monitoring/metrics")
 
-	serveAPI(newMessageAPI(), setDebugHeader, prometheus.CollectMetrics, ensureValidToken)
+	serveAPI(newMessageAPI(), prometheus.CollectMetrics, ensureValidToken)
 }
 
 func init() {

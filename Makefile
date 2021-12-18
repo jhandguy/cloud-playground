@@ -8,6 +8,8 @@ export TF_VAR_aws_secret_access_key=$(AWS_SECRET_ACCESS_KEY)
 
 ENVIRONMENT ?=
 CHDIR = terraform/environments/$(ENVIRONMENT)
+# TODO: update major version with argo-rollouts v1.2 (https://github.com/argoproj/argo-rollouts/milestone/13)
+KUBERNETES_VERSION = v1.21.8
 
 ci: lint_terraform lint_helm setup compile build test load teardown
 
@@ -62,7 +64,7 @@ build_cli:
 setup: setup_minikube setup_terraform
 
 setup_minikube:
-	minikube start $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
+	minikube start --kubernetes-version=$(KUBERNETES_VERSION) $(shell if [ $$(uname) != "Linux" ]; then echo "--vm=true"; fi)
 
 setup_terraform:
 	terraform -chdir=$(CHDIR) init

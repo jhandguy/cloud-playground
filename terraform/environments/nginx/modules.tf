@@ -6,7 +6,7 @@ module "minikube" {
     "dynamo",
     "s3",
     "gateway_canary",
-    "gateway_prod",
+    "gateway_stable",
     "prometheus",
     "alertmanager",
     "grafana",
@@ -67,11 +67,12 @@ module "gateway" {
   depends_on = [module.prometheus, module.dynamo, module.s3]
   source     = "../../modules/gateway"
 
-  ingress_host = random_pet.gateway_host.id
-  node_ip      = var.node_ip
+  argorollouts_enabled = var.argorollouts_enabled
+  ingress_host         = random_pet.gateway_host.id
+  node_ip              = var.node_ip
   node_ports = {
     "canary" : module.minikube.node_ports["gateway_canary"],
-    "prod" : module.minikube.node_ports["gateway_prod"]
+    "stable" : module.minikube.node_ports["gateway_stable"]
   }
   prometheus_enabled = true
   secrets = {
@@ -143,4 +144,13 @@ module "nginx" {
 
 module "certmanager" {
   source = "../../modules/certmanager"
+}
+
+module "argorollouts" {
+  count = var.argorollouts_enabled ? 1 : 0
+
+  depends_on = [module.prometheus, module.nginx]
+  source     = "../../modules/argorollouts"
+
+  prometheus_enabled = true
 }

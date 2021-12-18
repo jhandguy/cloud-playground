@@ -2,7 +2,6 @@ package message
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/spf13/cobra"
@@ -39,9 +38,7 @@ var deleteMessageCmd = &cobra.Command{
 }
 
 var (
-	id, content   string
-	client        *resty.Client
-	debug, canary string
+	id, content string
 )
 
 func handleMissingFlag(err error) {
@@ -51,24 +48,9 @@ func handleMissingFlag(err error) {
 }
 
 func init() {
-	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-
 	Cmd.AddCommand(createMessageCmd)
 	Cmd.AddCommand(getMessageCmd)
 	Cmd.AddCommand(deleteMessageCmd)
-
-	Cmd.PersistentFlags().StringP("token", "t", "", "gateway auth token")
-	handleMissingFlag(viper.BindPFlag("gateway-token", Cmd.PersistentFlags().Lookup("token")))
-
-	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
-	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))
-
-	Cmd.PersistentFlags().StringP("host", "o", "", "gateway host")
-	handleMissingFlag(viper.BindPFlag("gateway-host", Cmd.PersistentFlags().Lookup("host")))
-
-	Cmd.PersistentFlags().StringVarP(&debug, "debug", "d", "", "debug header")
-	Cmd.PersistentFlags().StringVarP(&canary, "canary", "a", "", "canary header")
 
 	createMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	createMessageCmd.Flags().StringVarP(&content, "content", "c", "", "content of the message")
@@ -79,18 +61,20 @@ func init() {
 
 	deleteMessageCmd.Flags().StringVarP(&id, "id", "i", "", "id of the message")
 	handleMissingFlag(deleteMessageCmd.MarkFlagRequired("id"))
+}
 
+func newClient() *resty.Client {
 	url := fmt.Sprintf("http://%s", viper.GetString("gateway-url"))
 	token := viper.GetString("gateway-token")
 	host := viper.GetString("gateway-host")
+	canary := viper.GetString("gateway-canary")
 
-	client = resty.
+	return resty.
 		New().
 		SetBaseURL(url).
 		SetAuthToken(token).
 		SetHeader("Host", host).
-		SetHeader("x-debug", debug).
-		SetHeader("x-canary", canary)
+		SetHeader("X-Canary", canary)
 }
 
 type Message struct {
@@ -99,7 +83,7 @@ type Message struct {
 }
 
 func Create(message Message) (*resty.Response, error) {
-	res, err := client.
+	res, err := newClient().
 		R().
 		SetResult(Message{}).
 		SetBody(message).
@@ -112,7 +96,7 @@ func Create(message Message) (*resty.Response, error) {
 }
 
 func Get(id string) (*resty.Response, error) {
-	res, err := client.
+	res, err := newClient().
 		R().
 		SetResult(Message{}).
 		SetPathParam("id", id).
@@ -125,7 +109,7 @@ func Get(id string) (*resty.Response, error) {
 }
 
 func Delete(id string) (*resty.Response, error) {
-	res, err := client.
+	res, err := newClient().
 		R().
 		SetPathParam("id", id).
 		Delete("/message/{id}")

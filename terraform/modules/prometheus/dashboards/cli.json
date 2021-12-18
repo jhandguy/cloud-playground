@@ -21,10 +21,11 @@
     ]
   },
   "editable": true,
+  "fiscalYearStartMonth": 0,
   "gnetId": null,
   "graphTooltip": 1,
-  "id": 23,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "datasource": null,
@@ -60,7 +61,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 0
       },
@@ -78,7 +79,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.2.3",
       "targets": [
         {
           "expr": "sum(devops_playground_cli_requests_count{success=\"true\"}) by (path, method) / sum(devops_playground_cli_requests_count) by (path, method)",
@@ -92,77 +93,6 @@
       "timeFrom": null,
       "timeShift": null,
       "title": "Success Share",
-      "transformations": [],
-      "type": "gauge"
-    },
-    {
-      "datasource": null,
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "decimals": 0,
-          "mappings": [],
-          "max": 1,
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 0,
-        "y": 8
-      },
-      "id": 10,
-      "options": {
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "pluginVersion": "8.1.2",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum(devops_playground_cli_requests_count{deployment=\"prod\"}) / sum(devops_playground_cli_requests_count)",
-          "format": "time_series",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "prod",
-          "refId": "A"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum(devops_playground_cli_requests_count{deployment=\"canary\"}) / sum(devops_playground_cli_requests_count)",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "canary",
-          "refId": "B"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Traffic Split",
       "transformations": [],
       "type": "gauge"
     },
@@ -190,7 +120,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 0
       },
       "id": 6,
       "options": {
@@ -206,7 +136,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.2.3",
       "targets": [
         {
           "expr": "sum(devops_playground_cli_requests_latency_bucket) by (le)",
@@ -245,7 +175,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 16
+        "y": 8
       },
       "id": 8,
       "options": {
@@ -261,7 +191,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.2.3",
       "targets": [
         {
           "expr": "histogram_quantile(0.99, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",
@@ -302,7 +232,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 8
       },
       "id": 9,
       "options": {
@@ -318,7 +248,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.1.2",
+      "pluginVersion": "8.2.3",
       "targets": [
         {
           "expr": "histogram_quantile(0.50, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",
@@ -334,7 +264,7 @@
       "type": "gauge"
     }
   ],
-  "schemaVersion": 30,
+  "schemaVersion": 31,
   "style": "dark",
   "tags": [],
   "templating": {

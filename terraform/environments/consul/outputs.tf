@@ -51,9 +51,9 @@ output "canary_gateway_url" {
   description = "Canary Gateway URL"
 }
 
-output "prod_gateway_url" {
-  value       = module.gateway.urls["prod"]
-  description = "Prod Gateway URL"
+output "stable_gateway_url" {
+  value       = module.gateway.urls["stable"]
+  description = "Stable Gateway URL"
 }
 
 output "ingress_gateway_url" {

@@ -15,6 +15,7 @@
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_argorollouts"></a> [argorollouts](#module\_argorollouts) | ../../modules/argorollouts | n/a |
 | <a name="module_certmanager"></a> [certmanager](#module\_certmanager) | ../../modules/certmanager | n/a |
 | <a name="module_cli"></a> [cli](#module\_cli) | ../../modules/cli | n/a |
 | <a name="module_dynamo"></a> [dynamo](#module\_dynamo) | ../../modules/dynamo | n/a |
@@ -42,6 +43,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_argorollouts_enabled"></a> [argorollouts\_enabled](#input\_argorollouts\_enabled) | Enable ArgoRollouts | `bool` | `false` | no |
 | <a name="input_aws_access_key_id"></a> [aws\_access\_key\_id](#input\_aws\_access\_key\_id) | AWS access key id | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region | `string` | n/a | yes |
 | <a name="input_aws_secret_access_key"></a> [aws\_secret\_access\_key](#input\_aws\_secret\_access\_key) | AWS secret access key | `string` | n/a | yes |
@@ -65,9 +67,9 @@
 | <a name="output_ingress_gateway_host"></a> [ingress\_gateway\_host](#output\_ingress\_gateway\_host) | Gateway Ingress host |
 | <a name="output_ingress_gateway_url"></a> [ingress\_gateway\_url](#output\_ingress\_gateway\_url) | Gateway Ingress URL |
 | <a name="output_nginx_url"></a> [nginx\_url](#output\_nginx\_url) | NGINX Controller URL |
-| <a name="output_prod_gateway_url"></a> [prod\_gateway\_url](#output\_prod\_gateway\_url) | Prod Gateway URL |
 | <a name="output_prometheus_url"></a> [prometheus\_url](#output\_prometheus\_url) | Prometheus URL |
 | <a name="output_pushgateway_url"></a> [pushgateway\_url](#output\_pushgateway\_url) | PushGateway URL |
 | <a name="output_s3_token"></a> [s3\_token](#output\_s3\_token) | S3 token |
 | <a name="output_s3_url"></a> [s3\_url](#output\_s3\_url) | S3 URL |
+| <a name="output_stable_gateway_url"></a> [stable\_gateway\_url](#output\_stable\_gateway\_url) | Stable Gateway URL |
 <!-- END_TF_DOCS -->

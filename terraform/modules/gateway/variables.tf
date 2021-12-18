@@ -61,3 +61,9 @@ variable "max_replicas" {
   default     = 1
   description = "Maximum replicas"
 }
+
+variable "argorollouts_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable ArgoRollouts"
+}

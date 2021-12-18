@@ -24,10 +24,14 @@ consul:
     port: 8080
 csi:
   enabled: false
+argoRollouts:
+  enabled: false
 services:
-  prod:
+  stable:
     tag: 1.0.0
     weight: 50
+    matcher: never
   canary:
     tag: 1.0.0
     weight: 50
+    matcher: always

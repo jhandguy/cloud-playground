@@ -218,3 +218,20 @@ jobs:
 
       - name: Run all tests
         run: make ci ENVIRONMENT=nginx
+
+  argorollouts:
+    needs: [ s3, dynamo, gateway, cli ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
+
+      - name: Run all tests
+        run: make ci ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true

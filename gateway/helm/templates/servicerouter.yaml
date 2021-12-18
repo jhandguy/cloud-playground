@@ -10,15 +10,8 @@ spec:
     - match:
         http:
           header:
-            - name: x-debug
-              exact: '{{ $name }}'
-      destination:
-        service: {{ $.Release.Name }}-{{ $name }}
-    - match:
-        http:
-          queryParam:
-            - name: x-debug
-              exact: '{{ $name }}'
+            - name: X-Canary
+              exact: '{{ $service.matcher }}'
       destination:
         service: {{ $.Release.Name }}-{{ $name }}
     {{- end }}

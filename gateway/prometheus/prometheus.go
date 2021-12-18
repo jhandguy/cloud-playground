@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -19,7 +18,7 @@ var (
 			Name: "devops_playground_gateway_requests_count",
 			Help: "Request counter per path and method",
 		},
-		[]string{"path", "method", "deployment", "success"},
+		[]string{"path", "method", "success"},
 	)
 
 	latencyHistogram = prometheus.NewHistogramVec(
@@ -27,7 +26,7 @@ var (
 			Name: "devops_playground_gateway_requests_latency",
 			Help: "Request latency histogram per path and method",
 		},
-		[]string{"path", "method", "deployment"},
+		[]string{"path", "method"},
 	)
 )
 
@@ -48,7 +47,6 @@ func (rw *responseWriter) WriteHeader(statusCode int) {
 }
 
 func CollectMetrics(next http.Handler) http.Handler {
-	deployment := viper.GetString("gateway-deployment")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.RequestURI, "/monitoring/") {
 			next.ServeHTTP(w, r)
@@ -73,11 +71,11 @@ func CollectMetrics(next http.Handler) http.Handler {
 		}
 
 		requestCounter.
-			WithLabelValues(path, r.Method, deployment, strconv.FormatBool(success)).
+			WithLabelValues(path, r.Method, strconv.FormatBool(success)).
 			Inc()
 
 		latencyHistogram.
-			WithLabelValues(path, r.Method, deployment).
+			WithLabelValues(path, r.Method).
 			Observe(time.Since(startTime).Seconds())
 	})
 }

@@ -3,7 +3,6 @@ package load
 import (
 	"fmt"
 	"math/rand"
-	"strings"
 	"sync"
 	"time"
 
@@ -34,9 +33,9 @@ var (
 	requestCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
 			Name: "devops_playground_cli_requests_count",
-			Help: "Request counter per path, method and deployment",
+			Help: "Request counter per path and method",
 		},
-		[]string{"path", "method", "deployment", "success"},
+		[]string{"path", "method", "success"},
 	)
 
 	latencyHistogram = prometheus.NewHistogramVec(
@@ -52,29 +51,17 @@ var (
 	rounds int
 )
 
-func handleMissingFlag(err error) {
+func handleUnbindableFlag(err error) {
 	if err != nil {
-		zap.S().Fatalw("missing required flag", "error", err)
+		zap.S().Fatalw("could not bind flag", "error", err)
 	}
 }
 
 func init() {
-	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-
 	Cmd.AddCommand(testLoadCmd)
 
-	Cmd.PersistentFlags().StringP("token", "t", "", "gateway auth token")
-	handleMissingFlag(viper.BindPFlag("gateway-token", Cmd.PersistentFlags().Lookup("token")))
-
-	Cmd.PersistentFlags().StringP("url", "u", "", "gateway URL")
-	handleMissingFlag(viper.BindPFlag("gateway-url", Cmd.PersistentFlags().Lookup("url")))
-
-	Cmd.PersistentFlags().StringP("host", "o", "", "gateway host")
-	handleMissingFlag(viper.BindPFlag("gateway-host", Cmd.PersistentFlags().Lookup("host")))
-
 	Cmd.PersistentFlags().StringP("push", "p", "", "push gateway url")
-	handleMissingFlag(viper.BindPFlag("pushgateway-url", Cmd.PersistentFlags().Lookup("push")))
+	handleUnbindableFlag(viper.BindPFlag("pushgateway-url", Cmd.PersistentFlags().Lookup("push")))
 
 	testLoadCmd.Flags().IntVarP(&rounds, "rounds", "r", 100, "number of test rounds")
 
@@ -93,18 +80,17 @@ func createMessage() (*message.Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	deployment := res.Header().Get("x-debug")
 
 	if res.IsError() {
 		requestCounter.
-			WithLabelValues("message", "create", deployment, "false").
+			WithLabelValues("message", "create", "false").
 			Inc()
 
 		return nil, fmt.Errorf("failed to create message: %d", res.StatusCode())
 	}
 
 	requestCounter.
-		WithLabelValues("message", "create", deployment, "true").
+		WithLabelValues("message", "create", "true").
 		Inc()
 
 	return res.Result().(*message.Message), nil
@@ -121,18 +107,17 @@ func getMessage(id string) (*message.Message, error) {
 	if err != nil {
 		return nil, err
 	}
-	deployment := res.Header().Get("x-debug")
 
 	if res.IsError() {
 		requestCounter.
-			WithLabelValues("message", "get", deployment, "false").
+			WithLabelValues("message", "get", "false").
 			Inc()
 
 		return nil, fmt.Errorf("failed to get message: %d", res.StatusCode())
 	}
 
 	requestCounter.
-		WithLabelValues("message", "get", deployment, "true").
+		WithLabelValues("message", "get", "true").
 		Inc()
 
 	return res.Result().(*message.Message), nil
@@ -149,18 +134,17 @@ func deleteMessage(id string) error {
 	if err != nil {
 		return err
 	}
-	deployment := res.Header().Get("x-debug")
 
 	if res.IsError() {
 		requestCounter.
-			WithLabelValues("message", "delete", deployment, "false").
+			WithLabelValues("message", "delete", "false").
 			Inc()
 
 		return fmt.Errorf("failed to delete message: %d", res.StatusCode())
 	}
 
 	requestCounter.
-		WithLabelValues("message", "delete", deployment, "true").
+		WithLabelValues("message", "delete", "true").
 		Inc()
 
 	return nil
