@@ -92,6 +92,10 @@ func Create(message Message) (*resty.Response, error) {
 		return nil, err
 	}
 
+	if res.IsError() {
+		return nil, fmt.Errorf("failed to create message: %d", res.StatusCode())
+	}
+
 	return res, nil
 }
 
@@ -105,6 +109,10 @@ func Get(id string) (*resty.Response, error) {
 		return nil, err
 	}
 
+	if res.IsError() {
+		return nil, fmt.Errorf("failed to get message: %d", res.StatusCode())
+	}
+
 	return res, nil
 }
 
@@ -115,6 +123,10 @@ func Delete(id string) (*resty.Response, error) {
 		Delete("/message/{id}")
 	if err != nil {
 		return nil, err
+	}
+
+	if res.IsError() {
+		return nil, fmt.Errorf("failed to delete message: %d", res.StatusCode())
 	}
 
 	return res, nil

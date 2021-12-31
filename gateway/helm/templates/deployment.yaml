@@ -8,6 +8,7 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels: &labels
     app: {{ $.Release.Name }}
+    name: {{ $name }}
 spec:
   replicas: {{ $.Values.replicas }}
   selector:

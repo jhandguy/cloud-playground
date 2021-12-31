@@ -8,19 +8,19 @@ metadata:
 spec:
   metrics:
     - name: success-share
-      interval: 1m
+      interval: 5m
       initialDelay: 30s
       successCondition: len(result) == 0 || isNaN(result[0]) || result[0] >= 0.99
-      count: 1
+      failureLimit: 0
       provider:
         prometheus:
           address: {{ .Values.prometheus.url }}
           query: |
             sum(rate(
-              devops_playground_gateway_requests_count{service="{{ .Release.Name }}-canary", success="true"}[1m])
+              devops_playground_gateway_requests_count{service="{{ .Release.Name }}-canary", success="true"}[5m])
             ) by (service)
             /
             sum(rate(
-              devops_playground_gateway_requests_count{service="{{ .Release.Name }}-canary"}[1m])
+              devops_playground_gateway_requests_count{service="{{ .Release.Name }}-canary"}[5m])
             ) by (service)
 {{- end }}

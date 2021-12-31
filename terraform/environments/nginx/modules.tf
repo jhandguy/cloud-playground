@@ -75,6 +75,7 @@ module "gateway" {
     "stable" : module.minikube.node_ports["gateway_stable"]
   }
   prometheus_enabled = true
+  prometheus_url     = module.prometheus.prometheus_url
   secrets = {
     "gateway_token" = random_password.gateway_token.result
     "dynamo_url"    = module.dynamo.cluster_url

@@ -22,6 +22,7 @@ resource "helm_release" "gateway" {
       host: ${var.ingress_host}
     prometheus:
       enabled: ${var.prometheus_enabled}
+      url: http://${var.prometheus_url}
     consul:
       enabled: ${var.consul_enabled}
       ingressGateway:

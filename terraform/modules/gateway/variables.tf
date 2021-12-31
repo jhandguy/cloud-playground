@@ -26,6 +26,12 @@ variable "prometheus_enabled" {
   description = "Enable Prometheus"
 }
 
+variable "prometheus_url" {
+  type        = string
+  default     = ""
+  description = "Prometheus URL"
+}
+
 variable "consul_enabled" {
   type        = bool
   default     = false

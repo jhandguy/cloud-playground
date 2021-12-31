@@ -7,6 +7,9 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels: &labels
     app: {{ $.Release.Name }}
+    {{- if not $.Values.argoRollouts.enabled }}
+    name: {{ $name }}
+    {{- end }}
 spec:
   type: NodePort
   ports:

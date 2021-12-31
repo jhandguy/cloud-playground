@@ -78,15 +78,11 @@ func createMessage() (*message.Message, error) {
 		Observe(time.Since(startTime).Seconds())
 
 	if err != nil {
-		return nil, err
-	}
-
-	if res.IsError() {
 		requestCounter.
 			WithLabelValues("message", "create", "false").
 			Inc()
 
-		return nil, fmt.Errorf("failed to create message: %d", res.StatusCode())
+		return nil, err
 	}
 
 	requestCounter.
@@ -105,15 +101,11 @@ func getMessage(id string) (*message.Message, error) {
 		Observe(time.Since(startTime).Seconds())
 
 	if err != nil {
-		return nil, err
-	}
-
-	if res.IsError() {
 		requestCounter.
 			WithLabelValues("message", "get", "false").
 			Inc()
 
-		return nil, fmt.Errorf("failed to get message: %d", res.StatusCode())
+		return nil, err
 	}
 
 	requestCounter.
@@ -125,22 +117,18 @@ func getMessage(id string) (*message.Message, error) {
 
 func deleteMessage(id string) error {
 	startTime := time.Now()
-	res, err := message.Delete(id)
+	_, err := message.Delete(id)
 
 	latencyHistogram.
 		WithLabelValues("message", "delete").
 		Observe(time.Since(startTime).Seconds())
 
 	if err != nil {
-		return err
-	}
-
-	if res.IsError() {
 		requestCounter.
 			WithLabelValues("message", "delete", "false").
 			Inc()
 
-		return fmt.Errorf("failed to delete message: %d", res.StatusCode())
+		return err
 	}
 
 	requestCounter.
