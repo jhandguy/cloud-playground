@@ -13,7 +13,7 @@ lint:
 	golangci-lint run
 
 build:
-	$(shell if [ $$(uname) != "Linux" ]; then echo "env GOOS=linux GOARCH=amd64"; fi) go build .
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build .
 	go test ./... -short -cover -race
 
 test: export AWS_S3_ENDPOINT=$(shell terraform -chdir=$(CHDIR) output -json aws_s3_endpoint | jq -r .)
