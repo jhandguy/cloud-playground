@@ -5,7 +5,7 @@ resource "helm_release" "prometheus" {
   chart            = "kube-prometheus-stack"
   create_namespace = true
   wait             = true
-  version          = "19.2.3"
+  version          = "30.2.0"
 
   values = [
     <<-EOF
@@ -23,12 +23,24 @@ resource "helm_release" "prometheus" {
         ${indent(8, file("${path.module}/datasources/${datasource}.yaml"))}
 %{endfor~}
       dashboards:
-        defaults:
+        default:
 %{for dashboard in var.grafana_dashboards~}
           ${dashboard}:
             json: |
               ${indent(14, file("${path.module}/dashboards/${dashboard}.json"))}
 %{endfor~}
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+            - name: 'default'
+              orgId: 1
+              folder: 'DevOps Playground'
+              type: file
+              disableDeletion: false
+              editable: true
+              options:
+                path: /var/lib/grafana/dashboards/default
     kubeControllerManager:
       enabled: false
     kubeEtcd:

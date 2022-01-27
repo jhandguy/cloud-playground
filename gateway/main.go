@@ -14,6 +14,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/jhandguy/devops-playground/gateway/item"
@@ -87,7 +88,7 @@ func newMessageAPI() *message.API {
 	}
 
 	newS3ClientConn := func(ctx context.Context) (*grpc.ClientConn, error) {
-		return grpc.DialContext(ctx, s3URL, grpc.WithInsecure(), grpc.WithBlock())
+		return grpc.DialContext(ctx, s3URL, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	}
 
 	newDynamoContext := func(ctx context.Context) (context.Context, context.CancelFunc) {
@@ -96,7 +97,7 @@ func newMessageAPI() *message.API {
 	}
 
 	newDynamoClientConn := func(ctx context.Context) (*grpc.ClientConn, error) {
-		return grpc.DialContext(ctx, dynamoURL, grpc.WithInsecure(), grpc.WithBlock())
+		return grpc.DialContext(ctx, dynamoURL, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	}
 
 	return &message.API{

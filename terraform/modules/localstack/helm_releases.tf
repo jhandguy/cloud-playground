@@ -5,7 +5,7 @@ resource "helm_release" "localstack" {
   chart            = "localstack"
   create_namespace = true
   wait             = true
-  version          = "0.3.6"
+  version          = "0.3.7"
 
   values = [
     <<-EOF

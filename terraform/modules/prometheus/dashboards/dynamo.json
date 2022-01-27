@@ -22,13 +22,11 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": null,
   "graphTooltip": 1,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -75,7 +73,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.2.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "sum(rate(devops_playground_dynamo_requests_count{success=\"true\"}[5m])) / sum(rate(devops_playground_dynamo_requests_count[5m]))",
@@ -84,13 +82,10 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Success Share (5m)",
       "type": "gauge"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -175,13 +170,10 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Success Share",
       "type": "timeseries"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -260,16 +252,11 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Requests",
       "type": "timeseries"
     },
     {
-      "cards": {
-        "cardPadding": null,
-        "cardRound": null
-      },
+      "cards": {},
       "color": {
         "cardColor": "#b4ff00",
         "colorScale": "sqrt",
@@ -278,7 +265,6 @@
         "mode": "spectrum"
       },
       "dataFormat": "tsbuckets",
-      "datasource": null,
       "gridPos": {
         "h": 8,
         "w": 12,
@@ -312,23 +298,14 @@
       "xAxis": {
         "show": true
       },
-      "xBucketNumber": null,
-      "xBucketSize": null,
       "yAxis": {
-        "decimals": null,
         "format": "s",
         "logBase": 1,
-        "max": null,
-        "min": null,
-        "show": true,
-        "splitFactor": null
+        "show": true
       },
-      "yBucketBound": "auto",
-      "yBucketNumber": null,
-      "yBucketSize": null
+      "yBucketBound": "auto"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -407,13 +384,10 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "99th Percentile",
       "type": "timeseries"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -492,8 +466,6 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "50th Percentile",
       "type": "timeseries"
     },
@@ -569,12 +541,12 @@
       },
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=\"dynamo\", container=\"dynamo\", stream=\"stderr\"}[$__interval]))",
+          "expr": "sum(count_over_time({namespace=\"dynamo\", container=\"dynamo\"}[$__interval]))",
           "legendFormat": "Count",
           "refId": "A"
         }
       ],
-      "title": "Error Logs",
+      "title": "Logs",
       "type": "timeseries"
     },
     {
@@ -598,15 +570,15 @@
       },
       "targets": [
         {
-          "expr": "{namespace=\"dynamo\", container=\"dynamo\", stream=\"stderr\"}",
+          "expr": "{namespace=\"dynamo\", container=\"dynamo\"}",
           "refId": "A"
         }
       ],
-      "title": "Error Logs",
+      "title": "Logs",
       "type": "logs"
     }
   ],
-  "schemaVersion": 31,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -620,5 +592,6 @@
   "timezone": "",
   "title": "Dynamo",
   "uid": "ihOqQ4UGz",
-  "version": 1
+  "version": 1,
+  "weekStart": ""
 }

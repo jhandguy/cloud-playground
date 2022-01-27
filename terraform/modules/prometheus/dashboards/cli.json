@@ -22,13 +22,11 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": null,
   "graphTooltip": 1,
   "links": [],
   "liveNow": false,
   "panels": [
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -79,7 +77,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.2.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "sum(devops_playground_cli_requests_count{success=\"true\"}) by (path, method) / sum(devops_playground_cli_requests_count) by (path, method)",
@@ -90,14 +88,11 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Success Share",
       "transformations": [],
       "type": "gauge"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -136,7 +131,7 @@
         "showUnfilled": true,
         "text": {}
       },
-      "pluginVersion": "8.2.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "sum(devops_playground_cli_requests_latency_bucket) by (le)",
@@ -151,7 +146,6 @@
       "type": "bargauge"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -191,7 +185,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.2.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "histogram_quantile(0.99, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",
@@ -202,13 +196,10 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "99th Percentile",
       "type": "gauge"
     },
     {
-      "datasource": null,
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -248,7 +239,7 @@
         "showThresholdMarkers": true,
         "text": {}
       },
-      "pluginVersion": "8.2.3",
+      "pluginVersion": "8.3.4",
       "targets": [
         {
           "expr": "histogram_quantile(0.50, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",
@@ -258,13 +249,11 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "50th Percentile",
       "type": "gauge"
     }
   ],
-  "schemaVersion": 31,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -278,5 +267,6 @@
   "timezone": "",
   "title": "CLI",
   "uid": "ZVnbK-UGz",
-  "version": 1
+  "version": 1,
+  "weekStart": ""
 }
