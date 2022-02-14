@@ -75,22 +75,24 @@ func isValidToken(authorization []string, token string) bool {
 	return strings.TrimPrefix(authorization[0], "Bearer ") == token
 }
 
-func ensureValidToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func ensureValidToken() grpc.UnaryServerInterceptor {
 	token := viper.GetString("dynamo-token")
 
-	if info.FullMethod == "/grpc.health.v1.Health/Check" {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		if info.FullMethod == "/grpc.health.v1.Health/Check" {
+			return handler(ctx, req)
+		}
+
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			return nil, errMissingMetadata
+		}
+
+		if !isValidToken(md["x-token"], token) {
+			return nil, errInvalidToken
+		}
 		return handler(ctx, req)
 	}
-
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, errMissingMetadata
-	}
-
-	if !isValidToken(md["x-token"], token) {
-		return nil, errInvalidToken
-	}
-	return handler(ctx, req)
 }
 
 func newItemAPI() *item.API {
@@ -146,7 +148,7 @@ func main() {
 
 	go serveMetrics("/monitoring/metrics")
 
-	serveAPI(newItemAPI(), prometheus.CollectMetrics, ensureValidToken)
+	serveAPI(newItemAPI(), prometheus.CollectMetrics, ensureValidToken())
 }
 
 func init() {

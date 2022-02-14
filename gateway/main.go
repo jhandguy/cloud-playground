@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"strings"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -49,14 +48,15 @@ func stopTracing(ctx context.Context) {
 
 func serveMetrics(path string) {
 	port := viper.GetString("gateway-metrics-port")
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
-	if err != nil {
-		zap.S().Errorw("failed to listen on metrics port", "error", err)
+	handler := promhttp.Handler()
+	getMetrics := func(c *gin.Context) {
+		handler.ServeHTTP(c.Writer, c.Request)
 	}
 
-	router := mux.NewRouter()
-	router.Handle(path, promhttp.Handler()).Methods(http.MethodGet)
-	if err := http.Serve(listener, router); err != nil {
+	router := gin.New()
+	router.GET(path, getMetrics)
+
+	if err := router.Run(fmt.Sprintf(":%s", port)); err != nil {
 		zap.S().Errorw("failed to serve metrics", "error", err)
 	}
 }
@@ -65,15 +65,15 @@ func isValidToken(authorization, token string) bool {
 	return strings.TrimPrefix(authorization, "Bearer ") == token
 }
 
-func ensureValidToken(next http.Handler) http.Handler {
+func ensureValidToken() gin.HandlerFunc {
 	token := viper.GetString("gateway-token")
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isValidToken(r.Header.Get("Authorization"), token) || strings.Contains(r.RequestURI, "/monitoring/") {
-			next.ServeHTTP(w, r)
+	return func(c *gin.Context) {
+		if isValidToken(c.Request.Header.Get("Authorization"), token) || strings.Contains(c.Request.RequestURI, "/monitoring/") {
+			c.Next()
 		} else {
-			w.WriteHeader(http.StatusUnauthorized)
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized request"})
 		}
-	})
+	}
 }
 
 func newMessageAPI() *message.API {
@@ -116,35 +116,23 @@ func newMessageAPI() *message.API {
 	}
 }
 
-func routeAPI(api *message.API, middlewares ...mux.MiddlewareFunc) *mux.Router {
-	setContentTypeHeader := func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-			next.ServeHTTP(w, r)
-		})
-	}
-
-	router := mux.NewRouter()
-	router.Use(setContentTypeHeader)
+func routeAPI(api *message.API, middlewares ...gin.HandlerFunc) *gin.Engine {
+	router := gin.New()
 	router.Use(middlewares...)
-	router.HandleFunc("/monitoring/readiness", api.CheckReadiness).Methods(http.MethodGet)
-	router.HandleFunc("/monitoring/liveness", api.CheckLiveness).Methods(http.MethodGet)
-	router.HandleFunc("/message", api.CreateMessage).Methods(http.MethodPost)
-	router.HandleFunc("/message/{id}", api.GetMessage).Methods(http.MethodGet)
-	router.HandleFunc("/message/{id}", api.DeleteMessage).Methods(http.MethodDelete)
+	router.GET("/monitoring/readiness", api.CheckReadiness)
+	router.GET("/monitoring/liveness", api.CheckLiveness)
+	router.POST("/message", api.CreateMessage)
+	router.GET("/message/:id", api.GetMessage)
+	router.DELETE("/message/:id", api.DeleteMessage)
 
 	return router
 }
 
-func serveAPI(api *message.API, middlewares ...mux.MiddlewareFunc) {
+func serveAPI(api *message.API, middlewares ...gin.HandlerFunc) {
 	port := viper.GetString("gateway-http-port")
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
-	if err != nil {
-		zap.S().Errorw("failed to listen on http port", "error", err)
-	}
-
 	router := routeAPI(api, middlewares...)
-	if err := http.Serve(listener, router); err != nil {
+
+	if err := router.Run(fmt.Sprintf(":%s", port)); err != nil {
 		zap.S().Errorw("failed to serve API", "error", err)
 	}
 }
@@ -158,10 +146,11 @@ func main() {
 
 	go serveMetrics("/monitoring/metrics")
 
-	serveAPI(newMessageAPI(), prometheus.CollectMetrics, ensureValidToken)
+	serveAPI(newMessageAPI(), prometheus.CollectMetrics, ensureValidToken())
 }
 
 func init() {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+	gin.SetMode(gin.ReleaseMode)
 }

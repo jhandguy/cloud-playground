@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -106,11 +107,12 @@ func TestRouteAPI(t *testing.T) {
 		},
 	}
 
-	middleware := func(next http.Handler) http.Handler {
+	middleware := func(c *gin.Context) {
 		isMiddlewareCalled = true
-		return next
+		c.Next()
 	}
 
+	gin.SetMode(gin.TestMode)
 	router := routeAPI(api, middleware)
 
 	byt, err := json.Marshal(expMsg)
@@ -183,7 +185,8 @@ func testGateway(t *testing.T, url string) {
 		SetBaseURL(fmt.Sprintf("http://%s", url)).
 		SetAuthToken(token).
 		SetHeader("Host", host).
-		SetDebug(true)
+		SetDebug(true).
+		SetRetryCount(3)
 
 	expMsg := message.Message{
 		ID:      uuid.NewString(),

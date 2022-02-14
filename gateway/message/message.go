@@ -2,12 +2,12 @@ package message
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/health/grpc_health_v1"
@@ -20,7 +20,7 @@ import (
 )
 
 type Message struct {
-	ID      string `json:"id"`
+	ID      string `json:"id" uri:"id"`
 	Content string `json:"content"`
 }
 
@@ -29,7 +29,7 @@ type API struct {
 	ObjectAPI *object.API
 }
 
-func (api *API) CheckReadiness(w http.ResponseWriter, _ *http.Request) {
+func (api *API) CheckReadiness(c *gin.Context) {
 	ctx := context.Background()
 	tracer := opentelemetry.GetTracer("message/CheckReadiness")
 	if tracer != nil {
@@ -64,7 +64,7 @@ func (api *API) CheckReadiness(w http.ResponseWriter, _ *http.Request) {
 	for _, err := range errs {
 		if err != nil {
 			zap.S().Errorw("failed to check readiness", "error", err)
-			w.WriteHeader(http.StatusServiceUnavailable)
+			c.Status(http.StatusServiceUnavailable)
 			return
 		}
 	}
@@ -72,19 +72,20 @@ func (api *API) CheckReadiness(w http.ResponseWriter, _ *http.Request) {
 	for _, resp := range resps {
 		if status := resp.GetStatus(); status != grpc_health_v1.HealthCheckResponse_SERVING {
 			zap.S().Errorf("failed to check readiness: %v", grpc_health_v1.HealthCheckResponse_ServingStatus_name[int32(status)])
-			w.WriteHeader(http.StatusServiceUnavailable)
+			c.Status(http.StatusServiceUnavailable)
 			return
 		}
 	}
 
 	zap.S().Debugw("successfully checked readiness", "traceID", opentelemetry.GetTraceID(ctx))
+	c.Status(http.StatusOK)
 }
 
-func (api *API) CheckLiveness(w http.ResponseWriter, _ *http.Request) {
-	w.WriteHeader(http.StatusOK)
+func (api *API) CheckLiveness(c *gin.Context) {
+	c.Status(http.StatusOK)
 }
 
-func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
+func (api *API) CreateMessage(c *gin.Context) {
 	ctx := context.Background()
 	tracer := opentelemetry.GetTracer("message/CreateMessage")
 	if tracer != nil {
@@ -94,11 +95,9 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var msg Message
-
-	err := json.NewDecoder(r.Body).Decode(&msg)
-	if err != nil {
+	if err := c.ShouldBindJSON(&msg); err != nil {
 		zap.S().Errorw("failed to decode message", "error", err)
-		w.WriteHeader(http.StatusUnprocessableEntity)
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -139,34 +138,28 @@ func (api *API) CreateMessage(w http.ResponseWriter, r *http.Request) {
 
 	if objErr != nil {
 		zap.S().Errorw("failed to create object", "error", objErr)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": objErr.Error()})
 		return
 	}
 
 	if itmErr != nil {
 		zap.S().Errorw("failed to create item", "error", itmErr)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": itmErr.Error()})
 		return
 	}
 
 	if objResp.GetObject().GetId() != itmResp.GetItem().GetId() ||
 		objResp.GetObject().GetContent() != itmResp.GetItem().GetContent() {
 		zap.S().Errorf("unexpected inconsistencies: %v != %v", objResp, itmResp)
-		w.WriteHeader(http.StatusExpectationFailed)
-		return
-	}
-
-	err = json.NewEncoder(w).Encode(msg)
-	if err != nil {
-		zap.S().Errorw("failed to encode message", "error", err)
-		w.WriteHeader(http.StatusUnprocessableEntity)
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": fmt.Sprintf("unexpected inconsistencies: %v != %v", objResp, itmResp)})
 		return
 	}
 
 	zap.S().Infow("successfully created message", "msg", msg, "traceID", opentelemetry.GetTraceID(ctx))
+	c.JSON(http.StatusOK, msg)
 }
 
-func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
+func (api *API) GetMessage(c *gin.Context) {
 	ctx := context.Background()
 	tracer := opentelemetry.GetTracer("message/GetMessage")
 	if tracer != nil {
@@ -175,13 +168,10 @@ func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
 		defer span.End()
 	}
 
-	msg := Message{
-		ID: mux.Vars(r)["id"],
-	}
-
-	if msg.ID == "" {
-		zap.S().Error("missing id in request")
-		w.WriteHeader(http.StatusBadRequest)
+	var msg Message
+	if err := c.ShouldBindUri(&msg); err != nil {
+		zap.S().Errorw("missing id in request", "error", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -212,36 +202,30 @@ func (api *API) GetMessage(w http.ResponseWriter, r *http.Request) {
 
 	if objErr != nil {
 		zap.S().Errorw("failed to get object", "error", objErr)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": objErr.Error()})
 		return
 	}
 
 	if itmErr != nil {
 		zap.S().Errorw("failed to get item", "error", itmErr)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": itmErr.Error()})
 		return
 	}
 
 	if objResp.GetObject().GetId() != itmResp.GetItem().GetId() ||
 		objResp.GetObject().GetContent() != itmResp.GetItem().GetContent() {
 		zap.S().Errorf("unexpected inconsistencies: %v != %v", objResp, itmResp)
-		w.WriteHeader(http.StatusExpectationFailed)
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": fmt.Sprintf("unexpected inconsistencies: %v != %v", objResp, itmResp)})
 		return
 	}
 
 	msg.Content = objResp.GetObject().GetContent()
 
-	err := json.NewEncoder(w).Encode(msg)
-	if err != nil {
-		zap.S().Errorw("failed to encode message", "error", err)
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		return
-	}
-
 	zap.S().Infow("successfully got message", "msg", msg, "traceID", opentelemetry.GetTraceID(ctx))
+	c.JSON(http.StatusOK, msg)
 }
 
-func (api *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+func (api *API) DeleteMessage(c *gin.Context) {
 	ctx := context.Background()
 	tracer := opentelemetry.GetTracer("message/DeleteMessage")
 	if tracer != nil {
@@ -250,13 +234,10 @@ func (api *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		defer span.End()
 	}
 
-	msg := Message{
-		ID: mux.Vars(r)["id"],
-	}
-
-	if msg.ID == "" {
-		zap.S().Error("missing id in request")
-		w.WriteHeader(http.StatusBadRequest)
+	var msg Message
+	if err := c.ShouldBindUri(&msg); err != nil {
+		zap.S().Errorw("missing id in request", "error", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -285,15 +266,16 @@ func (api *API) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 
 	if objErr != nil {
 		zap.S().Errorw("failed to delete object", "error", objErr)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": objErr.Error()})
 		return
 	}
 
 	if itmErr != nil {
 		zap.S().Errorw("failed to delete item", "error", itmErr)
-		w.WriteHeader(http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": itmErr.Error()})
 		return
 	}
 
 	zap.S().Infow("successfully deleted message", "msg", msg, "traceID", opentelemetry.GetTraceID(ctx))
+	c.Status(http.StatusOK)
 }

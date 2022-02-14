@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/jhandguy/devops-playground/gateway/item"
@@ -74,8 +74,9 @@ func TestCreateMessage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/message", api.CreateMessage).Methods(http.MethodPost)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.POST("/message", api.CreateMessage)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodPost, "/message", bytes.NewReader(byt))
@@ -136,8 +137,9 @@ func TestGetMessage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/message/{id}", api.GetMessage).Methods(http.MethodGet)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.GET("/message/:id", api.GetMessage)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/message/%s", expMsg.ID), nil)
@@ -183,8 +185,9 @@ func TestDeleteMessage(t *testing.T) {
 		},
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/message/{id}", api.DeleteMessage).Methods(http.MethodDelete)
+	gin.SetMode(gin.TestMode)
+	router := gin.New()
+	router.DELETE("/message/:id", api.DeleteMessage)
 
 	w := httptest.NewRecorder()
 	r := httptest.NewRequest(http.MethodDelete, fmt.Sprintf("/message/%s", expMsg.ID), nil)

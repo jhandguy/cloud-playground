@@ -6,10 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/collectors"
-	"go.uber.org/zap"
 )
 
 var (
@@ -36,46 +35,25 @@ func init() {
 	prometheus.MustRegister(latencyHistogram)
 }
 
-type responseWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
+func CollectMetrics(c *gin.Context) {
+	if strings.Contains(c.Request.RequestURI, "/monitoring/") {
+		c.Next()
+		return
+	}
 
-func (rw *responseWriter) WriteHeader(statusCode int) {
-	rw.statusCode = statusCode
-	rw.ResponseWriter.WriteHeader(statusCode)
-}
+	startTime := time.Now()
+	c.Next()
 
-func CollectMetrics(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.Contains(r.RequestURI, "/monitoring/") {
-			next.ServeHTTP(w, r)
-			return
-		}
+	success := false
+	if c.Writer.Status() < http.StatusBadRequest {
+		success = true
+	}
 
-		route := mux.CurrentRoute(r)
-		path, err := route.GetPathTemplate()
-		if err != nil {
-			zap.S().Errorw("failed to get path template", "error", err)
-		}
+	requestCounter.
+		WithLabelValues(c.FullPath(), c.Request.Method, strconv.FormatBool(success)).
+		Inc()
 
-		rw := &responseWriter{
-			ResponseWriter: w,
-		}
-		startTime := time.Now()
-		next.ServeHTTP(rw, r)
-
-		success := false
-		if rw.statusCode < http.StatusBadRequest {
-			success = true
-		}
-
-		requestCounter.
-			WithLabelValues(path, r.Method, strconv.FormatBool(success)).
-			Inc()
-
-		latencyHistogram.
-			WithLabelValues(path, r.Method).
-			Observe(time.Since(startTime).Seconds())
-	})
+	latencyHistogram.
+		WithLabelValues(c.FullPath(), c.Request.Method).
+		Observe(time.Since(startTime).Seconds())
 }
