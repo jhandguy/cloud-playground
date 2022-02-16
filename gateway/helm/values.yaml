@@ -9,7 +9,13 @@ resources:
 horizontalPodAutoscaler:
   minReplicas: 1
   maxReplicas: 1
-  targetCPUUtilizationPercentage: 50
+  targets:
+    cpu:
+      type: Utilization
+      averageUtilization: 50
+    memory:
+      type: Utilization
+      averageUtilization: 50
 image:
   registry: ghcr.io
   repository: jhandguy/devops-playground/gateway

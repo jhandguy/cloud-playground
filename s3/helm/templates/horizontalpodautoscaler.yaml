@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2beta2 # TODO: update to v2 with Kubernetes >= 1.23
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ .Release.Name }}
@@ -11,5 +11,13 @@ spec:
   {{- with .Values.horizontalPodAutoscaler }}
   minReplicas: {{ .minReplicas }}
   maxReplicas: {{ .maxReplicas }}
-  targetCPUUtilizationPercentage: {{ .targetCPUUtilizationPercentage }}
+  metrics:
+    {{- range $resource, $target := .targets }}
+    - type: Resource
+      resource:
+        name: {{ $resource }}
+        target:
+          type: {{ $target.type }}
+          averageUtilization: {{ $target.averageUtilization }}
+    {{- end }}
   {{- end }}
