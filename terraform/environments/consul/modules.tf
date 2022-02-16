@@ -29,7 +29,7 @@ module "localstack" {
 }
 
 module "dynamo" {
-  depends_on = [module.vault, module.localstack]
+  depends_on = [module.metrics, module.vault, module.localstack]
   source     = "../../modules/dynamo"
 
   consul_enabled     = true
@@ -41,7 +41,7 @@ module "dynamo" {
 }
 
 module "s3" {
-  depends_on = [module.vault, module.localstack]
+  depends_on = [module.metrics, module.vault, module.localstack]
   source     = "../../modules/s3"
 
   consul_enabled     = true
@@ -53,7 +53,7 @@ module "s3" {
 }
 
 module "gateway" {
-  depends_on = [module.vault, module.dynamo, module.s3]
+  depends_on = [module.metrics, module.vault, module.dynamo, module.s3]
   source     = "../../modules/gateway"
 
   consul_enabled       = true
@@ -78,8 +78,7 @@ module "cli" {
 }
 
 module "prometheus" {
-  depends_on = [module.metrics]
-  source     = "../../modules/prometheus"
+  source = "../../modules/prometheus"
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]

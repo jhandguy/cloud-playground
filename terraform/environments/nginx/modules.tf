@@ -26,7 +26,7 @@ module "localstack" {
 }
 
 module "dynamo" {
-  depends_on = [module.prometheus, module.localstack]
+  depends_on = [module.metrics, module.prometheus, module.localstack]
   source     = "../../modules/dynamo"
 
   max_replicas       = 2
@@ -45,7 +45,7 @@ module "dynamo" {
 }
 
 module "s3" {
-  depends_on = [module.prometheus, module.localstack]
+  depends_on = [module.metrics, module.prometheus, module.localstack]
   source     = "../../modules/s3"
 
   max_replicas       = 2
@@ -64,7 +64,7 @@ module "s3" {
 }
 
 module "gateway" {
-  depends_on = [module.prometheus, module.dynamo, module.s3]
+  depends_on = [module.metrics, module.prometheus, module.dynamo, module.s3]
   source     = "../../modules/gateway"
 
   argorollouts_enabled = var.argorollouts_enabled
@@ -99,8 +99,7 @@ module "cli" {
 }
 
 module "prometheus" {
-  depends_on = [module.metrics]
-  source     = "../../modules/prometheus"
+  source = "../../modules/prometheus"
 
   alertmanager_node_port = module.minikube.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
@@ -136,7 +135,8 @@ module "metrics" {
 }
 
 module "nginx" {
-  source = "../../modules/nginx"
+  depends_on = [module.prometheus]
+  source     = "../../modules/nginx"
 
   node_ip            = var.node_ip
   node_port          = module.minikube.node_ports["nginx"]

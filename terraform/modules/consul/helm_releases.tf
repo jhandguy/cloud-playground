@@ -5,7 +5,7 @@ resource "helm_release" "consul" {
   chart            = "consul"
   create_namespace = true
   wait             = true
-  version          = "0.39.0"
+  version          = "0.40.0"
 
   values = [
     <<-EOF
