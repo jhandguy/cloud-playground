@@ -5,7 +5,7 @@ resource "helm_release" "argorollouts" {
   chart            = "argo-rollouts"
   create_namespace = true
   wait             = true
-  version          = "2.9.3"
+  version          = "2.10.0"
 
   values = [
     <<-EOF
@@ -20,6 +20,9 @@ resource "helm_release" "argorollouts" {
 %{endif}
     dashboard:
       enabled: true
+      service:
+        type: NodePort
+        nodePort: ${var.node_port}
     EOF
   ]
 }

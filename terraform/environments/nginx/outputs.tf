@@ -96,3 +96,8 @@ output "nginx_url" {
   value       = module.nginx.url
   description = "NGINX Controller URL"
 }
+
+output "argorollouts_url" {
+  value       = var.argorollouts_enabled ? module.argorollouts[0].url : null
+  description = "NGINX Controller URL"
+}

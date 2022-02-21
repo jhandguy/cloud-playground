@@ -11,7 +11,8 @@ module "minikube" {
     "alertmanager",
     "grafana",
     "pushgateway",
-    "nginx"
+    "nginx",
+    "argorollouts"
   ]
 }
 
@@ -153,5 +154,7 @@ module "argorollouts" {
   depends_on = [module.prometheus, module.nginx]
   source     = "../../modules/argorollouts"
 
+  node_ip            = var.node_ip
+  node_port          = module.minikube.node_ports["argorollouts"]
   prometheus_enabled = true
 }
