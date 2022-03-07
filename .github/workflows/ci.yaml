@@ -220,7 +220,7 @@ jobs:
         run: make ci ENVIRONMENT=nginx
 
   argorollouts:
-    needs: [ s3, dynamo, gateway, cli ]
+    needs: [s3, dynamo, gateway, cli]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

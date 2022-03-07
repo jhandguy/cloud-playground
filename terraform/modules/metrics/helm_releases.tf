@@ -5,7 +5,7 @@ resource "helm_release" "metrics" {
   chart            = "metrics-server"
   create_namespace = true
   wait             = true
-  version          = "3.8.1"
+  version          = "3.8.2"
 
   values = [
     <<-EOF

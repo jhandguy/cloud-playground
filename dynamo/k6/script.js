@@ -10,9 +10,9 @@ export const options = {
     ],
     thresholds: {
         'checks': ['rate>0.9'],
-        'grpc_req_duration{method:CreateItem}': ['p(95)<1000'],
-        'grpc_req_duration{method:GetItem}': ['p(95)<1000'],
-        'grpc_req_duration{method:DeleteItem}': ['p(95)<1000'],
+        'grpc_req_duration{method:CreateItem}': ['p(95)<10000'],
+        'grpc_req_duration{method:GetItem}': ['p(95)<10000'],
+        'grpc_req_duration{method:DeleteItem}': ['p(95)<10000'],
     },
 };
 
