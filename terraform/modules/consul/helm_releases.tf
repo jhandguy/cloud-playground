@@ -13,15 +13,58 @@ resource "helm_release" "consul" {
       datacenter: consul
     connectInject:
       enabled: true
+      resources:
+        limits:
+          cpu: 25m
+          memory: 50Mi
+        requests:
+          cpu: 25m
+          memory: 50Mi
       replicas: 1
       transparentProxy:
         defaultEnabled: false
+      sidecarProxy:
+        resources:
+          limits:
+            cpu: 25m
+            memory: 50Mi
+          requests:
+            cpu: 25m
+            memory: 50Mi
+      initContainer:
+        resources:
+          limits:
+            cpu: 25m
+            memory: 50Mi
+          requests:
+            cpu: 25m
+            memory: 50Mi
     controller:
       enabled: true
+      limits:
+        cpu: 25m
+        memory: 50Mi
+      requests:
+        cpu: 25m
+        memory: 50Mi
     client:
       enabled: true
+      resources:
+        requests:
+          cpu: 25m
+          memory: 50Mi
+        limits:
+          cpu: 25m
+          memory: 50Mi
     server:
       replicas: 1
+      resources:
+        requests:
+          cpu: 25m
+          memory: 50Mi
+        limits:
+          cpu: 25m
+          memory: 50Mi
     ui:
       service:
         type: NodePort
@@ -29,6 +72,13 @@ resource "helm_release" "consul" {
           http: ${var.node_port}
     ingressGateways:
       enabled: true
+      resources:
+        requests:
+          cpu: 25m
+          memory: 50Mi
+        limits:
+          cpu: 25m
+          memory: 50Mi
       defaults:
         replicas: 1
         service:

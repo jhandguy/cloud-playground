@@ -4,6 +4,6 @@ output "url" {
 }
 
 output "cluster_url" {
-  value       = "${helm_release.dynamo.namespace}.${helm_release.dynamo.name}.svc.cluster.local:8080"
+  value       = "${helm_release.dynamo.name}.${helm_release.dynamo.namespace}.svc.cluster.local:8080"
   description = "Cluster URL"
 }

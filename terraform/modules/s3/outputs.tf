@@ -4,6 +4,6 @@ output "url" {
 }
 
 output "cluster_url" {
-  value       = "${helm_release.s3.namespace}.${helm_release.s3.name}.svc.cluster.local:8080"
+  value       = "${helm_release.s3.name}.${helm_release.s3.namespace}.svc.cluster.local:8080"
   description = "Cluster URL"
 }

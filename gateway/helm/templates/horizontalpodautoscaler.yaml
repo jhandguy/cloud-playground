@@ -1,4 +1,5 @@
 {{- range $name, $service := .Values.services }}
+{{- if or (not $.Values.argoRollouts.enabled) (eq $name "stable") }}
 ---
 apiVersion: autoscaling/v2beta2 # TODO: update to v2 with Kubernetes >= 1.23
 kind: HorizontalPodAutoscaler
@@ -7,9 +8,15 @@ metadata:
   namespace: {{ $.Release.Namespace }}
 spec:
   scaleTargetRef:
+    {{- if $.Values.argoRollouts.enabled }}
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
+    name: {{ $.Release.Name }}
+    {{- else }}
     apiVersion: apps/v1
     kind: Deployment
     name: {{ $.Release.Name }}-{{ $name }}
+    {{- end }}
   {{- with $.Values.horizontalPodAutoscaler }}
   minReplicas: {{ .minReplicas }}
   maxReplicas: {{ .maxReplicas }}
@@ -23,4 +30,5 @@ spec:
           averageUtilization: {{ $target.averageUtilization }}
     {{- end }}
   {{- end }}
+{{- end }}
 {{- end }}

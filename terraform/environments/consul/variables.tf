@@ -1,8 +1,3 @@
-variable "node_ip" {
-  type        = string
-  description = "Node ip"
-}
-
 variable "aws_region" {
   type        = string
   sensitive   = true

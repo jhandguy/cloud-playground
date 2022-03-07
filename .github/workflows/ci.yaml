@@ -197,7 +197,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 
       - name: Run all tests
         run: make ci ENVIRONMENT=consul
@@ -214,7 +214,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 
       - name: Run all tests
         run: make ci ENVIRONMENT=nginx
@@ -231,7 +231,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
+          brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 
       - name: Run all tests
         run: make ci ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true

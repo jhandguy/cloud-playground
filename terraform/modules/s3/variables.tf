@@ -38,6 +38,12 @@ variable "secrets" {
   description = "Secrets"
 }
 
+variable "replicas" {
+  type        = number
+  default     = 1
+  description = "Replicas"
+}
+
 variable "min_replicas" {
   type        = number
   default     = 1

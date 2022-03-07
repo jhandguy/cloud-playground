@@ -1,10 +1,10 @@
 replicas: 1
 resources:
   limits:
-    cpu: 50m
+    cpu: 75m
     memory: 50Mi
   requests:
-    cpu: 25m
+    cpu: 75m
     memory: 50Mi
 horizontalPodAutoscaler:
   minReplicas: 1
@@ -12,7 +12,7 @@ horizontalPodAutoscaler:
   targets:
     cpu:
       type: Utilization
-      averageUtilization: 50
+      averageUtilization: 70
     memory:
       type: Utilization
       averageUtilization: 50

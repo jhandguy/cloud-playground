@@ -1,6 +1,6 @@
 provider "helm" {
   kubernetes {
-    config_context_cluster = "minikube"
+    config_context_cluster = module.kind.cluster_context
     config_path            = "~/.kube/config"
   }
 }
@@ -15,7 +15,7 @@ provider "aws" {
   skip_requesting_account_id  = true
 
   endpoints {
-    s3       = "http://${var.node_ip}:${module.minikube.node_ports["localstack"]}"
-    dynamodb = "http://${var.node_ip}:${module.minikube.node_ports["localstack"]}"
+    s3       = "http://${module.kind.node_ip}:${module.kind.node_ports["localstack"]}"
+    dynamodb = "http://${module.kind.node_ip}:${module.kind.node_ports["localstack"]}"
   }
 }

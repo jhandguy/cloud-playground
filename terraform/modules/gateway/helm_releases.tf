@@ -8,7 +8,7 @@ resource "helm_release" "gateway" {
 
   values = [
     <<-EOF
-    replicas: ${var.argorollouts_enabled ? 2 : 1}
+    replicas: ${var.replicas}
     horizontalPodAutoscaler:
       minReplicas: ${var.min_replicas}
       maxReplicas: ${var.max_replicas}

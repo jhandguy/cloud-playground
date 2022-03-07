@@ -32,5 +32,6 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_cluster_url"></a> [cluster\_url](#output\_cluster\_url) | Cluster URL |
 | <a name="output_url"></a> [url](#output\_url) | URL |
 <!-- END_TF_DOCS -->

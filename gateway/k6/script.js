@@ -4,8 +4,8 @@ import {randomString, uuidv4} from 'https://jslib.k6.io/k6-utils/1.1.0/index.js'
 
 export const options = {
     stages: [
-        {target: 50, duration: '1m'},
-        {target: 50, duration: '1m'},
+        {target: 40, duration: '1m'},
+        {target: 40, duration: '1m'},
         {target: 0, duration: '1m'},
     ],
     thresholds: {

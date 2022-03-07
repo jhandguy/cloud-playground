@@ -6,7 +6,7 @@ A Playground to experiment with various DevOps tools and technologies.
 
 ## Tools
 
-- Minikube
+- Kind
 - LocalStack
 - Prometheus
 - Grafana
@@ -79,7 +79,7 @@ A Playground to experiment with various DevOps tools and technologies.
 ### Install Required Tools
 
 ```shell
-brew install protobuf protoc-gen-go protoc-gen-go-grpc minikube terraform k6
+brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 ```
 
 ### Create Infrastructure

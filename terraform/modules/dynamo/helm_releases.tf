@@ -8,7 +8,7 @@ resource "helm_release" "dynamo" {
 
   values = [
     <<-EOF
-    replicas: 1
+    replicas: ${var.replicas}
     horizontalPodAutoscaler:
       minReplicas: ${var.min_replicas}
       maxReplicas: ${var.max_replicas}

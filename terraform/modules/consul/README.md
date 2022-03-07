@@ -34,6 +34,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_ingress_gateway_cluster_url"></a> [ingress\_gateway\_cluster\_url](#output\_ingress\_gateway\_cluster\_url) | Ingress Gateway cluster URL |
 | <a name="output_ingress_gateway_port"></a> [ingress\_gateway\_port](#output\_ingress\_gateway\_port) | Ingress Gateway port |
 | <a name="output_ingress_gateway_urls"></a> [ingress\_gateway\_urls](#output\_ingress\_gateway\_urls) | Ingress Gateway URLs |
 | <a name="output_url"></a> [url](#output\_url) | URL |

@@ -1,6 +1,7 @@
-module "minikube" {
-  source = "../../modules/minikube"
+module "kind" {
+  source = "../../modules/kind"
 
+  cluster_name = var.argorollouts_enabled ? "argorollouts" : "nginx"
   node_ports = [
     "localstack",
     "dynamo",
@@ -12,7 +13,7 @@ module "minikube" {
     "grafana",
     "pushgateway",
     "nginx",
-    "argorollouts"
+    "argorollouts",
   ]
 }
 
@@ -22,8 +23,8 @@ module "localstack" {
 
   aws_dynamo_tables = ["dynamo"]
   aws_s3_buckets    = ["s3"]
-  node_ip           = var.node_ip
-  node_port         = module.minikube.node_ports["localstack"]
+  node_ip           = module.kind.node_ip
+  node_port         = module.kind.node_ports["localstack"]
 }
 
 module "dynamo" {
@@ -31,8 +32,8 @@ module "dynamo" {
   source     = "../../modules/dynamo"
 
   max_replicas       = 2
-  node_ip            = var.node_ip
-  node_port          = module.minikube.node_ports["dynamo"]
+  node_ip            = module.kind.node_ip
+  node_port          = module.kind.node_ports["dynamo"]
   prometheus_enabled = true
   secrets = {
     "aws_region"            = var.aws_region
@@ -50,8 +51,8 @@ module "s3" {
   source     = "../../modules/s3"
 
   max_replicas       = 2
-  node_ip            = var.node_ip
-  node_port          = module.minikube.node_ports["s3"]
+  node_ip            = module.kind.node_ip
+  node_port          = module.kind.node_ports["s3"]
   prometheus_enabled = true
   secrets = {
     "aws_region"            = var.aws_region
@@ -70,13 +71,16 @@ module "gateway" {
 
   argorollouts_enabled = var.argorollouts_enabled
   ingress_host         = random_pet.gateway_host.id
-  node_ip              = var.node_ip
+  min_replicas         = var.argorollouts_enabled ? 2 : 1
+  max_replicas         = var.argorollouts_enabled ? 4 : 2
+  node_ip              = module.kind.node_ip
   node_ports = {
-    "canary" : module.minikube.node_ports["gateway_canary"],
-    "stable" : module.minikube.node_ports["gateway_stable"]
+    "canary" : module.kind.node_ports["gateway_canary"],
+    "stable" : module.kind.node_ports["gateway_stable"]
   }
   prometheus_enabled = true
   prometheus_url     = module.prometheus.prometheus_url
+  replicas           = var.argorollouts_enabled ? 2 : 1
   secrets = {
     "gateway_token" = random_password.gateway_token.result
     "dynamo_url"    = module.dynamo.cluster_url
@@ -92,30 +96,31 @@ module "cli" {
   source     = "../../modules/cli"
 
   secrets = {
-    "gateway_url"     = module.nginx.url
+    "gateway_url"     = module.nginx.cluster_url
     "gateway_host"    = module.gateway.host
-    "pushgateway_url" = module.pushgateway.url
+    "pushgateway_url" = module.pushgateway.cluster_url
     "gateway_token"   = random_password.gateway_token.result
   }
 }
 
 module "prometheus" {
-  source = "../../modules/prometheus"
+  depends_on = [module.kind]
+  source     = "../../modules/prometheus"
 
-  alertmanager_node_port = module.minikube.node_ports["alertmanager"]
+  alertmanager_node_port = module.kind.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
   grafana_datasources    = ["loki", "tempo"]
-  grafana_node_port      = module.minikube.node_ports["grafana"]
-  node_ip                = var.node_ip
-  prometheus_node_port   = module.minikube.node_ports["prometheus"]
+  grafana_node_port      = module.kind.node_ports["grafana"]
+  node_ip                = module.kind.node_ip
+  prometheus_node_port   = module.kind.node_ports["prometheus"]
 }
 
 module "pushgateway" {
   depends_on = [module.prometheus]
   source     = "../../modules/pushgateway"
 
-  node_ip   = var.node_ip
-  node_port = module.minikube.node_ports["pushgateway"]
+  node_ip   = module.kind.node_ip
+  node_port = module.kind.node_ports["pushgateway"]
 }
 
 module "loki" {
@@ -132,20 +137,22 @@ module "tempo" {
 }
 
 module "metrics" {
-  source = "../../modules/metrics"
+  depends_on = [module.kind]
+  source     = "../../modules/metrics"
 }
 
 module "nginx" {
   depends_on = [module.prometheus]
   source     = "../../modules/nginx"
 
-  node_ip            = var.node_ip
-  node_port          = module.minikube.node_ports["nginx"]
+  node_ip            = module.kind.node_ip
+  node_port          = module.kind.node_ports["nginx"]
   prometheus_enabled = true
 }
 
 module "certmanager" {
-  source = "../../modules/certmanager"
+  depends_on = [module.kind]
+  source     = "../../modules/certmanager"
 }
 
 module "argorollouts" {
@@ -154,7 +161,7 @@ module "argorollouts" {
   depends_on = [module.prometheus, module.nginx]
   source     = "../../modules/argorollouts"
 
-  node_ip            = var.node_ip
-  node_port          = module.minikube.node_ports["argorollouts"]
+  node_ip            = module.kind.node_ip
+  node_port          = module.kind.node_ports["argorollouts"]
   prometheus_enabled = true
 }

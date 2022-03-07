@@ -20,10 +20,10 @@
 | <a name="module_cli"></a> [cli](#module\_cli) | ../../modules/cli | n/a |
 | <a name="module_dynamo"></a> [dynamo](#module\_dynamo) | ../../modules/dynamo | n/a |
 | <a name="module_gateway"></a> [gateway](#module\_gateway) | ../../modules/gateway | n/a |
+| <a name="module_kind"></a> [kind](#module\_kind) | ../../modules/kind | n/a |
 | <a name="module_localstack"></a> [localstack](#module\_localstack) | ../../modules/localstack | n/a |
 | <a name="module_loki"></a> [loki](#module\_loki) | ../../modules/loki | n/a |
 | <a name="module_metrics"></a> [metrics](#module\_metrics) | ../../modules/metrics | n/a |
-| <a name="module_minikube"></a> [minikube](#module\_minikube) | ../../modules/minikube | n/a |
 | <a name="module_nginx"></a> [nginx](#module\_nginx) | ../../modules/nginx | n/a |
 | <a name="module_prometheus"></a> [prometheus](#module\_prometheus) | ../../modules/prometheus | n/a |
 | <a name="module_pushgateway"></a> [pushgateway](#module\_pushgateway) | ../../modules/pushgateway | n/a |
@@ -47,13 +47,13 @@
 | <a name="input_aws_access_key_id"></a> [aws\_access\_key\_id](#input\_aws\_access\_key\_id) | AWS access key id | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region | `string` | n/a | yes |
 | <a name="input_aws_secret_access_key"></a> [aws\_secret\_access\_key](#input\_aws\_secret\_access\_key) | AWS secret access key | `string` | n/a | yes |
-| <a name="input_node_ip"></a> [node\_ip](#input\_node\_ip) | Node ip | `string` | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
 | <a name="output_alertmanager_url"></a> [alertmanager\_url](#output\_alertmanager\_url) | AlertManager URL |
+| <a name="output_argorollouts_url"></a> [argorollouts\_url](#output\_argorollouts\_url) | NGINX Controller URL |
 | <a name="output_aws_dynamo_endpoint"></a> [aws\_dynamo\_endpoint](#output\_aws\_dynamo\_endpoint) | Dynamo endpoint |
 | <a name="output_aws_dynamo_table"></a> [aws\_dynamo\_table](#output\_aws\_dynamo\_table) | Dynamo table |
 | <a name="output_aws_s3_bucket"></a> [aws\_s3\_bucket](#output\_aws\_s3\_bucket) | S3 bucket |

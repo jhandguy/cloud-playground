@@ -20,10 +20,10 @@
 | <a name="module_csi"></a> [csi](#module\_csi) | ../../modules/csi | n/a |
 | <a name="module_dynamo"></a> [dynamo](#module\_dynamo) | ../../modules/dynamo | n/a |
 | <a name="module_gateway"></a> [gateway](#module\_gateway) | ../../modules/gateway | n/a |
+| <a name="module_kind"></a> [kind](#module\_kind) | ../../modules/kind | n/a |
 | <a name="module_localstack"></a> [localstack](#module\_localstack) | ../../modules/localstack | n/a |
 | <a name="module_loki"></a> [loki](#module\_loki) | ../../modules/loki | n/a |
 | <a name="module_metrics"></a> [metrics](#module\_metrics) | ../../modules/metrics | n/a |
-| <a name="module_minikube"></a> [minikube](#module\_minikube) | ../../modules/minikube | n/a |
 | <a name="module_prometheus"></a> [prometheus](#module\_prometheus) | ../../modules/prometheus | n/a |
 | <a name="module_pushgateway"></a> [pushgateway](#module\_pushgateway) | ../../modules/pushgateway | n/a |
 | <a name="module_s3"></a> [s3](#module\_s3) | ../../modules/s3 | n/a |
@@ -46,7 +46,6 @@
 | <a name="input_aws_access_key_id"></a> [aws\_access\_key\_id](#input\_aws\_access\_key\_id) | AWS access key id | `string` | n/a | yes |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region | `string` | n/a | yes |
 | <a name="input_aws_secret_access_key"></a> [aws\_secret\_access\_key](#input\_aws\_secret\_access\_key) | AWS secret access key | `string` | n/a | yes |
-| <a name="input_node_ip"></a> [node\_ip](#input\_node\_ip) | Node ip | `string` | n/a | yes |
 
 ## Outputs
 
