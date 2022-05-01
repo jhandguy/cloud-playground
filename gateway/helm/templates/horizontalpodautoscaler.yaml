@@ -1,7 +1,7 @@
 {{- range $name, $service := .Values.services }}
 {{- if or (not $.Values.argoRollouts.enabled) (eq $name "stable") }}
 ---
-apiVersion: autoscaling/v2beta2 # TODO: update to v2 with Kubernetes >= 1.23
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ $.Release.Name }}-{{ $name }}

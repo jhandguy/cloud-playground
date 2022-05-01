@@ -21,6 +21,7 @@ A Playground to experiment with various DevOps tools and technologies.
 - IngressNGINX
 - CertManager
 - ArgoRollouts
+- MetricsServer
 
 ## Technologies
 

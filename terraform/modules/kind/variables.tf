@@ -7,7 +7,7 @@ variable "cluster_name" {
 variable "node_image" {
   type        = string
   description = "Node image"
-  default     = "v1.21.1"
+  default     = "v1.23.4"
 }
 
 variable "node_ports" {
