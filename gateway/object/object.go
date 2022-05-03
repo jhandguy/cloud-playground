@@ -36,7 +36,7 @@ func CheckHealth(
 
 		dynConn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -47,7 +47,7 @@ func CheckHealth(
 
 		resp, err := client.Check(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to check health", "error", err)
+			zap.S().Errorw("failed to check health", "error", err.Error())
 			return nil, err
 		}
 
@@ -72,7 +72,7 @@ func CreateObject(
 
 		s3Conn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -83,7 +83,7 @@ func CreateObject(
 
 		resp, err := client.CreateObject(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to create object", "error", err)
+			zap.S().Errorw("failed to create object", "error", err.Error())
 			return nil, err
 		}
 
@@ -110,7 +110,7 @@ func GetObject(
 
 		s3Conn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -121,7 +121,7 @@ func GetObject(
 
 		resp, err := client.GetObject(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to get object", "error", err)
+			zap.S().Errorw("failed to get object", "error", err.Error())
 			return nil, err
 		}
 
@@ -148,7 +148,7 @@ func DeleteObject(
 
 		s3Conn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -159,7 +159,7 @@ func DeleteObject(
 
 		resp, err := client.DeleteObject(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to delete object", "error", err)
+			zap.S().Errorw("failed to delete object", "error", err.Error())
 			return nil, err
 		}
 

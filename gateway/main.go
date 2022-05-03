@@ -35,14 +35,14 @@ func startTracing(ctx context.Context) {
 	if endpoint := viper.GetString("tempo-url"); endpoint != "" {
 		err := opentelemetry.StartTracing(ctx, endpoint)
 		if err != nil {
-			zap.S().Errorw("failed to start tracing", "error", err)
+			zap.S().Errorw("failed to start tracing", "error", err.Error())
 		}
 	}
 }
 
 func stopTracing(ctx context.Context) {
 	if err := opentelemetry.StopTracing(ctx); err != nil {
-		zap.S().Errorw("failed to stop tracing", "error", err)
+		zap.S().Errorw("failed to stop tracing", "error", err.Error())
 	}
 }
 
@@ -57,7 +57,7 @@ func serveMetrics(path string) {
 	router.GET(path, getMetrics)
 
 	if err := router.Run(fmt.Sprintf(":%s", port)); err != nil {
-		zap.S().Errorw("failed to serve metrics", "error", err)
+		zap.S().Errorw("failed to serve metrics", "error", err.Error())
 	}
 }
 
@@ -133,7 +133,7 @@ func serveAPI(api *message.API, middlewares ...gin.HandlerFunc) {
 	router := routeAPI(api, middlewares...)
 
 	if err := router.Run(fmt.Sprintf(":%s", port)); err != nil {
-		zap.S().Errorw("failed to serve API", "error", err)
+		zap.S().Errorw("failed to serve API", "error", err.Error())
 	}
 }
 

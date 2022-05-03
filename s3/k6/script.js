@@ -21,7 +21,7 @@ client.load(['../proto/object'], 'object.pg.proto');
 
 export default function () {
     const params = {
-        headers: {
+        metadata: {
             'x-token': __ENV.S3_TOKEN,
         },
     };

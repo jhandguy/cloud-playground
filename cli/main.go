@@ -28,7 +28,7 @@ func setupLogger() {
 
 func handleUnbindableFlag(err error) {
 	if err != nil {
-		zap.S().Fatalw("could not bind flag", "error", err)
+		zap.S().Fatalw("could not bind flag", "error", err.Error())
 	}
 }
 
@@ -56,6 +56,6 @@ func init() {
 
 func main() {
 	if err := cmd.Execute(); err != nil {
-		zap.S().Errorw("error executing command", "cmd", cmd.Short, "error", err)
+		zap.S().Errorw("error executing command", "cmd", cmd.Short, "error", err.Error())
 	}
 }

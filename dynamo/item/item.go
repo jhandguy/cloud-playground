@@ -44,7 +44,7 @@ func (api *API) Check(ctx context.Context, req *grpc_health_v1.HealthCheckReques
 			TableName: aws.String(api.DynamoDB.Table),
 		})
 		if err != nil {
-			zap.S().Errorw("failed readiness check", "error", err)
+			zap.S().Errorw("failed readiness check", "error", err.Error())
 			return &grpc_health_v1.HealthCheckResponse{
 				Status: grpc_health_v1.HealthCheckResponse_NOT_SERVING,
 			}, nil
@@ -76,7 +76,7 @@ func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.
 
 	it, err := dynamodbattribute.MarshalMap(req.GetItem())
 	if err != nil {
-		zap.S().Errorw("failed to marshal item", "error", err)
+		zap.S().Errorw("failed to marshal item", "error", err.Error())
 		return nil, err
 	}
 
@@ -85,7 +85,7 @@ func (api *API) CreateItem(ctx context.Context, req *pb.CreateItemRequest) (*pb.
 		TableName: aws.String(api.DynamoDB.Table),
 	})
 	if err != nil {
-		zap.S().Errorw("failed to create item", "error", err)
+		zap.S().Errorw("failed to create item", "error", err.Error())
 		return nil, err
 	}
 
@@ -113,14 +113,14 @@ func (api *API) GetItem(ctx context.Context, req *pb.GetItemRequest) (*pb.GetIte
 		TableName: aws.String(api.DynamoDB.Table),
 	})
 	if err != nil {
-		zap.S().Errorw("failed to get item", "error", err)
+		zap.S().Errorw("failed to get item", "error", err.Error())
 		return nil, err
 	}
 
 	var item pb.Item
 	err = dynamodbattribute.UnmarshalMap(out.Item, &item)
 	if err != nil {
-		zap.S().Errorw("failed to unmarshal item", "error", err)
+		zap.S().Errorw("failed to unmarshal item", "error", err.Error())
 		return nil, err
 	}
 
@@ -152,7 +152,7 @@ func (api *API) DeleteItem(ctx context.Context, req *pb.DeleteItemRequest) (*pb.
 		TableName: aws.String(api.DynamoDB.Table),
 	})
 	if err != nil {
-		zap.S().Errorw("failed to delete item", "error", err)
+		zap.S().Errorw("failed to delete item", "error", err.Error())
 		return nil, err
 	}
 

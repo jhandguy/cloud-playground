@@ -21,7 +21,7 @@ client.load(['../proto/item'], 'item.pg.proto');
 
 export default function () {
     const params = {
-        headers: {
+        metadata: {
             'x-token': __ENV.DYNAMO_TOKEN,
         },
     };

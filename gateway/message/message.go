@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -29,6 +28,11 @@ type API struct {
 	ObjectAPI *object.API
 }
 
+type result[T any] struct {
+	response T
+	error    error
+}
+
 func (api *API) CheckReadiness(c *gin.Context) {
 	ctx := context.Background()
 	tracer := opentelemetry.GetTracer("message/CheckReadiness")
@@ -38,43 +42,46 @@ func (api *API) CheckReadiness(c *gin.Context) {
 		defer span.End()
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	objChan := make(chan result[*grpc_health_v1.HealthCheckResponse], 1)
+	itmChan := make(chan result[*grpc_health_v1.HealthCheckResponse], 1)
 
-	var resps []*grpc_health_v1.HealthCheckResponse
-	var errs []error
 	go func() {
-		defer wg.Done()
 		req := grpc_health_v1.HealthCheckRequest{Service: "liveness"}
 		resp, err := api.ObjectAPI.CheckHealth(ctx, &req)
-		resps = append(resps, resp)
-		errs = append(errs, err)
+		objChan <- result[*grpc_health_v1.HealthCheckResponse]{resp, err}
 	}()
 
 	go func() {
-		defer wg.Done()
 		req := grpc_health_v1.HealthCheckRequest{Service: "liveness"}
 		resp, err := api.ItemAPI.CheckHealth(ctx, &req)
-		resps = append(resps, resp)
-		errs = append(errs, err)
+		itmChan <- result[*grpc_health_v1.HealthCheckResponse]{resp, err}
 	}()
 
-	wg.Wait()
+	objRes := <-objChan
+	itmRes := <-itmChan
 
-	for _, err := range errs {
-		if err != nil {
-			zap.S().Errorw("failed to check readiness", "error", err)
-			c.Status(http.StatusServiceUnavailable)
-			return
-		}
+	if err := objRes.error; err != nil {
+		zap.S().Errorw("failed to check object readiness", "error", objRes.error.Error())
+		c.Status(http.StatusServiceUnavailable)
+		return
 	}
 
-	for _, resp := range resps {
-		if status := resp.GetStatus(); status != grpc_health_v1.HealthCheckResponse_SERVING {
-			zap.S().Errorf("failed to check readiness: %v", grpc_health_v1.HealthCheckResponse_ServingStatus_name[int32(status)])
-			c.Status(http.StatusServiceUnavailable)
-			return
-		}
+	if err := itmRes.error; err != nil {
+		zap.S().Errorw("failed to check item readiness", "error", itmRes.error.Error())
+		c.Status(http.StatusServiceUnavailable)
+		return
+	}
+
+	if status := objRes.response.GetStatus(); status != grpc_health_v1.HealthCheckResponse_SERVING {
+		zap.S().Errorf("failed to check object readiness: %v", grpc_health_v1.HealthCheckResponse_ServingStatus_name[int32(status)])
+		c.Status(http.StatusServiceUnavailable)
+		return
+	}
+
+	if status := itmRes.response.GetStatus(); status != grpc_health_v1.HealthCheckResponse_SERVING {
+		zap.S().Errorf("failed to check item readiness: %v", grpc_health_v1.HealthCheckResponse_ServingStatus_name[int32(status)])
+		c.Status(http.StatusServiceUnavailable)
+		return
 	}
 
 	zap.S().Debugw("successfully checked readiness", "traceID", opentelemetry.GetTraceID(ctx))
@@ -96,7 +103,7 @@ func (api *API) CreateMessage(c *gin.Context) {
 
 	var msg Message
 	if err := c.ShouldBindJSON(&msg); err != nil {
-		zap.S().Errorw("failed to decode message", "error", err)
+		zap.S().Errorw("failed to decode message", "error", err.Error())
 		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
@@ -105,53 +112,52 @@ func (api *API) CreateMessage(c *gin.Context) {
 		msg.ID = uuid.NewString()
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	objChan := make(chan result[*objectPb.CreateObjectResponse], 1)
+	itmChan := make(chan result[*itemPb.CreateItemResponse], 1)
 
-	var objResp *objectPb.CreateObjectResponse
-	var objErr error
 	go func() {
-		defer wg.Done()
 		req := objectPb.CreateObjectRequest{
 			Object: &objectPb.Object{
 				Id:      msg.ID,
 				Content: msg.Content,
 			},
 		}
-		objResp, objErr = api.ObjectAPI.CreateObject(ctx, &req)
+		resp, err := api.ObjectAPI.CreateObject(ctx, &req)
+		objChan <- result[*objectPb.CreateObjectResponse]{resp, err}
 	}()
 
-	var itmResp *itemPb.CreateItemResponse
-	var itmErr error
 	go func() {
-		defer wg.Done()
 		req := itemPb.CreateItemRequest{
 			Item: &itemPb.Item{
 				Id:      msg.ID,
 				Content: msg.Content,
 			},
 		}
-		itmResp, itmErr = api.ItemAPI.CreateItem(ctx, &req)
+		resp, err := api.ItemAPI.CreateItem(ctx, &req)
+		itmChan <- result[*itemPb.CreateItemResponse]{resp, err}
 	}()
 
-	wg.Wait()
+	objRes := <-objChan
+	itmRes := <-itmChan
 
-	if objErr != nil {
-		zap.S().Errorw("failed to create object", "error", objErr)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": objErr.Error()})
+	if err := objRes.error; err != nil {
+		zap.S().Errorw("failed to create object", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if itmErr != nil {
-		zap.S().Errorw("failed to create item", "error", itmErr)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": itmErr.Error()})
+	if err := itmRes.error; err != nil {
+		zap.S().Errorw("failed to create item", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if objResp.GetObject().GetId() != itmResp.GetItem().GetId() ||
-		objResp.GetObject().GetContent() != itmResp.GetItem().GetContent() {
-		zap.S().Errorf("unexpected inconsistencies: %v != %v", objResp, itmResp)
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": fmt.Sprintf("unexpected inconsistencies: %v != %v", objResp, itmResp)})
+	obj := objRes.response.GetObject()
+	itm := itmRes.response.GetItem()
+
+	if obj.GetId() != itm.GetId() || itm.GetContent() != obj.GetContent() {
+		zap.S().Errorf("unexpected inconsistencies: %v != %v", obj, itm)
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": fmt.Sprintf("unexpected inconsistencies: %v != %v", obj, itm)})
 		return
 	}
 
@@ -170,56 +176,55 @@ func (api *API) GetMessage(c *gin.Context) {
 
 	var msg Message
 	if err := c.ShouldBindUri(&msg); err != nil {
-		zap.S().Errorw("missing id in request", "error", err)
+		zap.S().Errorw("missing id in request", "error", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	objChan := make(chan result[*objectPb.GetObjectResponse], 1)
+	itmChan := make(chan result[*itemPb.GetItemResponse], 1)
 
-	var objResp *objectPb.GetObjectResponse
-	var objErr error
 	go func() {
-		defer wg.Done()
 		req := objectPb.GetObjectRequest{
 			Id: msg.ID,
 		}
-		objResp, objErr = api.ObjectAPI.GetObject(ctx, &req)
+		resp, err := api.ObjectAPI.GetObject(ctx, &req)
+		objChan <- result[*objectPb.GetObjectResponse]{resp, err}
 	}()
 
-	var itmResp *itemPb.GetItemResponse
-	var itmErr error
 	go func() {
-		defer wg.Done()
 		req := itemPb.GetItemRequest{
 			Id: msg.ID,
 		}
-		itmResp, itmErr = api.ItemAPI.GetItem(ctx, &req)
+		resp, err := api.ItemAPI.GetItem(ctx, &req)
+		itmChan <- result[*itemPb.GetItemResponse]{resp, err}
 	}()
 
-	wg.Wait()
+	objRes := <-objChan
+	itmRes := <-itmChan
 
-	if objErr != nil {
-		zap.S().Errorw("failed to get object", "error", objErr)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": objErr.Error()})
+	if err := objRes.error; err != nil {
+		zap.S().Errorw("failed to get object", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if itmErr != nil {
-		zap.S().Errorw("failed to get item", "error", itmErr)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": itmErr.Error()})
+	if err := itmRes.error; err != nil {
+		zap.S().Errorw("failed to get item", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if objResp.GetObject().GetId() != itmResp.GetItem().GetId() ||
-		objResp.GetObject().GetContent() != itmResp.GetItem().GetContent() {
-		zap.S().Errorf("unexpected inconsistencies: %v != %v", objResp, itmResp)
-		c.JSON(http.StatusExpectationFailed, gin.H{"error": fmt.Sprintf("unexpected inconsistencies: %v != %v", objResp, itmResp)})
+	obj := objRes.response.GetObject()
+	itm := itmRes.response.GetItem()
+
+	if obj.GetId() != itm.GetId() || obj.GetContent() != itm.GetContent() {
+		zap.S().Errorf("unexpected inconsistencies: %v != %v", obj, itm)
+		c.JSON(http.StatusExpectationFailed, gin.H{"error": fmt.Sprintf("unexpected inconsistencies: %v != %v", obj, itm)})
 		return
 	}
 
-	msg.Content = objResp.GetObject().GetContent()
+	msg.Content = objRes.response.GetObject().GetContent()
 
 	zap.S().Infow("successfully got message", "msg", msg, "traceID", opentelemetry.GetTraceID(ctx))
 	c.JSON(http.StatusOK, msg)
@@ -236,43 +241,42 @@ func (api *API) DeleteMessage(c *gin.Context) {
 
 	var msg Message
 	if err := c.ShouldBindUri(&msg); err != nil {
-		zap.S().Errorw("missing id in request", "error", err)
+		zap.S().Errorw("missing id in request", "error", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	objChan := make(chan result[*objectPb.DeleteObjectResponse], 1)
+	itmChan := make(chan result[*itemPb.DeleteItemResponse], 1)
 
-	var objErr error
 	go func() {
-		defer wg.Done()
 		req := objectPb.DeleteObjectRequest{
 			Id: msg.ID,
 		}
-		_, objErr = api.ObjectAPI.DeleteObject(ctx, &req)
+		resp, err := api.ObjectAPI.DeleteObject(ctx, &req)
+		objChan <- result[*objectPb.DeleteObjectResponse]{resp, err}
 	}()
 
-	var itmErr error
 	go func() {
-		defer wg.Done()
 		req := itemPb.DeleteItemRequest{
 			Id: msg.ID,
 		}
-		_, itmErr = api.ItemAPI.DeleteItem(ctx, &req)
+		resp, err := api.ItemAPI.DeleteItem(ctx, &req)
+		itmChan <- result[*itemPb.DeleteItemResponse]{resp, err}
 	}()
 
-	wg.Wait()
+	objRes := <-objChan
+	itmRes := <-itmChan
 
-	if objErr != nil {
-		zap.S().Errorw("failed to delete object", "error", objErr)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": objErr.Error()})
+	if err := objRes.error; err != nil {
+		zap.S().Errorw("failed to delete object", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	if itmErr != nil {
-		zap.S().Errorw("failed to delete item", "error", itmErr)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": itmErr.Error()})
+	if err := itmRes.error; err != nil {
+		zap.S().Errorw("failed to delete item", "error", err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

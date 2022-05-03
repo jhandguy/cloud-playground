@@ -43,7 +43,7 @@ var (
 
 func handleMissingFlag(err error) {
 	if err != nil {
-		zap.S().Fatalw("missing required flag", "error", err)
+		zap.S().Fatalw("missing required flag", "error", err.Error())
 	}
 }
 
@@ -138,7 +138,7 @@ func createMessage(cmd *cobra.Command, _ []string) {
 		Content: content,
 	})
 	if err != nil {
-		zap.S().Errorw("failed to create message", "error", err)
+		zap.S().Errorw("failed to create message", "error", err.Error())
 		return
 	}
 
@@ -148,7 +148,7 @@ func createMessage(cmd *cobra.Command, _ []string) {
 func getMessage(cmd *cobra.Command, _ []string) {
 	res, err := Get(id)
 	if err != nil {
-		zap.S().Errorw("failed to get message", "error", err)
+		zap.S().Errorw("failed to get message", "error", err.Error())
 		return
 	}
 
@@ -158,7 +158,7 @@ func getMessage(cmd *cobra.Command, _ []string) {
 func deleteMessage(cmd *cobra.Command, _ []string) {
 	res, err := Delete(id)
 	if err != nil {
-		zap.S().Errorw("failed to delete message", "error", err)
+		zap.S().Errorw("failed to delete message", "error", err.Error())
 		return
 	}
 

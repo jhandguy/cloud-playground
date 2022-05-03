@@ -45,7 +45,7 @@ func (api *API) Check(ctx context.Context, req *grpc_health_v1.HealthCheckReques
 			Bucket: aws.String(api.S3.Bucket),
 		})
 		if err != nil {
-			zap.S().Errorw("failed readiness check: %v", "error", err)
+			zap.S().Errorw("failed readiness check: %v", "error", err.Error())
 			return &grpc_health_v1.HealthCheckResponse{
 				Status: grpc_health_v1.HealthCheckResponse_NOT_SERVING,
 			}, nil
@@ -81,7 +81,7 @@ func (api *API) CreateObject(ctx context.Context, req *pb.CreateObjectRequest) (
 		Body:   strings.NewReader(req.GetObject().GetContent()),
 	})
 	if err != nil {
-		zap.S().Errorw("failed to create object", "error", err)
+		zap.S().Errorw("failed to create object", "error", err.Error())
 		return nil, err
 	}
 
@@ -103,7 +103,7 @@ func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.Ge
 		Key:    aws.String(req.GetId()),
 	})
 	if err != nil {
-		zap.S().Errorw("failed to get object", "error", err)
+		zap.S().Errorw("failed to get object", "error", err.Error())
 		return nil, err
 	}
 
@@ -118,7 +118,7 @@ func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.Ge
 
 	byt, err := ioutil.ReadAll(body)
 	if err != nil {
-		zap.S().Errorw("failed to read object", "error", err)
+		zap.S().Errorw("failed to read object", "error", err.Error())
 		return nil, err
 	}
 
@@ -151,7 +151,7 @@ func (api *API) DeleteObject(ctx context.Context, req *pb.DeleteObjectRequest) (
 		Key:    aws.String(object.GetId()),
 	})
 	if err != nil {
-		zap.S().Errorw("failed to delete object", "error", err)
+		zap.S().Errorw("failed to delete object", "error", err.Error())
 		return nil, err
 	}
 

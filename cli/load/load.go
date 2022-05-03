@@ -3,7 +3,6 @@ package load
 import (
 	"fmt"
 	"math/rand"
-	"sync"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -53,7 +52,7 @@ var (
 
 func handleUnbindableFlag(err error) {
 	if err != nil {
-		zap.S().Fatalw("could not bind flag", "error", err)
+		zap.S().Fatalw("could not bind flag", "error", err.Error())
 	}
 }
 
@@ -144,14 +143,11 @@ func pushMetrics() {
 		Collector(requestCounter).
 		Collector(latencyHistogram).
 		Push(); err != nil {
-		zap.S().Errorw("failed to push metrics", "error", err)
+		zap.S().Errorw("failed to push metrics", "error", err.Error())
 	}
 }
 
 func testLoad(cmd *cobra.Command, _ []string) {
-	var wg sync.WaitGroup
-	failures := 0
-
 	zap.S().Infow("Starting load test", "rounds", rounds)
 
 	sleep := func(sec int) {
@@ -159,16 +155,16 @@ func testLoad(cmd *cobra.Command, _ []string) {
 		time.Sleep(duration * time.Second)
 	}
 
-	for r := 0; r < rounds; r++ {
-		wg.Add(1)
+	failures := 0
+	channel := make(chan error, rounds)
 
+	for r := 0; r < rounds; r++ {
 		go func() {
 			sleep(40)
 
 			msg, err := createMessage()
 			if err != nil {
-				failures++
-				wg.Done()
+				channel <- err
 				return
 			}
 
@@ -176,25 +172,23 @@ func testLoad(cmd *cobra.Command, _ []string) {
 
 			msg, err = getMessage(msg.ID)
 			if err != nil {
-				failures++
-				wg.Done()
+				channel <- err
 				return
 			}
 
 			sleep(10)
 
 			err = deleteMessage(msg.ID)
-			if err != nil {
-				failures++
-				wg.Done()
-				return
-			}
-
-			wg.Done()
+			channel <- err
 		}()
 	}
 
-	wg.Wait()
+	for i := 0; i < rounds; i++ {
+		err := <-channel
+		if err != nil {
+			failures++
+		}
+	}
 
 	zap.S().Infow("Finished load test", "failures", failures)
 

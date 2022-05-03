@@ -36,7 +36,7 @@ func CheckHealth(
 
 		dynConn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -47,7 +47,7 @@ func CheckHealth(
 
 		resp, err := client.Check(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to check health", "error", err)
+			zap.S().Errorw("failed to check health", "error", err.Error())
 			return nil, err
 		}
 
@@ -72,7 +72,7 @@ func CreateItem(
 
 		dynConn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -83,7 +83,7 @@ func CreateItem(
 
 		resp, err := client.CreateItem(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to create item", "error", err)
+			zap.S().Errorw("failed to create item", "error", err.Error())
 			return nil, err
 		}
 
@@ -110,7 +110,7 @@ func GetItem(
 
 		dynConn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -121,7 +121,7 @@ func GetItem(
 
 		resp, err := client.GetItem(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to get item", "error", err)
+			zap.S().Errorw("failed to get item", "error", err.Error())
 			return nil, err
 		}
 
@@ -148,7 +148,7 @@ func DeleteItem(
 
 		dynConn, err := newClientConn(ctx)
 		if err != nil {
-			zap.S().Errorw("failed to dial", "error", err)
+			zap.S().Errorw("failed to dial", "error", err.Error())
 			return nil, err
 		}
 		defer func() {
@@ -159,7 +159,7 @@ func DeleteItem(
 
 		resp, err := client.DeleteItem(ctx, req)
 		if err != nil {
-			zap.S().Errorw("failed to delete item", "error", err)
+			zap.S().Errorw("failed to delete item", "error", err.Error())
 			return nil, err
 		}
 
