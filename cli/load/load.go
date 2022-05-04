@@ -148,7 +148,7 @@ func pushMetrics() {
 }
 
 func testLoad(cmd *cobra.Command, _ []string) {
-	zap.S().Infow("Starting load test", "rounds", rounds)
+	zap.S().Infow("starting load test", "rounds", rounds)
 
 	sleep := func(sec int) {
 		duration := time.Duration(rand.Intn(sec))
@@ -190,7 +190,7 @@ func testLoad(cmd *cobra.Command, _ []string) {
 		}
 	}
 
-	zap.S().Infow("Finished load test", "failures", failures)
+	zap.S().Infow("finished load test", "failures", failures)
 
 	pushMetrics()
 }

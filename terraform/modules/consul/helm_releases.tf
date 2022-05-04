@@ -5,66 +5,33 @@ resource "helm_release" "consul" {
   chart            = "consul"
   create_namespace = true
   wait             = true
-  version          = "0.41.1"
+  version          = "0.43.0"
 
   values = [
     <<-EOF
     global:
       datacenter: consul
+      consulSidecarContainer:
+        resources: null
     connectInject:
       enabled: true
-      resources:
-        limits:
-          cpu: 25m
-          memory: 50Mi
-        requests:
-          cpu: 25m
-          memory: 50Mi
+      resources: null
       replicas: 1
       transparentProxy:
         defaultEnabled: false
       sidecarProxy:
-        resources:
-          limits:
-            cpu: 25m
-            memory: 50Mi
-          requests:
-            cpu: 25m
-            memory: 50Mi
+        resources: null
       initContainer:
-        resources:
-          limits:
-            cpu: 25m
-            memory: 50Mi
-          requests:
-            cpu: 25m
-            memory: 50Mi
+        resources: null
     controller:
       enabled: true
-      limits:
-        cpu: 25m
-        memory: 50Mi
-      requests:
-        cpu: 25m
-        memory: 50Mi
+      resources: null
     client:
       enabled: true
-      resources:
-        requests:
-          cpu: 25m
-          memory: 50Mi
-        limits:
-          cpu: 25m
-          memory: 50Mi
+      resources: null
     server:
       replicas: 1
-      resources:
-        requests:
-          cpu: 25m
-          memory: 50Mi
-        limits:
-          cpu: 25m
-          memory: 50Mi
+      resources: null
     ui:
       service:
         type: NodePort
@@ -72,14 +39,10 @@ resource "helm_release" "consul" {
           http: ${var.node_port}
     ingressGateways:
       enabled: true
-      resources:
-        requests:
-          cpu: 25m
-          memory: 50Mi
-        limits:
-          cpu: 25m
-          memory: 50Mi
       defaults:
+        resources: null
+        initCopyConsulContainer:
+          resources: null
         replicas: 1
         service:
           type: NodePort
