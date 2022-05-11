@@ -25,8 +25,8 @@ export default function () {
             'x-token': __ENV.DYNAMO_TOKEN,
         },
     };
-    const id = uuidv4()
-    const content = randomString(50)
+    const id = uuidv4();
+    const content = randomString(50);
     const data = {
         item: {
             id: id,
@@ -43,18 +43,18 @@ export default function () {
         'create message is valid': (r) => r.message.item.id === id && r.message.item.content === content,
     });
 
-    sleep(0.5)
+    sleep(0.5);
 
     check(client.invoke('item.ItemService/GetItem', {id: id}, params), {
         'get status is OK': (r) => r.status === grpc.StatusOK,
         'get message is valid': (r) => r.message.item.id === id && r.message.item.content === content,
     });
 
-    sleep(0.5)
+    sleep(0.5);
 
     check(client.invoke('item.ItemService/DeleteItem', {id: id}, params), {
         'delete status is OK': (r) => r.status === grpc.StatusOK,
     });
 
-    sleep(1)
+    sleep(1);
 }

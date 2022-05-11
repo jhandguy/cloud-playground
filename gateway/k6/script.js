@@ -25,8 +25,8 @@ export default function () {
             'Content-Type': 'application/json',
         },
     };
-    const id = uuidv4()
-    const content = randomString(50)
+    const id = uuidv4();
+    const content = randomString(50);
     const data = JSON.stringify({
         id: id,
         content: content,
@@ -37,18 +37,18 @@ export default function () {
         'post response body is valid': (r) => r.json().id === id && r.json().content === content,
     });
 
-    sleep(0.5)
+    sleep(0.5);
 
     check(http.get(`${url}/message/${id}`, params), {
         'get response status is 200': (r) => r.status === 200,
         'get response body is valid': (r) => r.json().id === id && r.json().content === content,
     });
 
-    sleep(0.5)
+    sleep(0.5);
 
     check(http.del(`${url}/message/${id}`, null, params), {
         'delete response status is 200': (r) => r.status === 200,
     });
 
-    sleep(1)
+    sleep(1);
 }

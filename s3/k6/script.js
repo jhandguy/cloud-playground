@@ -25,8 +25,8 @@ export default function () {
             'x-token': __ENV.S3_TOKEN,
         },
     };
-    const id = uuidv4()
-    const content = randomString(50)
+    const id = uuidv4();
+    const content = randomString(50);
     const data = {
         object: {
             id: id,
@@ -43,18 +43,18 @@ export default function () {
         'create message is valid': (r) => r.message.object.id === id && r.message.object.content === content,
     });
 
-    sleep(0.5)
+    sleep(0.5);
 
     check(client.invoke('object.ObjectService/GetObject', {id: id}, params), {
         'get status is OK': (r) => r.status === grpc.StatusOK,
         'get message is valid': (r) => r.message.object.id === id && r.message.object.content === content,
     });
 
-    sleep(0.5)
+    sleep(0.5);
 
     check(client.invoke('object.ObjectService/DeleteObject', {id: id}, params), {
         'delete status is OK': (r) => r.status === grpc.StatusOK,
     });
 
-    sleep(1)
+    sleep(1);
 }
