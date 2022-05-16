@@ -2,11 +2,8 @@ name: CI
 
 on:
   push:
-    tags:
-      - v*
     branches:
       - main
-  pull_request:
 
 jobs:
   s3:
@@ -20,7 +17,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
           check-latest: true
 
       - name: Install dependencies
@@ -41,20 +38,19 @@ jobs:
         run: make -C s3 build
 
       - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push docker image
         uses: docker/build-push-action@v2
         with:
           context: s3
-          file: s3/Dockerfile
           pull: true
           push: true
           tags: |
@@ -72,7 +68,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
           check-latest: true
 
       - name: Install dependencies
@@ -93,20 +89,19 @@ jobs:
         run: make -C dynamo build
 
       - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push docker image
         uses: docker/build-push-action@v2
         with:
           context: dynamo
-          file: dynamo/Dockerfile
           pull: true
           push: true
           tags: |
@@ -124,7 +119,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
           check-latest: true
 
       - name: Install dependencies
@@ -145,20 +140,19 @@ jobs:
         run: make -C gateway build
 
       - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push docker image
         uses: docker/build-push-action@v2
         with:
           context: gateway
-          file: gateway/Dockerfile
           pull: true
           push: true
           tags: |
@@ -176,7 +170,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
           check-latest: true
 
       - name: Run golangci-lint
@@ -189,20 +183,19 @@ jobs:
         run: make -C cli build
 
       - name: Setup docker buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Login to container registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push docker image
         uses: docker/build-push-action@v2
         with:
           context: cli
-          file: cli/Dockerfile
           pull: true
           push: true
           tags: |
@@ -221,7 +214,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
           check-latest: true
 
       - name: Install dependencies
@@ -244,7 +237,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
           check-latest: true
 
       - name: Install dependencies
@@ -267,7 +260,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
-          go-version: '1.18'
+          go-version: 1.18
           check-latest: true
 
       - name: Install dependencies
