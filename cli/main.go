@@ -8,14 +8,14 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/jhandguy/devops-playground/cli/load"
-	"github.com/jhandguy/devops-playground/cli/message"
+	"github.com/jhandguy/cloud-playground/cli/load"
+	"github.com/jhandguy/cloud-playground/cli/message"
 )
 
 var cmd = &cobra.Command{
 	Use:   "cli",
 	Short: "CLI",
-	Long:  "CLI that interacts with devops-playground system",
+	Long:  "CLI that interacts with cloud-playground system",
 }
 
 func setupLogger() {

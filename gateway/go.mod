@@ -1,4 +1,4 @@
-module github.com/jhandguy/devops-playground/gateway
+module github.com/jhandguy/cloud-playground/gateway
 
 go 1.18
 

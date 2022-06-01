@@ -80,7 +80,7 @@
       "pluginVersion": "8.3.4",
       "targets": [
         {
-          "expr": "sum(devops_playground_cli_requests_count{success=\"true\"}) by (path, method) / sum(devops_playground_cli_requests_count) by (path, method)",
+          "expr": "sum(cloud_playground_cli_requests_count{success=\"true\"}) by (path, method) / sum(cloud_playground_cli_requests_count) by (path, method)",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -134,7 +134,7 @@
       "pluginVersion": "8.3.4",
       "targets": [
         {
-          "expr": "sum(devops_playground_cli_requests_latency_bucket) by (le)",
+          "expr": "sum(cloud_playground_cli_requests_latency_bucket) by (le)",
           "format": "heatmap",
           "instant": true,
           "interval": "",
@@ -188,7 +188,7 @@
       "pluginVersion": "8.3.4",
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",
+          "expr": "histogram_quantile(0.99, sum(cloud_playground_cli_requests_latency_bucket) by (le, path, method))",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -242,7 +242,7 @@
       "pluginVersion": "8.3.4",
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(devops_playground_cli_requests_latency_bucket) by (le, path, method))",
+          "expr": "histogram_quantile(0.50, sum(cloud_playground_cli_requests_latency_bucket) by (le, path, method))",
           "instant": true,
           "interval": "",
           "legendFormat": "{{path}} - {{method}}",

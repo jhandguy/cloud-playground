@@ -1,8 +1,8 @@
-# DevOps Playground
+# Cloud Playground
 
-[![CI](https://github.com/jhandguy/devops-playground/workflows/CI/badge.svg)](https://github.com/jhandguy/devops-playground/actions?query=workflow%3ACI)
+[![CI](https://github.com/jhandguy/cloud-playground/workflows/CI/badge.svg)](https://github.com/jhandguy/cloud-playground/actions?query=workflow%3ACI)
 
-A Playground to experiment with various DevOps tools and technologies.
+A Playground to experiment with various Cloud tools and technologies.
 
 ## Tools
 

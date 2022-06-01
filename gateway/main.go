@@ -16,11 +16,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 
-	"github.com/jhandguy/devops-playground/gateway/item"
-	"github.com/jhandguy/devops-playground/gateway/message"
-	"github.com/jhandguy/devops-playground/gateway/object"
-	"github.com/jhandguy/devops-playground/gateway/opentelemetry"
-	"github.com/jhandguy/devops-playground/gateway/prometheus"
+	"github.com/jhandguy/cloud-playground/gateway/item"
+	"github.com/jhandguy/cloud-playground/gateway/message"
+	"github.com/jhandguy/cloud-playground/gateway/object"
+	"github.com/jhandguy/cloud-playground/gateway/opentelemetry"
+	"github.com/jhandguy/cloud-playground/gateway/prometheus"
 )
 
 func setupLogger() {

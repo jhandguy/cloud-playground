@@ -12,28 +12,28 @@ spec:
     - name: Gateway
       rules:
         - alert: GatewaySuccessShareCritical
-          expr: sum(rate(devops_playground_gateway_requests_count{success="true"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
+          expr: sum(rate(cloud_playground_gateway_requests_count{success="true"}[5m])) / sum(rate(cloud_playground_gateway_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
           for: 2m
           labels:
             severity: critical
           annotations:
             summary: "Gateway Success Share is below the threshold for more than 2 minutes"
         - alert: GatewaySuccessShareWarning
-          expr: sum(rate(devops_playground_gateway_requests_count{success="true"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
+          expr: sum(rate(cloud_playground_gateway_requests_count{success="true"}[5m])) / sum(rate(cloud_playground_gateway_requests_count[5m])) < {{ .Values.prometheus.successShareThreshold }}
           for: 1m
           labels:
             severity: warning
           annotations:
             summary: "Gateway Success Share is below the threshold"
         - alert: GatewayLatency99thPercentileCritical
-          expr: histogram_quantile(0.99, sum(rate(devops_playground_gateway_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          expr: histogram_quantile(0.99, sum(rate(cloud_playground_gateway_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
           for: 2m
           labels:
             severity: critical
           annotations:
             summary: "Gateway Latency 99th Percentile is above the threshold for more than 2 minutes"
         - alert: GatewayLatency99thPercentileWarning
-          expr: histogram_quantile(0.99, sum(rate(devops_playground_gateway_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          expr: histogram_quantile(0.99, sum(rate(cloud_playground_gateway_requests_latency_bucket[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
           for: 1m
           labels:
             severity: warning

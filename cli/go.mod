@@ -1,4 +1,4 @@
-module github.com/jhandguy/devops-playground/cli
+module github.com/jhandguy/cloud-playground/cli
 
 go 1.18
 

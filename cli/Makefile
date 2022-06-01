@@ -28,4 +28,4 @@ update:
 	go mod tidy
 
 docker:
-	docker buildx build --tag ghcr.io/jhandguy/devops-playground/cli:latest --tag ghcr.io/jhandguy/devops-playground/cli:1.0.0 --file Dockerfile . --push
+	docker buildx build --tag ghcr.io/jhandguy/cloud-playground/cli:latest --tag ghcr.io/jhandguy/cloud-playground/cli:1.0.0 --file Dockerfile . --push

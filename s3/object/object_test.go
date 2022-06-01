@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	pb "github.com/jhandguy/devops-playground/s3/pb/object"
+	pb "github.com/jhandguy/cloud-playground/s3/pb/object"
 )
 
 func TestCreateObject(t *testing.T) {

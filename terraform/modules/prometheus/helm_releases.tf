@@ -35,7 +35,7 @@ resource "helm_release" "prometheus" {
           providers:
             - name: 'default'
               orgId: 1
-              folder: 'DevOps Playground'
+              folder: 'Cloud Playground'
               type: file
               disableDeletion: false
               editable: true

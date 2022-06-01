@@ -8,8 +8,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/jhandguy/devops-playground/gateway/opentelemetry"
-	"github.com/jhandguy/devops-playground/gateway/pb/item"
+	"github.com/jhandguy/cloud-playground/gateway/opentelemetry"
+	"github.com/jhandguy/cloud-playground/gateway/pb/item"
 )
 
 type API struct {

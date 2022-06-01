@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/test/bufconn"
 
-	itemPb "github.com/jhandguy/devops-playground/gateway/pb/item"
+	itemPb "github.com/jhandguy/cloud-playground/gateway/pb/item"
 )
 
 type itemServiceServer struct {

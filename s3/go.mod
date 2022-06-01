@@ -1,4 +1,4 @@
-module github.com/jhandguy/devops-playground/s3
+module github.com/jhandguy/cloud-playground/s3
 
 go 1.18
 

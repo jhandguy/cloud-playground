@@ -13,7 +13,7 @@ import (
 var (
 	requestCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "devops_playground_s3_requests_count",
+			Name: "cloud_playground_s3_requests_count",
 			Help: "Request counter per method",
 		},
 		[]string{"method", "success"},
@@ -21,7 +21,7 @@ var (
 
 	latencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name: "devops_playground_s3_requests_latency",
+			Name: "cloud_playground_s3_requests_latency",
 			Help: "Request latency histogram per method",
 		},
 		[]string{"method"},

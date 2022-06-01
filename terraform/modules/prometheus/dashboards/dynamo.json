@@ -76,7 +76,7 @@
       "pluginVersion": "8.3.4",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_dynamo_requests_count{success=\"true\"}[5m])) / sum(rate(devops_playground_dynamo_requests_count[5m]))",
+          "expr": "sum(rate(cloud_playground_dynamo_requests_count{success=\"true\"}[5m])) / sum(rate(cloud_playground_dynamo_requests_count[5m]))",
           "interval": "",
           "legendFormat": "",
           "refId": "A"
@@ -164,7 +164,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_dynamo_requests_count{success=\"true\"}[$__rate_interval])) / sum(rate(devops_playground_dynamo_requests_count[$__rate_interval]))",
+          "expr": "sum(rate(cloud_playground_dynamo_requests_count{success=\"true\"}[$__rate_interval])) / sum(rate(cloud_playground_dynamo_requests_count[$__rate_interval]))",
           "interval": "",
           "legendFormat": "Success Share",
           "refId": "A"
@@ -246,7 +246,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_dynamo_requests_count[$__rate_interval])) by (method)",
+          "expr": "sum(rate(cloud_playground_dynamo_requests_count[$__rate_interval])) by (method)",
           "interval": "",
           "legendFormat": "{{method}}",
           "refId": "A"
@@ -282,7 +282,7 @@
       "reverseYBuckets": false,
       "targets": [
         {
-          "expr": "sum(increase(devops_playground_dynamo_requests_latency_bucket[$__rate_interval])) by (le)",
+          "expr": "sum(increase(cloud_playground_dynamo_requests_latency_bucket[$__rate_interval])) by (le)",
           "format": "heatmap",
           "interval": "",
           "legendFormat": "{{le}}",
@@ -378,7 +378,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(rate(devops_playground_dynamo_requests_latency_bucket[$__rate_interval])) by (le, method))",
+          "expr": "histogram_quantile(0.99, sum(rate(cloud_playground_dynamo_requests_latency_bucket[$__rate_interval])) by (le, method))",
           "interval": "",
           "legendFormat": "{{method}}",
           "refId": "A"
@@ -460,7 +460,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(devops_playground_dynamo_requests_latency_bucket[$__rate_interval])) by (le, method))",
+          "expr": "histogram_quantile(0.50, sum(rate(cloud_playground_dynamo_requests_latency_bucket[$__rate_interval])) by (le, method))",
           "interval": "",
           "legendFormat": "{{method}}",
           "refId": "A"

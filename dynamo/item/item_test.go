@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
+	pb "github.com/jhandguy/cloud-playground/dynamo/pb/item"
 )
 
 func TestCreateItem(t *testing.T) {

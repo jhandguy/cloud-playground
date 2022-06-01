@@ -106,7 +106,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[$__rate_interval])) by (service) / sum(rate(devops_playground_gateway_requests_count[$__rate_interval])) by (service)",
+          "expr": "sum(rate(cloud_playground_gateway_requests_count{success=\"true\"}[$__rate_interval])) by (service) / sum(rate(cloud_playground_gateway_requests_count[$__rate_interval])) by (service)",
           "interval": "",
           "legendFormat": "{{service}}",
           "refId": "A"
@@ -166,7 +166,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{success=\"true\"}[5m])) by (service) / sum(rate(devops_playground_gateway_requests_count[5m])) by (service)",
+          "expr": "sum(rate(cloud_playground_gateway_requests_count{success=\"true\"}[5m])) by (service) / sum(rate(cloud_playground_gateway_requests_count[5m])) by (service)",
           "interval": "",
           "legendFormat": "{{service}}",
           "refId": "A"
@@ -226,7 +226,7 @@
       "targets": [
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{service=~\".*-stable\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
+          "expr": "sum(rate(cloud_playground_gateway_requests_count{service=~\".*-stable\"}[5m])) / sum(rate(cloud_playground_gateway_requests_count[5m]))",
           "instant": false,
           "interval": "",
           "legendFormat": "stable",
@@ -234,7 +234,7 @@
         },
         {
           "exemplar": true,
-          "expr": "sum(rate(devops_playground_gateway_requests_count{service=~\".*-canary\"}[5m])) / sum(rate(devops_playground_gateway_requests_count[5m]))",
+          "expr": "sum(rate(cloud_playground_gateway_requests_count{service=~\".*-canary\"}[5m])) / sum(rate(cloud_playground_gateway_requests_count[5m]))",
           "hide": false,
           "instant": false,
           "interval": "",
@@ -318,7 +318,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "sum(rate(devops_playground_gateway_requests_count[$__rate_interval])) by (path, method)",
+          "expr": "sum(rate(cloud_playground_gateway_requests_count[$__rate_interval])) by (path, method)",
           "interval": "",
           "legendFormat": "{{path}} - {{method}}",
           "refId": "A"
@@ -354,7 +354,7 @@
       "reverseYBuckets": false,
       "targets": [
         {
-          "expr": "sum(increase(devops_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le)",
+          "expr": "sum(increase(cloud_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le)",
           "format": "heatmap",
           "interval": "",
           "legendFormat": "{{le}}",
@@ -450,7 +450,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "histogram_quantile(0.99, sum(rate(devops_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le, path, method))",
+          "expr": "histogram_quantile(0.99, sum(rate(cloud_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le, path, method))",
           "interval": "",
           "legendFormat": "{{path}} - {{method}}",
           "refId": "A"
@@ -532,7 +532,7 @@
       "pluginVersion": "8.1.2",
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum(rate(devops_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le, path, method))",
+          "expr": "histogram_quantile(0.50, sum(rate(cloud_playground_gateway_requests_latency_bucket[$__rate_interval])) by (le, path, method))",
           "interval": "",
           "legendFormat": "{{path}} - {{method}}",
           "refId": "A"

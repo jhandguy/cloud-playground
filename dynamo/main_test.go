@@ -18,8 +18,8 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/jhandguy/devops-playground/dynamo/item"
-	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
+	"github.com/jhandguy/cloud-playground/dynamo/item"
+	pb "github.com/jhandguy/cloud-playground/dynamo/pb/item"
 )
 
 func TestIsValidToken(t *testing.T) {

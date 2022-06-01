@@ -16,11 +16,11 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jhandguy/devops-playground/gateway/item"
-	"github.com/jhandguy/devops-playground/gateway/message"
-	"github.com/jhandguy/devops-playground/gateway/object"
-	itemPb "github.com/jhandguy/devops-playground/gateway/pb/item"
-	objectPb "github.com/jhandguy/devops-playground/gateway/pb/object"
+	"github.com/jhandguy/cloud-playground/gateway/item"
+	"github.com/jhandguy/cloud-playground/gateway/message"
+	"github.com/jhandguy/cloud-playground/gateway/object"
+	itemPb "github.com/jhandguy/cloud-playground/gateway/pb/item"
+	objectPb "github.com/jhandguy/cloud-playground/gateway/pb/object"
 )
 
 func TestIsValidToken(t *testing.T) {

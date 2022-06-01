@@ -11,11 +11,11 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/jhandguy/devops-playground/gateway/item"
-	"github.com/jhandguy/devops-playground/gateway/object"
-	"github.com/jhandguy/devops-playground/gateway/opentelemetry"
-	itemPb "github.com/jhandguy/devops-playground/gateway/pb/item"
-	objectPb "github.com/jhandguy/devops-playground/gateway/pb/object"
+	"github.com/jhandguy/cloud-playground/gateway/item"
+	"github.com/jhandguy/cloud-playground/gateway/object"
+	"github.com/jhandguy/cloud-playground/gateway/opentelemetry"
+	itemPb "github.com/jhandguy/cloud-playground/gateway/pb/item"
+	objectPb "github.com/jhandguy/cloud-playground/gateway/pb/object"
 )
 
 type Message struct {

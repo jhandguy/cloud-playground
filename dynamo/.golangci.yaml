@@ -28,9 +28,9 @@ linters:
 
 linters-settings:
   goimports:
-    local-prefixes: github.com/jhandguy/devops-playground/dynamo
+    local-prefixes: github.com/jhandguy/cloud-playground/dynamo
   gci:
     sections:
       - standard
       - default
-      - prefix(github.com/jhandguy/devops-playground/dynamo)
+      - prefix(github.com/jhandguy/cloud-playground/dynamo)

@@ -18,8 +18,8 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/test/bufconn"
 
-	"github.com/jhandguy/devops-playground/s3/object"
-	pb "github.com/jhandguy/devops-playground/s3/pb/object"
+	"github.com/jhandguy/cloud-playground/s3/object"
+	pb "github.com/jhandguy/cloud-playground/s3/pb/object"
 )
 
 func TestIsValidToken(t *testing.T) {

@@ -12,8 +12,8 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/jhandguy/devops-playground/s3/opentelemetry"
-	pb "github.com/jhandguy/devops-playground/s3/pb/object"
+	"github.com/jhandguy/cloud-playground/s3/opentelemetry"
+	pb "github.com/jhandguy/cloud-playground/s3/pb/object"
 )
 
 type API struct {

@@ -20,10 +20,10 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/jhandguy/devops-playground/dynamo/item"
-	"github.com/jhandguy/devops-playground/dynamo/opentelemetry"
-	pb "github.com/jhandguy/devops-playground/dynamo/pb/item"
-	"github.com/jhandguy/devops-playground/dynamo/prometheus"
+	"github.com/jhandguy/cloud-playground/dynamo/item"
+	"github.com/jhandguy/cloud-playground/dynamo/opentelemetry"
+	pb "github.com/jhandguy/cloud-playground/dynamo/pb/item"
+	"github.com/jhandguy/cloud-playground/dynamo/prometheus"
 )
 
 var (

@@ -11,8 +11,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 
-	"github.com/jhandguy/devops-playground/cli/load"
-	"github.com/jhandguy/devops-playground/cli/message"
+	"github.com/jhandguy/cloud-playground/cli/load"
+	"github.com/jhandguy/cloud-playground/cli/message"
 )
 
 type logger struct {

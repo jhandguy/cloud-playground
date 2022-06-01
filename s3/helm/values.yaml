@@ -18,7 +18,7 @@ horizontalPodAutoscaler:
       averageUtilization: 50
 image:
   registry: ghcr.io
-  repository: jhandguy/devops-playground/s3
+  repository: jhandguy/cloud-playground/s3
   tag: 1.0.0
 prometheus:
   enabled: false

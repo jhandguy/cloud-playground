@@ -1,4 +1,4 @@
-module github.com/jhandguy/devops-playground/dynamo
+module github.com/jhandguy/cloud-playground/dynamo
 
 go 1.18
 

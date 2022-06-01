@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
-	"github.com/jhandguy/devops-playground/cli/message"
+	"github.com/jhandguy/cloud-playground/cli/message"
 )
 
 // Cmd load command
@@ -31,7 +31,7 @@ var testLoadCmd = &cobra.Command{
 var (
 	requestCounter = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "devops_playground_cli_requests_count",
+			Name: "cloud_playground_cli_requests_count",
 			Help: "Request counter per path and method",
 		},
 		[]string{"path", "method", "success"},
@@ -39,7 +39,7 @@ var (
 
 	latencyHistogram = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
-			Name: "devops_playground_cli_requests_latency",
+			Name: "cloud_playground_cli_requests_latency",
 			Help: "Request latency histogram per path and method",
 		},
 		[]string{"path", "method"},

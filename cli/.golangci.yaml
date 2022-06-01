@@ -28,9 +28,9 @@ linters:
 
 linters-settings:
   goimports:
-    local-prefixes: github.com/jhandguy/devops-playground/cli
+    local-prefixes: github.com/jhandguy/cloud-playground/cli
   gci:
     sections:
       - standard
       - default
-      - prefix(github.com/jhandguy/devops-playground/cli)
+      - prefix(github.com/jhandguy/cloud-playground/cli)
