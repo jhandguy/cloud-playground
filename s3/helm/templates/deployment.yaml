@@ -96,24 +96,27 @@ spec:
               cpu: {{ .limits.cpu }}
             {{- end }}
           startupProbe:
-            exec:
-              command: ["/bin/grpc_health_probe", "-addr=:8080", "-service=readiness"]
+            grpc:
+              port: 8080
+              service: readiness
             initialDelaySeconds: 5
             periodSeconds: 1
             failureThreshold: 5
             successThreshold: 1
             timeoutSeconds: 1
           readinessProbe:
-            exec:
-              command: ["/bin/grpc_health_probe", "-addr=:8080", "-service=readiness"]
+            grpc:
+              port: 8080
+              service: readiness
             initialDelaySeconds: 0
             periodSeconds: 1
             failureThreshold: 5
             successThreshold: 1
             timeoutSeconds: 5
           livenessProbe:
-            exec:
-              command: ["/bin/grpc_health_probe", "-addr=:8080", "-service=liveness"]
+            grpc:
+              port: 8080
+              service: liveness
             initialDelaySeconds: 0
             periodSeconds: 1
             failureThreshold: 10
