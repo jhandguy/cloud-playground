@@ -161,7 +161,7 @@ func (api *API) CreateMessage(c *gin.Context) {
 		return
 	}
 
-	zap.S().Infow("successfully created message", "msg", msg, "traceID", opentelemetry.GetTraceID(ctx))
+	zap.S().Infow("successfully created message", "message", msg, "traceID", opentelemetry.GetTraceID(ctx))
 	c.JSON(http.StatusOK, msg)
 }
 
@@ -226,7 +226,7 @@ func (api *API) GetMessage(c *gin.Context) {
 
 	msg.Content = objRes.response.GetObject().GetContent()
 
-	zap.S().Infow("successfully got message", "msg", msg, "traceID", opentelemetry.GetTraceID(ctx))
+	zap.S().Infow("successfully got message", "message", msg, "traceID", opentelemetry.GetTraceID(ctx))
 	c.JSON(http.StatusOK, msg)
 }
 
@@ -280,6 +280,6 @@ func (api *API) DeleteMessage(c *gin.Context) {
 		return
 	}
 
-	zap.S().Infow("successfully deleted message", "msg", msg, "traceID", opentelemetry.GetTraceID(ctx))
+	zap.S().Infow("successfully deleted message", "message", msg, "traceID", opentelemetry.GetTraceID(ctx))
 	c.Status(http.StatusOK)
 }

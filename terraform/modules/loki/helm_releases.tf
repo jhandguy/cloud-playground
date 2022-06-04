@@ -30,6 +30,20 @@ resource "helm_release" "loki" {
 %{for rule in var.alerting_rules~}
         ${indent(8, file("${path.module}/rules/${rule}.yaml"))}
 %{endfor~}
+    promtail:
+      config:
+        snippets:
+          pipelineStages:
+            - cri:
+            - json:
+                expressions:
+                  level:
+                  msg:
+                  caller:
+            - labels:
+                level:
+                msg:
+                caller:
     EOF
   ]
 }

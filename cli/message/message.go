@@ -142,7 +142,7 @@ func createMessage(cmd *cobra.Command, _ []string) {
 		return
 	}
 
-	zap.S().Infow("successfully created message", "msg", res.Result())
+	zap.S().Infow("successfully created message", "message", res.Result())
 }
 
 func getMessage(cmd *cobra.Command, _ []string) {
@@ -152,7 +152,7 @@ func getMessage(cmd *cobra.Command, _ []string) {
 		return
 	}
 
-	zap.S().Infow("successfully got message", "msg", res.Result())
+	zap.S().Infow("successfully got message", "message", res.Result())
 }
 
 func deleteMessage(cmd *cobra.Command, _ []string) {
@@ -162,5 +162,5 @@ func deleteMessage(cmd *cobra.Command, _ []string) {
 		return
 	}
 
-	zap.S().Infow("successfully deleted message", "msg", res.Result())
+	zap.S().Infow("successfully deleted message", "message", res.Result())
 }
