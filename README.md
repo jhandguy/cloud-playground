@@ -10,6 +10,7 @@ A Playground to experiment with various Cloud tools and technologies.
 - LocalStack
 - Prometheus
 - Grafana
+- Promtail
 - Loki
 - Tempo
 - AlertManager
