@@ -7,6 +7,7 @@ on:
 
 jobs:
   s3:
+    name: S3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -58,6 +59,7 @@ jobs:
             ghcr.io/${{ github.repository }}/s3:1.0.0
 
   dynamo:
+    name: Dynamo
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -109,6 +111,7 @@ jobs:
             ghcr.io/${{ github.repository }}/dynamo:1.0.0
 
   gateway:
+    name: Gateway
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -160,6 +163,7 @@ jobs:
             ghcr.io/${{ github.repository }}/gateway:1.0.0
 
   cli:
+    name: CLI
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -203,6 +207,7 @@ jobs:
             ghcr.io/${{ github.repository }}/cli:1.0.0
 
   consul:
+    name: Consul
     needs: [s3, dynamo, gateway, cli]
     runs-on: ubuntu-latest
     steps:
@@ -226,6 +231,7 @@ jobs:
         run: make ci ENVIRONMENT=consul
 
   nginx:
+    name: Ingress NGINX
     needs: [s3, dynamo, gateway, cli]
     runs-on: ubuntu-latest
     steps:
@@ -248,7 +254,8 @@ jobs:
       - name: Run all tests
         run: make ci ENVIRONMENT=nginx
 
-  argorollouts:
+  rollouts:
+    name: Argo Rollouts
     needs: [s3, dynamo, gateway, cli]
     runs-on: ubuntu-latest
     steps:

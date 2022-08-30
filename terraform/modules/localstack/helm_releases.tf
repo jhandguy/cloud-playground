@@ -10,6 +10,8 @@ resource "helm_release" "localstack" {
   values = [
     <<-EOF
     startServices: s3,dynamodb
+    image:
+      tag: 0.14.5
     service:
       edgeService:
         nodePort: ${var.node_port}

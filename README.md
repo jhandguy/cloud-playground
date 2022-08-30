@@ -1,6 +1,6 @@
 # Cloud Playground
 
-[![CI](https://github.com/jhandguy/cloud-playground/workflows/CI/badge.svg)](https://github.com/jhandguy/cloud-playground/actions?query=workflow%3ACI)
+[![CI](https://github.com/jhandguy/cloud-playground/actions/workflows/ci.yaml/badge.svg)](https://github.com/jhandguy/cloud-playground/actions/workflows/ci.yaml)
 
 A Playground to experiment with various Cloud tools and technologies.
 
