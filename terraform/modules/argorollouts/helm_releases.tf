@@ -5,7 +5,7 @@ resource "helm_release" "argorollouts" {
   chart            = "argo-rollouts"
   create_namespace = true
   wait             = true
-  version          = "2.18.0"
+  version          = "2.20.0"
 
   values = [
     <<-EOF

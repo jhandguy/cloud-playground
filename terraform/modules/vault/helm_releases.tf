@@ -5,7 +5,7 @@ resource "helm_release" "vault" {
   chart            = "vault"
   create_namespace = true
   wait             = true
-  version          = "0.20.1"
+  version          = "0.21.0"
 
   values = [
     <<-EOF

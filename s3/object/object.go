@@ -2,7 +2,7 @@ package object
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -116,7 +116,7 @@ func (api *API) GetObject(ctx context.Context, req *pb.GetObjectRequest) (*pb.Ge
 		_ = body.Close()
 	}()
 
-	byt, err := ioutil.ReadAll(body)
+	byt, err := io.ReadAll(body)
 	if err != nil {
 		zap.S().Errorw("failed to read object", "error", err.Error())
 		return nil, err

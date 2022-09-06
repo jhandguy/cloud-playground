@@ -2,7 +2,7 @@ package object
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 
@@ -25,7 +25,7 @@ func TestCreateObject(t *testing.T) {
 				actBucket = *input.Bucket
 				actID = *input.Key
 
-				byt, err := ioutil.ReadAll(input.Body)
+				byt, err := io.ReadAll(input.Body)
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -68,7 +68,7 @@ func TestGetObject(t *testing.T) {
 				actID = *input.Key
 
 				return &s3.GetObjectOutput{
-					Body: ioutil.NopCloser(strings.NewReader(expContent)),
+					Body: io.NopCloser(strings.NewReader(expContent)),
 				}, nil
 			},
 			DeleteObjectWithContext: nil,
