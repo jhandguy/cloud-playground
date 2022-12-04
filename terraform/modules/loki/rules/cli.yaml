@@ -1,14 +1,14 @@
 - name: CLI
   rules:
     - alert: CLIErrorCountCritical
-      expr: sum(count_over_time({namespace="cli", container="cli", stream="stderr"}[5m])) > 0
+      expr: sum(count_over_time({namespace="cli", container="cli", level="error"}[5m])) > 0
       for: 2m
       labels:
         severity: critical
       annotations:
         summary: "CLI Error Count is above 0 for more than 2 minutes"
     - alert: CLIErrorCountWarning
-      expr: sum(count_over_time({namespace="cli", container="cli", stream="stderr"}[5m])) > 0
+      expr: sum(count_over_time({namespace="cli", container="cli", level="error"}[5m])) > 0
       for: 1m
       labels:
         severity: warning

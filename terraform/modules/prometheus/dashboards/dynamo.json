@@ -541,8 +541,8 @@
       },
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=\"dynamo\", container=\"dynamo\"}[$__interval]))",
-          "legendFormat": "Count",
+          "expr": "sum(count_over_time({namespace=\"dynamo\", container=\"dynamo\"}[$__interval])) by (level)",
+          "legendFormat": "{{level}}",
           "refId": "A"
         }
       ],

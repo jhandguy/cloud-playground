@@ -613,8 +613,8 @@
       },
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=\"gateway\", container=\"gateway\"}[$__interval]))",
-          "legendFormat": "Count",
+          "expr": "sum(count_over_time({namespace=\"gateway\", container=\"gateway\"}[$__interval])) by (level)",
+          "legendFormat": "{{level}}",
           "refId": "A"
         }
       ],

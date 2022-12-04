@@ -541,8 +541,8 @@
       },
       "targets": [
         {
-          "expr": "sum(count_over_time({namespace=\"s3\", container=\"s3\"}[$__interval]))",
-          "legendFormat": "Count",
+          "expr": "sum(count_over_time({namespace=\"s3\", container=\"s3\"}[$__interval])) by (level)",
+          "legendFormat": "{{level}}",
           "refId": "A"
         }
       ],

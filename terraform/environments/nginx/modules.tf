@@ -79,7 +79,7 @@ module "gateway" {
     "stable" : module.kind.node_ports["gateway_stable"]
   }
   prometheus_enabled = true
-  prometheus_url     = module.prometheus.prometheus_url
+  prometheus_url     = module.prometheus.prometheus_cluster_url
   replicas           = var.argorollouts_enabled ? 2 : 1
   secrets = {
     "gateway_token" = random_password.gateway_token.result
@@ -128,7 +128,7 @@ module "loki" {
   source     = "../../modules/loki"
 
   alerting_rules   = ["dynamo", "s3", "gateway", "cli"]
-  alertmanager_url = module.prometheus.alertmanager_url
+  alertmanager_url = module.prometheus.alertmanager_cluster_url
 }
 
 module "tempo" {

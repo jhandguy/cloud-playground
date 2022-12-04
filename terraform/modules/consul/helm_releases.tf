@@ -11,12 +11,13 @@ resource "helm_release" "consul" {
     <<-EOF
     global:
       datacenter: consul
-      consulSidecarContainer:
-        resources: null
     connectInject:
       enabled: true
       resources: null
       replicas: 1
+      cni:
+        enabled: true
+        resources: null
       transparentProxy:
         defaultEnabled: false
       sidecarProxy:
@@ -24,10 +25,6 @@ resource "helm_release" "consul" {
       initContainer:
         resources: null
     controller:
-      enabled: true
-      resources: null
-    client:
-      enabled: true
       resources: null
     server:
       replicas: 1

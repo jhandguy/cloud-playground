@@ -104,7 +104,7 @@ spec:
               scheme: HTTP
             initialDelaySeconds: 5
             periodSeconds: 1
-            failureThreshold: 5
+            failureThreshold: 10
             successThreshold: 1
             timeoutSeconds: 1
           readinessProbe:
@@ -113,8 +113,8 @@ spec:
               port: 8080
               scheme: HTTP
             initialDelaySeconds: 0
-            periodSeconds: 1
-            failureThreshold: 5
+            periodSeconds: 5
+            failureThreshold: 3
             successThreshold: 1
             timeoutSeconds: 5
           livenessProbe:
@@ -126,7 +126,7 @@ spec:
             periodSeconds: 1
             failureThreshold: 10
             successThreshold: 1
-            timeoutSeconds: 5
+            timeoutSeconds: 1
       volumes:
         {{- if $.Values.csi.enabled }}
         - name: {{ $.Release.Name }}

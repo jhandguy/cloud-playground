@@ -103,7 +103,7 @@ module "loki" {
   source     = "../../modules/loki"
 
   alerting_rules   = ["dynamo", "s3", "gateway", "cli"]
-  alertmanager_url = module.prometheus.alertmanager_url
+  alertmanager_url = module.prometheus.alertmanager_cluster_url
 }
 
 module "tempo" {
