@@ -9,7 +9,7 @@ export TF_VAR_aws_secret_access_key=$(AWS_SECRET_ACCESS_KEY)
 ENVIRONMENT ?=
 CHDIR = terraform/environments/$(ENVIRONMENT)
 
-ci: lint_terraform lint_helm setup compile build test load teardown
+go_ci: lint_terraform lint_helm setup go_compile go_build go_test go_load teardown
 
 setup:
 	terraform -chdir=$(CHDIR) init
@@ -20,7 +20,7 @@ setup:
 teardown:
 	terraform -chdir=$(CHDIR) destroy -auto-approve
 
-compile:
+go_compile:
 	make -j compile_s3 compile_dynamo compile_gateway
 
 compile_%:
@@ -39,23 +39,23 @@ lint_helm:
 lint_helm_%:
 	make -C $* lint_helm
 
-lint: lint_s3 lint_dynamo lint_gateway lint_cli
+go_lint: lint_s3 lint_dynamo lint_gateway lint_cli
 
 lint_%:
 	make -C $* lint
 
-build:
+go_build:
 	make -j build_s3 build_dynamo build_gateway build_cli
 
 build_%:
 	make -C $* build
 
-test: test_s3 test_dynamo test_gateway test_cli
+go_test: test_s3 test_dynamo test_gateway test_cli
 
 test_%:
 	make -C $* test HTTP_PORT=8080 GRPC_PORT=8080 METRICS_PORT=9090
 
-load: load_s3 load_dynamo load_gateway
+go_load: load_s3 load_dynamo load_gateway
 
 load_%:
 	make -C $* load
@@ -68,7 +68,7 @@ update:
 update_%:
 	make -C $* update
 
-docker: docker_s3 docker_dynamo docker_gateway docker_cli
+go_docker: docker_s3 docker_dynamo docker_gateway docker_cli
 
 docker_%:
 	make -C $* docker

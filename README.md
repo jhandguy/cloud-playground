@@ -109,13 +109,13 @@ make setup ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true
 #### Consul
 
 ```shell
-make test ENVIRONMENT=consul
+make go_test ENVIRONMENT=consul
 ```
 
 #### Nginx
 
 ```shell
-make test ENVIRONMENT=nginx
+make go_test ENVIRONMENT=nginx
 ```
 
 ### Run Load Tests
@@ -123,13 +123,13 @@ make test ENVIRONMENT=nginx
 #### Consul
 
 ```shell
-make load ENVIRONMENT=consul
+make go_load ENVIRONMENT=consul
 ```
 
 #### Nginx
 
 ```shell
-make load ENVIRONMENT=nginx
+make go_load ENVIRONMENT=nginx
 ```
 
 ### Destroy Infrastructure

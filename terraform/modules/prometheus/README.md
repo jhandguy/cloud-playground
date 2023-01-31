@@ -38,8 +38,10 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_alertmanager_cluster_url"></a> [alertmanager\_cluster\_url](#output\_alertmanager\_cluster\_url) | AlertManager Cluster URL |
 | <a name="output_alertmanager_url"></a> [alertmanager\_url](#output\_alertmanager\_url) | AlertManager URL |
 | <a name="output_grafana_admin_password"></a> [grafana\_admin\_password](#output\_grafana\_admin\_password) | Grafana admin password |
 | <a name="output_grafana_url"></a> [grafana\_url](#output\_grafana\_url) | Grafana URL |
+| <a name="output_prometheus_cluster_url"></a> [prometheus\_cluster\_url](#output\_prometheus\_cluster\_url) | Prometheus URL |
 | <a name="output_prometheus_url"></a> [prometheus\_url](#output\_prometheus\_url) | Prometheus URL |
 <!-- END_TF_DOCS -->
