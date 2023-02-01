@@ -11,6 +11,8 @@ CHDIR = terraform/environments/$(ENVIRONMENT)
 
 go_ci: lint_terraform lint_helm setup go_compile go_build go_test go_load teardown
 
+rust_ci: lint_terraform lint_helm setup rust_build rust_test teardown
+
 setup:
 	terraform -chdir=$(CHDIR) init
 	terraform -chdir=$(CHDIR) plan -out=tfplan
@@ -34,12 +36,16 @@ lint_terraform:
 	terraform fmt -recursive -check
 
 lint_helm:
-	make -j lint_helm_s3 lint_helm_dynamo lint_helm_gateway lint_helm_cli
+	make -j lint_helm_s3 lint_helm_dynamo lint_helm_gateway lint_helm_cli lint_helm_sql
 
 lint_helm_%:
 	make -C $* lint_helm
 
 go_lint: lint_s3 lint_dynamo lint_gateway lint_cli
+
+rust_lint:
+	lint_sql FEATURE=postgres
+	lint_sql FEATURE=mysql
 
 lint_%:
 	make -C $* lint
@@ -47,10 +53,18 @@ lint_%:
 go_build:
 	make -j build_s3 build_dynamo build_gateway build_cli
 
+rust_build:
+	make build_sql FEATURE=postgres
+	make build_sql FEATURE=mysql
+
 build_%:
 	make -C $* build
 
 go_test: test_s3 test_dynamo test_gateway test_cli
+
+rust_test:
+	make test_sql FEATURE=postgres
+	make test_sql FEATURE=mysql
 
 test_%:
 	make -C $* test HTTP_PORT=8080 GRPC_PORT=8080 METRICS_PORT=9090
@@ -69,6 +83,10 @@ update_%:
 	make -C $* update
 
 go_docker: docker_s3 docker_dynamo docker_gateway docker_cli
+
+rust_docker:
+	make docker_sql FEATURE=postgres
+	make docker_sql FEATURE=mysql
 
 docker_%:
 	make -C $* docker

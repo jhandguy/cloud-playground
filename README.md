@@ -23,6 +23,9 @@ A Playground to experiment with various Cloud tools and technologies.
 - CertManager
 - ArgoRollouts
 - MetricsServer
+- PostgreSQL
+- MySQL
+- Redis
 
 ## Technologies
 
@@ -33,6 +36,7 @@ A Playground to experiment with various Cloud tools and technologies.
 ## Languages
 
 - Golang
+- Rust
 - YAML
 - HCL
 - JavaScript
@@ -42,106 +46,82 @@ A Playground to experiment with various Cloud tools and technologies.
 - gRPC
 - REST
 
-## Architecture
-
-```text
- -----------------------------------
-|     -----------   -----------     |
-|    | Dynamo DB | | S3 Bucket |    |
-|     -----------   -----------     |
-|          |             |          |
-|         SDK           SDK         |
-|          |             |          |
-|      ----------   ----------      |   
-|     |  dynamo  | |    s3    |     |
-|      ----------   ----------      |
-|            |         |            |
-|           gRPC      gRPC          |
-|            |         |            |
-|         -----------------         |
-|        |     gateway     |        |
-|        | _______ _______ |        |
-|        | stable | canary |        |
-|         -----------------         |
-|            ||       ||            |
-|           50%       50%           |
-|            ||       ||            |
- -----------------------------------
-             -----------
-            |  Ingress  |
-             -----------
-                  |
-                 REST
-                  |
-               -------
-              |  cli  |
-               -------
-```
-
-### Install Required Tools
+## Install Required Tools
 
 ```shell
 brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 ```
 
-### Create Infrastructure
+## Create Infrastructure
 
-#### Consul
+### Consul
 
 ```shell
 make setup ENVIRONMENT=consul
 ```
 
-#### Nginx
+### Nginx
 
 ```shell
 make setup ENVIRONMENT=nginx
 ```
 
-#### Nginx + ArgoRollouts
+### Nginx + ArgoRollouts
 
 ```shell
 make setup ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true
 ```
 
-### Run Tests
+### Redis
 
-#### Consul
+```shell
+make setup ENVIRONMENT=redis
+```
+
+## Run Tests
+
+### Consul
 
 ```shell
 make go_test ENVIRONMENT=consul
 ```
 
-#### Nginx
+### Nginx
 
 ```shell
 make go_test ENVIRONMENT=nginx
 ```
 
-### Run Load Tests
+## Run Load Tests
 
-#### Consul
+### Consul
 
 ```shell
 make go_load ENVIRONMENT=consul
 ```
 
-#### Nginx
+### Nginx
 
 ```shell
 make go_load ENVIRONMENT=nginx
 ```
 
-### Destroy Infrastructure
+## Destroy Infrastructure
 
-#### Consul
+### Consul
 
 ```shell
 make teardown ENVIRONMENT=consul
 ```
 
-#### Nginx
+### Nginx
 
 ```shell
 make teardown ENVIRONMENT=nginx
+```
+
+### Redis
+
+```shell
+make teardown ENVIRONMENT=redis
 ```

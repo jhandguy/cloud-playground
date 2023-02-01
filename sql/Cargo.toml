@@ -1,0 +1,30 @@
+[package]
+name = "sql"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+name = "sql"
+path = "src/lib.rs"
+doctest = false
+
+[[bin]]
+name = "sql"
+test = false
+doc = false
+
+[features]
+postgres = ["sqlx/postgres"]
+mysql = ["sqlx/mysql"]
+
+[dependencies]
+anyhow = "1.0.68"
+axum = "0.6.1"
+clap = { version = "4.1.4", features = ["derive", "env"] }
+hyper = { version = "0.14.23", features = ["full"] }
+redis = { version = "0.22.3", features = ["tokio-native-tls-comp", "cluster"] }
+serde = { version = "1.0.152", features = ["derive"] }
+sqlx = { version = "0.6.2", features = ["runtime-tokio-native-tls", "uuid"] }
+tokio = { version = "1.25.0", features = ["full"] }
+tower = "0.4.13"
+uuid = { version = "1.3.0", features = ["v4", "serde"] }

@@ -35,4 +35,4 @@ update:
 	go mod tidy
 
 docker:
-	docker buildx build --tag ghcr.io/jhandguy/cloud-playground/dynamo:latest --tag ghcr.io/jhandguy/cloud-playground/dynamo:1.0.0 --file Dockerfile . --push
+	docker buildx build --platform linux/arm64 --platform linux/amd64 --tag ghcr.io/jhandguy/cloud-playground/dynamo:latest --tag ghcr.io/jhandguy/cloud-playground/dynamo:1.0.0 --file Dockerfile . --push
