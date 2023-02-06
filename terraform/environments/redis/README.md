@@ -26,6 +26,8 @@
 
 | Name | Type |
 |------|------|
+| [random_password.sql_mysql_token](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [random_password.sql_postgres_token](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 | [random_pet.mysql_database](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [random_pet.mysql_user](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
 | [random_pet.postgres_database](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/pet) | resource |
@@ -47,6 +49,8 @@ No inputs.
 | <a name="output_postgresql_url"></a> [postgresql\_url](#output\_postgresql\_url) | Postgres URL |
 | <a name="output_redis_password"></a> [redis\_password](#output\_redis\_password) | Redis password |
 | <a name="output_redis_url"></a> [redis\_url](#output\_redis\_url) | Redis URL |
+| <a name="output_sql_mysql_token"></a> [sql\_mysql\_token](#output\_sql\_mysql\_token) | SQL MySQL token |
 | <a name="output_sql_mysql_url"></a> [sql\_mysql\_url](#output\_sql\_mysql\_url) | SQL MySQL URL |
+| <a name="output_sql_postgres_token"></a> [sql\_postgres\_token](#output\_sql\_postgres\_token) | SQL Postgres token |
 | <a name="output_sql_postgres_url"></a> [sql\_postgres\_url](#output\_sql\_postgres\_url) | SQL Postgres URL |
 <!-- END_TF_DOCS -->

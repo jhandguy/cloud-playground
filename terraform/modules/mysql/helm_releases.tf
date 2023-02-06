@@ -19,6 +19,7 @@ resource "helm_release" "mysql" {
         type: NodePort
         nodePorts:
           mysql: ${var.node_port}
+      resources: null
     EOF
   ]
 }

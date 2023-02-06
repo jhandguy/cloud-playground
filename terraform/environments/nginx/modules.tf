@@ -4,15 +4,20 @@ module "kind" {
   cluster_name = var.argorollouts_enabled ? "argorollouts" : "nginx"
   node_ports = [
     "localstack",
-    "dynamo",
-    "s3",
-    "gateway_canary",
-    "gateway_stable",
+    "dynamo_grpc",
+    "dynamo_metrics",
+    "s3_grpc",
+    "s3_metrics",
+    "gateway_canary_http",
+    "gateway_canary_metrics",
+    "gateway_stable_http",
+    "gateway_stable_metrics",
     "prometheus",
     "alertmanager",
     "grafana",
     "pushgateway",
-    "nginx",
+    "nginx_http",
+    "nginx_https",
     "argorollouts",
   ]
 }
@@ -33,7 +38,7 @@ module "dynamo" {
 
   max_replicas       = 2
   node_ip            = module.kind.node_ip
-  node_port          = module.kind.node_ports["dynamo"]
+  node_ports         = [module.kind.node_ports["dynamo_grpc"], module.kind.node_ports["dynamo_metrics"]]
   prometheus_enabled = true
   secrets = {
     "aws_region"            = var.aws_region
@@ -52,7 +57,7 @@ module "s3" {
 
   max_replicas       = 2
   node_ip            = module.kind.node_ip
-  node_port          = module.kind.node_ports["s3"]
+  node_ports         = [module.kind.node_ports["s3_grpc"], module.kind.node_ports["s3_metrics"]]
   prometheus_enabled = true
   secrets = {
     "aws_region"            = var.aws_region
@@ -75,8 +80,8 @@ module "gateway" {
   max_replicas         = var.argorollouts_enabled ? 4 : 2
   node_ip              = module.kind.node_ip
   node_ports = {
-    "canary" : module.kind.node_ports["gateway_canary"],
-    "stable" : module.kind.node_ports["gateway_stable"]
+    "canary" : [module.kind.node_ports["gateway_canary_http"], module.kind.node_ports["gateway_canary_metrics"]],
+    "stable" : [module.kind.node_ports["gateway_stable_http"], module.kind.node_ports["gateway_stable_metrics"]]
   }
   prometheus_enabled = true
   prometheus_url     = module.prometheus.prometheus_cluster_url
@@ -146,7 +151,7 @@ module "nginx" {
   source     = "../../modules/nginx"
 
   node_ip            = module.kind.node_ip
-  node_port          = module.kind.node_ports["nginx"]
+  node_ports         = [module.kind.node_ports["nginx_http"], module.kind.node_ports["nginx_https"]]
   prometheus_enabled = true
 }
 

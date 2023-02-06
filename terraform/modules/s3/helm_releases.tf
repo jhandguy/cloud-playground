@@ -13,7 +13,9 @@ resource "helm_release" "s3" {
       minReplicas: ${var.min_replicas}
       maxReplicas: ${var.max_replicas}
       targetCPUUtilizationPercentage: 100
-    nodePort: ${var.node_port}
+    nodePorts:
+      grpc: ${var.node_ports.0}
+      metrics: ${var.node_ports.1}
     prometheus:
       enabled: ${var.prometheus_enabled}
     consul:

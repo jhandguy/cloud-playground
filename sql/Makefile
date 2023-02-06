@@ -1,3 +1,5 @@
+ENVIRONMENT ?=
+CHDIR = ../terraform/environments/$(ENVIRONMENT)
 FEATURE ?=
 
 lint_helm:
@@ -14,6 +16,11 @@ build:
 
 test:
 	cargo test --features $(FEATURE) -- --include-ignored
+
+load: export SQL_TOKEN=$(shell terraform -chdir=$(CHDIR) output -json sql_$(FEATURE)_token | jq -r .)
+load: export SQL_URL=$(shell terraform -chdir=$(CHDIR) output -json sql_$(FEATURE)_url | jq -r .)
+load:
+	k6 run k6/script.js
 
 docker:
 	docker buildx build --platform linux/arm64 --platform linux/amd64 --tag ghcr.io/jhandguy/cloud-playground/sql-$(FEATURE):latest --tag ghcr.io/jhandguy/cloud-playground/sql-$(FEATURE):1.0.0 --build-arg feature=$(FEATURE) --file Dockerfile . --push

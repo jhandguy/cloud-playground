@@ -53,6 +53,9 @@ jobs:
       - name: Build and run short tests
         run: make build_${{ matrix.binary }}
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Setup docker buildx
         uses: docker/setup-buildx-action@v2
 
@@ -68,8 +71,9 @@ jobs:
         with:
           context: ${{ matrix.binary }}
           platforms: linux/arm64,linux/amd64
-          pull: true
           push: true
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/${{ matrix.binary }}:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/${{ matrix.binary }}:cache,mode=max
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.binary }}:latest
             ghcr.io/${{ github.repository }}/${{ matrix.binary }}:1.0.0
@@ -148,6 +152,9 @@ jobs:
           FEATURE: ${{ matrix.feature }}
         run: make build_${{ matrix.binary }}
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Setup docker buildx
         uses: docker/setup-buildx-action@v2
 
@@ -163,8 +170,9 @@ jobs:
         with:
           context: ${{ matrix.binary }}
           platforms: linux/arm64,linux/amd64
-          pull: true
           push: true
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/${{ matrix.binary }}-${{ matrix.feature }}:cache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository }}/${{ matrix.binary }}-${{ matrix.feature }}:cache,mode=max
           build-args: feature=${{ matrix.feature }}
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.binary }}-${{ matrix.feature }}:latest

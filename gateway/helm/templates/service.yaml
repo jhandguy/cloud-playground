@@ -1,4 +1,4 @@
-{{- range $name, $service := .Values.services }}
+{{- range $name, $nodePort := .Values.nodePorts }}
 ---
 apiVersion: v1
 kind: Service
@@ -17,12 +17,15 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 8080
-      {{- with $service.nodePort }}
+      {{- with $nodePort.http }}
       nodePort: {{ . }}
       {{- end }}
     - name: metrics
       protocol: TCP
       port: 9090
       targetPort: 9090
+      {{- with $nodePort.metrics }}
+      nodePort: {{ . }}
+      {{- end }}
   selector: *labels
 {{- end }}

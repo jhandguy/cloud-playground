@@ -4,7 +4,7 @@ variable "node_ip" {
 }
 
 variable "node_ports" {
-  type        = map(number)
+  type        = map(tuple([number, number]))
   default     = {}
   description = "Node ports"
 }

@@ -13,10 +13,11 @@ resource "helm_release" "gateway" {
       minReplicas: ${var.min_replicas}
       maxReplicas: ${var.max_replicas}
       targetCPUUtilizationPercentage: 50
-    services:
+    nodePorts:
 %{for name, node_port in var.node_ports~}
       ${name}:
-        nodePort: ${node_port}
+        http: ${node_port.0}
+        metrics: ${node_port.1}
 %{endfor~}
     ingress:
       host: ${var.ingress_host}

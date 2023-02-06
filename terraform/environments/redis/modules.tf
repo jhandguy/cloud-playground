@@ -53,6 +53,7 @@ module "sql_postgres" {
     "database_name"     = module.postgresql.database_name
     "redis_url"         = module.redis.cluster_url
     "redis_password"    = module.redis.redis_password
+    "sql_token"         = random_password.sql_postgres_token.result
   }
 }
 
@@ -71,5 +72,6 @@ module "sql_mysql" {
     "redis_password"    = module.redis.redis_password
     "redis_url"         = module.redis.cluster_url
     "redis_password"    = module.redis.redis_password
+    "sql_token"         = random_password.sql_mysql_token.result
   }
 }

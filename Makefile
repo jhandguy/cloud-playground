@@ -11,7 +11,7 @@ CHDIR = terraform/environments/$(ENVIRONMENT)
 
 go_ci: lint_terraform lint_helm setup go_compile go_build go_test go_load teardown
 
-rust_ci: lint_terraform lint_helm setup rust_build rust_test teardown
+rust_ci: lint_terraform lint_helm setup rust_build rust_test rust_load teardown
 
 setup:
 	terraform -chdir=$(CHDIR) init
@@ -70,6 +70,12 @@ test_%:
 	make -C $* test HTTP_PORT=8080 GRPC_PORT=8080 METRICS_PORT=9090
 
 go_load: load_s3 load_dynamo load_gateway
+
+rust_load:
+	make load_sql FEATURE=postgres REDIS_ENABLED=false
+	make load_sql FEATURE=postgres REDIS_ENABLED=true
+	make load_sql FEATURE=mysql REDIS_ENABLED=false
+	make load_sql FEATURE=mysql REDIS_ENABLED=true
 
 load_%:
 	make -C $* load

@@ -13,11 +13,14 @@ spec:
       protocol: TCP
       port: 8080
       targetPort: 8080
-      {{- with .Values.nodePort }}
-      nodePort: {{ . }}
+      {{- with .Values.nodePorts }}
+      nodePort: {{ .grpc }}
       {{- end }}
     - name: metrics
       protocol: TCP
       port: 9090
       targetPort: 9090
+      {{- with .Values.nodePorts }}
+      nodePort: {{ .metrics }}
+      {{- end }}
   selector: *labels

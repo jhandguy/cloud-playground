@@ -19,6 +19,7 @@ resource "helm_release" "postgresql" {
         type: NodePort
         nodePorts:
           postgresql: ${var.node_port}
+      resources: null
     EOF
   ]
 }

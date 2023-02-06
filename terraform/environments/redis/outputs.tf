@@ -46,7 +46,19 @@ output "sql_postgres_url" {
   description = "SQL Postgres URL"
 }
 
+output "sql_postgres_token" {
+  value       = random_password.sql_postgres_token.result
+  description = "SQL Postgres token"
+  sensitive   = true
+}
+
 output "sql_mysql_url" {
   value       = module.sql_mysql.url
   description = "SQL MySQL URL"
+}
+
+output "sql_mysql_token" {
+  value       = random_password.sql_mysql_token.result
+  description = "SQL MySQL token"
+  sensitive   = true
 }

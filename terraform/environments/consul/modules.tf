@@ -4,10 +4,14 @@ module "kind" {
   cluster_name = "consul"
   node_ports = [
     "localstack",
-    "dynamo",
-    "s3",
-    "gateway_canary",
-    "gateway_stable",
+    "dynamo_grpc",
+    "dynamo_metrics",
+    "s3_grpc",
+    "s3_metrics",
+    "gateway_canary_http",
+    "gateway_canary_metrics",
+    "gateway_stable_http",
+    "gateway_stable_metrics",
     "gateway",
     "prometheus",
     "alertmanager",
@@ -36,7 +40,7 @@ module "dynamo" {
   consul_enabled     = true
   csi_enabled        = true
   node_ip            = module.kind.node_ip
-  node_port          = module.kind.node_ports["dynamo"]
+  node_ports         = [module.kind.node_ports["dynamo_grpc"], module.kind.node_ports["dynamo_metrics"]]
   prometheus_enabled = true
   vault_url          = module.vault.cluster_url
 }
@@ -48,7 +52,7 @@ module "s3" {
   consul_enabled     = true
   csi_enabled        = true
   node_ip            = module.kind.node_ip
-  node_port          = module.kind.node_ports["s3"]
+  node_ports         = [module.kind.node_ports["s3_grpc"], module.kind.node_ports["s3_metrics"]]
   prometheus_enabled = true
   vault_url          = module.vault.cluster_url
 }
@@ -63,8 +67,8 @@ module "gateway" {
   ingress_host         = random_pet.gateway_host.id
   node_ip              = module.kind.node_ip
   node_ports = {
-    "canary" : module.kind.node_ports["gateway_canary"],
-    "stable" : module.kind.node_ports["gateway_stable"]
+    "canary" : [module.kind.node_ports["gateway_canary_http"], module.kind.node_ports["gateway_canary_metrics"]],
+    "stable" : [module.kind.node_ports["gateway_stable_http"], module.kind.node_ports["gateway_stable_metrics"]]
   }
   prometheus_enabled = true
   vault_url          = module.vault.cluster_url

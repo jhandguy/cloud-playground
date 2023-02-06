@@ -49,6 +49,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Release.Name }}
                   key: redis_password
+            - name: SQL_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: sql_token
             - name: SQL_HTTP_PORT
               value: "8080"
           ports:

@@ -27,7 +27,8 @@ resource "helm_release" "nginx" {
       service:
         type: NodePort
         nodePorts:
-          http: ${var.node_port}
+          http: ${var.node_ports.0}
+          https: ${var.node_ports.1}
     defaultBackend:
       enabled: true
     EOF

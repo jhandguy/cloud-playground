@@ -4,48 +4,6 @@
 
 A Playground to experiment with various Cloud tools and technologies.
 
-## Tools
-
-- Kind
-- LocalStack
-- Prometheus
-- Grafana
-- Promtail
-- Loki
-- Tempo
-- AlertManager
-- PushGateway
-- Consul
-- Vault
-- CSI
-- K6
-- IngressNGINX
-- CertManager
-- ArgoRollouts
-- MetricsServer
-- PostgreSQL
-- MySQL
-- Redis
-
-## Technologies
-
-- Terraform
-- Kubernetes
-- Helm
-
-## Languages
-
-- Golang
-- Rust
-- YAML
-- HCL
-- JavaScript
-
-## Protocols
-
-- gRPC
-- REST
-
 ## Install Required Tools
 
 ```shell
@@ -54,74 +12,33 @@ brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 
 ## Create Infrastructure
 
-### Consul
-
-```shell
-make setup ENVIRONMENT=consul
-```
-
-### Nginx
-
-```shell
-make setup ENVIRONMENT=nginx
-```
-
-### Nginx + ArgoRollouts
-
-```shell
-make setup ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true
-```
-
-### Redis
-
-```shell
-make setup ENVIRONMENT=redis
-```
+| Environment          | Command                                                         |
+|----------------------|-----------------------------------------------------------------|
+| Consul               | `make setup ENVIRONMENT=consul`                                 |
+| Nginx                | `make setup ENVIRONMENT=nginx`                                  |
+| Nginx (ArgoRollouts) | `make setup ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true` |
+| Redis                | `make setup ENVIRONMENT=redis`                                  |
 
 ## Run Tests
 
-### Consul
-
-```shell
-make go_test ENVIRONMENT=consul
-```
-
-### Nginx
-
-```shell
-make go_test ENVIRONMENT=nginx
-```
+| Environment             | Command                            |
+|-------------------------|------------------------------------|
+| Consul                  | `make go_test ENVIRONMENT=consul`  |
+| Nginx                   | `make go_test ENVIRONMENT=nginx`   |
+| Redis                   | `make rust_test ENVIRONMENT=redis` |
 
 ## Run Load Tests
 
-### Consul
-
-```shell
-make go_load ENVIRONMENT=consul
-```
-
-### Nginx
-
-```shell
-make go_load ENVIRONMENT=nginx
-```
+| Environment             | Command                            |
+|-------------------------|------------------------------------|
+| Consul                  | `make go_load ENVIRONMENT=consul`  |
+| Nginx                   | `make go_load ENVIRONMENT=nginx`   |
+| Redis                   | `make rust_load ENVIRONMENT=redis` |
 
 ## Destroy Infrastructure
 
-### Consul
-
-```shell
-make teardown ENVIRONMENT=consul
-```
-
-### Nginx
-
-```shell
-make teardown ENVIRONMENT=nginx
-```
-
-### Redis
-
-```shell
-make teardown ENVIRONMENT=redis
-```
+| Environment             | Command                            |
+|-------------------------|------------------------------------|
+| Consul                  | `make teardown ENVIRONMENT=consul` |
+| Nginx                   | `make teardown ENVIRONMENT=nginx`  |
+| Redis                   | `make teardown ENVIRONMENT=redis`  |
