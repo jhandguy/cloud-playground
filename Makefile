@@ -80,9 +80,14 @@ rust_load:
 load_%:
 	make -C $* load
 
-update:
+update_terraform:
 	terraform -chdir=$(CHDIR) init -upgrade
 	terraform -chdir=$(CHDIR) providers lock
+
+update:
+	make update_terraform ENVIRONMENT=consul
+	make update_terraform ENVIRONMENT=nginx
+	make update_terraform ENVIRONMENT=redis
 	make -j update_s3 update_dynamo update_gateway update_cli
 
 update_%:

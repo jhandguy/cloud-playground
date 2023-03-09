@@ -19,12 +19,12 @@ mysql = ["sqlx/mysql"]
 
 [dependencies]
 anyhow = "1.0.69"
-axum = { version = "0.6.9", features = ["default", "headers"] }
+axum = { version = "0.6.10", features = ["default", "headers"] }
 clap = { version = "4.1.8", features = ["derive", "env"] }
 hyper = { version = "0.14.24", features = ["full"] }
 redis = { version = "0.22.3", features = ["tokio-native-tls-comp", "cluster"] }
-serde = { version = "1.0.152", features = ["derive"] }
-serde_json = "1.0.93"
+serde = { version = "1.0.154", features = ["derive"] }
+serde_json = "1.0.94"
 sqlx = { version = "0.6.2", features = ["runtime-tokio-native-tls", "uuid"] }
 tokio = { version = "1.26.0", features = ["full"] }
 tower = "0.4.13"

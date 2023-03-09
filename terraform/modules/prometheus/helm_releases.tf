@@ -5,7 +5,7 @@ resource "helm_release" "prometheus" {
   chart            = "kube-prometheus-stack"
   create_namespace = true
   wait             = true
-  version          = "42.1.1"
+  version          = "45.7.1"
 
   values = [
     <<-EOF
@@ -41,12 +41,6 @@ resource "helm_release" "prometheus" {
               editable: true
               options:
                 path: /var/lib/grafana/dashboards/default
-    kubeControllerManager:
-      enabled: false
-    kubeEtcd:
-      enabled: false
-    kubeScheduler:
-      enabled: false
     prometheus:
       service:
         type: NodePort

@@ -5,7 +5,7 @@ resource "helm_release" "pushgateway" {
   chart            = "prometheus-pushgateway"
   create_namespace = true
   wait             = true
-  version          = "2.0.1"
+  version          = "2.1.3"
 
   values = [
     <<-EOF
@@ -15,6 +15,8 @@ resource "helm_release" "pushgateway" {
     serviceMonitor:
       enabled: true
       namespace: pushgateway
+      additionalLabels:
+        release: prometheus
     podAnnotations:
       'consul.hashicorp.com/connect-inject': "true"
       'consul.hashicorp.com/connect-service': "pushgateway"

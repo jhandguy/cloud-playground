@@ -15,6 +15,22 @@ resource "null_resource" "cluster" {
               - containerPort: ${node_port}
                 hostPort: ${node_port}
 %{endfor~}
+        kubeadmConfigPatches:
+          - |
+            kind: ClusterConfiguration
+            controllerManager:
+              extraArgs:
+                bind-address: 0.0.0.0
+            etcd:
+              local:
+                extraArgs:
+                  listen-metrics-urls: http://0.0.0.0:2381
+            scheduler:
+              extraArgs:
+                bind-address: 0.0.0.0
+          - |
+            kind: KubeProxyConfiguration
+            metricsBindAddress: 0.0.0.0:10249
       CFG
     EOF
   }
