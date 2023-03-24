@@ -4,8 +4,8 @@ import {randomItem, randomString, uuidv4} from 'https://jslib.k6.io/k6-utils/1.4
 
 export const options = {
     stages: [
-        {target: 10, duration: '20s'},
-        {target: 10, duration: '20s'},
+        {target: 20, duration: '20s'},
+        {target: 20, duration: '20s'},
         {target: 0, duration: '20s'},
     ],
     thresholds: {

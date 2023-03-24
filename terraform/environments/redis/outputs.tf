@@ -1,4 +1,4 @@
-output "postgresql_url" {
+output "postgres_url" {
   value       = module.postgresql.url
   description = "Postgres URL"
 }
@@ -60,5 +60,26 @@ output "sql_mysql_url" {
 output "sql_mysql_token" {
   value       = random_password.sql_mysql_token.result
   description = "SQL MySQL token"
+  sensitive   = true
+}
+
+output "prometheus_url" {
+  value       = module.prometheus.prometheus_url
+  description = "Prometheus URL"
+}
+
+output "alertmanager_url" {
+  value       = module.prometheus.alertmanager_url
+  description = "AlertManager URL"
+}
+
+output "grafana_url" {
+  value       = module.prometheus.grafana_url
+  description = "Grafana URL"
+}
+
+output "grafana_admin_password" {
+  value       = module.prometheus.grafana_admin_password
+  description = "Grafana admin password"
   sensitive   = true
 }

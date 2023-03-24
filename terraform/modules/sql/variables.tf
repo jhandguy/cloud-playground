@@ -3,9 +3,9 @@ variable "node_ip" {
   description = "Node ip"
 }
 
-variable "node_port" {
-  type        = number
-  description = "Node port"
+variable "node_ports" {
+  type        = tuple([number, number])
+  description = "Node ports"
 }
 
 variable "feature" {
@@ -28,4 +28,10 @@ variable "replicas" {
   type        = number
   default     = 1
   description = "Replicas"
+}
+
+variable "prometheus_enabled" {
+  type        = bool
+  default     = false
+  description = "Enable Prometheus"
 }

@@ -135,6 +135,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
       - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -142,6 +145,11 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
           override: true
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install protobuf
 
       - name: Run cargo linters
         env:
@@ -203,7 +211,7 @@ jobs:
       - name: Install dependencies
         run: |
           brew update
-          brew install kind terraform k6
+          brew install protobuf kind terraform k6
 
       - name: Run all tests
         env:

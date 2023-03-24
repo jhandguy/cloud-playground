@@ -8,3 +8,9 @@ variable "alerting_rules" {
   default     = []
   description = "Alerting rules"
 }
+
+variable "labels" {
+  type        = list(string)
+  default     = ["level", "msg", "caller"]
+  description = "Labels"
+}

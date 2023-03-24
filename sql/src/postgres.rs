@@ -1,8 +1,9 @@
+use std::str::FromStr;
 use std::time::Duration;
 
 use anyhow::Result;
-use sqlx::postgres::PgPoolOptions;
-use sqlx::{migrate, PgPool};
+use sqlx::postgres::{PgConnectOptions, PgPoolOptions};
+use sqlx::{migrate, ConnectOptions, PgPool};
 
 pub type DatabasePool = PgPool;
 
@@ -13,10 +14,13 @@ pub async fn connect(
     database: String,
 ) -> Result<DatabasePool> {
     let url = format!("postgres://{user}:{password}@{url}/{database}");
+    let options = PgConnectOptions::from_str(&url)?
+        .disable_statement_logging()
+        .clone();
     let pool = PgPoolOptions::new()
         .acquire_timeout(Duration::from_secs(3))
         .max_connections(5)
-        .connect(&url)
+        .connect_with(options)
         .await?;
 
     Ok(pool)

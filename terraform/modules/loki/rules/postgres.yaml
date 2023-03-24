@@ -1,0 +1,16 @@
+- name: Postgres
+  rules:
+    - alert: PostgresErrorCountCritical
+      expr: sum(count_over_time({namespace="sql-postgres", container="sql-postgres", level="ERROR"}[5m])) > 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Postgres Error Count is above 0 for more than 2 minutes"
+    - alert: PostgresErrorCountWarning
+      expr: sum(count_over_time({namespace="sql-postgres", container="sql-postgres", level="ERROR"}[5m])) > 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Postgres Error Count is above 0"

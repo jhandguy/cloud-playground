@@ -1,0 +1,16 @@
+- name: MySQL
+  rules:
+    - alert: MySQLErrorCountCritical
+      expr: sum(count_over_time({namespace="sql-mysql", container="sql-mysql", level="ERROR"}[5m])) > 0
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "MySQL Error Count is above 0 for more than 2 minutes"
+    - alert: MySQLErrorCountWarning
+      expr: sum(count_over_time({namespace="sql-mysql", container="sql-mysql", level="ERROR"}[5m])) > 0
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "MySQL Error Count is above 0"

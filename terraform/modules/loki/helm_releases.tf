@@ -37,13 +37,13 @@ resource "helm_release" "loki" {
             - cri:
             - json:
                 expressions:
-                  level:
-                  msg:
-                  caller:
+%{for label in var.labels~}
+                  ${label}:
+%{endfor~}
             - labels:
-                level:
-                msg:
-                caller:
+%{for label in var.labels~}
+                ${label}:
+%{endfor~}
     EOF
   ]
 }

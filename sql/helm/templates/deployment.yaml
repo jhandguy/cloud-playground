@@ -56,10 +56,20 @@ spec:
                   key: sql_token
             - name: SQL_HTTP_PORT
               value: "8080"
+            - name: SQL_METRICS_PORT
+              value: "9090"
+            - name: TEMPO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Release.Name }}
+                  key: tempo_url
           ports:
             - name: http
               protocol: TCP
               containerPort: 8080
+            - name: metrics
+              protocol: TCP
+              containerPort: 9090
           resources:
             {{- with .Values.resources }}
             requests:

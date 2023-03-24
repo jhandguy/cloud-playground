@@ -1,12 +1,15 @@
 use anyhow::Error;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
+use tracing::error;
 
 pub struct ResponseError(Error);
 
 impl IntoResponse for ResponseError {
     fn into_response(self) -> Response {
-        (StatusCode::INTERNAL_SERVER_ERROR, self.0.to_string()).into_response()
+        let err = self.0.to_string();
+        error!("internal server error: {}", err);
+        (StatusCode::INTERNAL_SERVER_ERROR, err).into_response()
     }
 }
 

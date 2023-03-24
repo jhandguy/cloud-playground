@@ -16,11 +16,15 @@
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_kind"></a> [kind](#module\_kind) | ../../modules/kind | n/a |
+| <a name="module_loki"></a> [loki](#module\_loki) | ../../modules/loki | n/a |
+| <a name="module_metrics"></a> [metrics](#module\_metrics) | ../../modules/metrics | n/a |
 | <a name="module_mysql"></a> [mysql](#module\_mysql) | ../../modules/mysql | n/a |
 | <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | ../../modules/postgresql | n/a |
+| <a name="module_prometheus"></a> [prometheus](#module\_prometheus) | ../../modules/prometheus | n/a |
 | <a name="module_redis"></a> [redis](#module\_redis) | ../../modules/redis | n/a |
 | <a name="module_sql_mysql"></a> [sql\_mysql](#module\_sql\_mysql) | ../../modules/sql | n/a |
 | <a name="module_sql_postgres"></a> [sql\_postgres](#module\_sql\_postgres) | ../../modules/sql | n/a |
+| <a name="module_tempo"></a> [tempo](#module\_tempo) | ../../modules/tempo | n/a |
 
 ## Resources
 
@@ -41,12 +45,16 @@ No inputs.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_alertmanager_url"></a> [alertmanager\_url](#output\_alertmanager\_url) | AlertManager URL |
+| <a name="output_grafana_admin_password"></a> [grafana\_admin\_password](#output\_grafana\_admin\_password) | Grafana admin password |
+| <a name="output_grafana_url"></a> [grafana\_url](#output\_grafana\_url) | Grafana URL |
 | <a name="output_mysql_database"></a> [mysql\_database](#output\_mysql\_database) | MySQL database |
 | <a name="output_mysql_password"></a> [mysql\_password](#output\_mysql\_password) | MySQL password |
 | <a name="output_mysql_url"></a> [mysql\_url](#output\_mysql\_url) | MySQL URL |
 | <a name="output_postgres_database"></a> [postgres\_database](#output\_postgres\_database) | Postgres database |
 | <a name="output_postgres_password"></a> [postgres\_password](#output\_postgres\_password) | Postgres password |
-| <a name="output_postgresql_url"></a> [postgresql\_url](#output\_postgresql\_url) | Postgres URL |
+| <a name="output_postgres_url"></a> [postgres\_url](#output\_postgres\_url) | Postgres URL |
+| <a name="output_prometheus_url"></a> [prometheus\_url](#output\_prometheus\_url) | Prometheus URL |
 | <a name="output_redis_password"></a> [redis\_password](#output\_redis\_password) | Redis password |
 | <a name="output_redis_url"></a> [redis\_url](#output\_redis\_url) | Redis URL |
 | <a name="output_sql_mysql_token"></a> [sql\_mysql\_token](#output\_sql\_mysql\_token) | SQL MySQL token |

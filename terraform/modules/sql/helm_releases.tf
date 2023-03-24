@@ -9,7 +9,12 @@ resource "helm_release" "sql" {
   values = [
     <<-EOF
     replicas: ${var.replicas}
-    nodePort: ${var.node_port}
+    nodePorts:
+      http: ${var.node_ports.0}
+      metrics: ${var.node_ports.1}
+    prometheus:
+      enabled: ${var.prometheus_enabled}
+      groupName: ${var.feature == "mysql" ? "MySQL" : title(var.feature)}
     EOF
   ]
 

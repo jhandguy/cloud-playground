@@ -1,0 +1,42 @@
+{{- if .Values.prometheus.enabled }}
+---
+apiVersion: "monitoring.coreos.com/v1"
+kind: PrometheusRule
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: {{ .Values.prometheus.groupName }}
+      rules:
+        - alert: {{ .Values.prometheus.groupName }}SuccessShareCritical
+          expr: sum(rate(cloud_playground_sql_requests_count_total{service="{{ .Release.Name }}", success="true"}[5m])) / sum(rate(cloud_playground_sql_requests_count_total{service="{{ .Release.Name }}"}[5m])) < {{ .Values.prometheus.successShareThreshold }}
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ .Values.prometheus.groupName }} Success Share is below the threshold for more than 2 minutes"
+        - alert: {{ .Values.prometheus.groupName }}SuccessShareWarning
+          expr: sum(rate(cloud_playground_sql_requests_count_total{service="{{ .Release.Name }}", success="true"}[5m])) / sum(rate(cloud_playground_sql_requests_count_total{service="{{ .Release.Name }}"}[5m])) < {{ .Values.prometheus.successShareThreshold }}
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ .Values.prometheus.groupName }} Success Share is below the threshold"
+        - alert: {{ .Values.prometheus.groupName }}Latency99thPercentileCritical
+          expr: histogram_quantile(0.99, sum(rate(cloud_playground_sql_requests_latency_bucket{service="{{ .Release.Name }}"}[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "{{ .Values.prometheus.groupName }} Latency 99th Percentile is above the threshold for more than 2 minutes"
+        - alert: {{ .Values.prometheus.groupName }}Latency99thPercentileWarning
+          expr: histogram_quantile(0.99, sum(rate(cloud_playground_sql_requests_latency_bucket{service="{{ .Release.Name }}"}[5m])) by (le)) > {{ .Values.prometheus.latency99thPercentileThreshold }}
+          for: 1m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ .Values.prometheus.groupName }} Latency 99th Percentile is above the threshold"
+{{- end }}
