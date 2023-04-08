@@ -144,10 +144,12 @@ jobs:
           profile: minimal
           toolchain: stable
           components: rustfmt, clippy
+          target: x86_64-unknown-linux-musl
           override: true
 
       - name: Install dependencies
         run: |
+          sudo apt-get install musl-tools
           brew update
           brew install protobuf
 
@@ -206,10 +208,12 @@ jobs:
           profile: minimal
           toolchain: stable
           components: rustfmt, clippy
+          target: x86_64-unknown-linux-musl
           override: true
 
       - name: Install dependencies
         run: |
+          sudo apt-get install musl-tools
           brew update
           brew install protobuf kind terraform k6
 

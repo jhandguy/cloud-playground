@@ -11,7 +11,7 @@ lint:
 	cargo check --features $(FEATURE)
 
 build:
-	cargo build --features $(FEATURE) --bins --release --locked
+	cargo build --features $(FEATURE) --bins --release --locked --target x86_64-unknown-linux-musl
 	cargo test --features $(FEATURE)
 
 test:
