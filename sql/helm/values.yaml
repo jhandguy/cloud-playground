@@ -2,10 +2,10 @@ replicas: 1
 resources:
   limits:
     cpu: 50m
-    memory: 50Mi
+    memory: 75Mi
   requests:
     cpu: 25m
-    memory: 50Mi
+    memory: 75Mi
 horizontalPodAutoscaler:
   minReplicas: 1
   maxReplicas: 2
