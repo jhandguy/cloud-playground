@@ -11,6 +11,7 @@ use sql::message::{create_message, delete_message, get_message, get_user_message
 use sql::user::{create_user, delete_user, get_user};
 
 use sql::metrics::{serve_metrics, MetricsLayer};
+use sql::monitoring::{check_liveness, check_readiness};
 #[cfg(feature = "mysql")]
 use sql::mysql::{connect, migrate};
 #[cfg(feature = "postgres")]
@@ -79,6 +80,10 @@ async fn main() -> Result<()> {
     info!("starting data migration");
     migrate(&pool).await?;
 
+    let monitoring = Router::new()
+        .route("/readiness", get(check_readiness))
+        .route("/liveness", get(check_liveness));
+
     let client = open(args.redis_password, args.redis_url).await?;
     let router = Router::new()
         .route("/message", post(create_message))
@@ -89,6 +94,7 @@ async fn main() -> Result<()> {
         .route("/user/:id", delete(delete_user))
         .route("/user/:id/messages", get(get_user_messages))
         .route_layer(ValidateRequestHeaderLayer::bearer(&args.sql_token))
+        .nest("/monitoring", monitoring)
         .layer(Extension(pool))
         .layer(Extension(client))
         .layer(MetricsLayer(metrics));
