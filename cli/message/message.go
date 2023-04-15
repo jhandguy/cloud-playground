@@ -132,7 +132,7 @@ func Delete(id string) (*resty.Response, error) {
 	return res, nil
 }
 
-func createMessage(cmd *cobra.Command, _ []string) {
+func createMessage(_ *cobra.Command, _ []string) {
 	res, err := Create(Message{
 		ID:      id,
 		Content: content,
@@ -145,7 +145,7 @@ func createMessage(cmd *cobra.Command, _ []string) {
 	zap.S().Infow("successfully created message", "message", res.Result())
 }
 
-func getMessage(cmd *cobra.Command, _ []string) {
+func getMessage(_ *cobra.Command, _ []string) {
 	res, err := Get(id)
 	if err != nil {
 		zap.S().Errorw("failed to get message", "error", err.Error())
@@ -155,7 +155,7 @@ func getMessage(cmd *cobra.Command, _ []string) {
 	zap.S().Infow("successfully got message", "message", res.Result())
 }
 
-func deleteMessage(cmd *cobra.Command, _ []string) {
+func deleteMessage(_ *cobra.Command, _ []string) {
 	res, err := Delete(id)
 	if err != nil {
 		zap.S().Errorw("failed to delete message", "error", err.Error())

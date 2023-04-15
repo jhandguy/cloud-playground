@@ -147,7 +147,7 @@ func pushMetrics() {
 	}
 }
 
-func testLoad(cmd *cobra.Command, _ []string) {
+func testLoad(_ *cobra.Command, _ []string) {
 	zap.S().Infow("starting load test", "rounds", rounds)
 
 	sleep := func(sec int) {
