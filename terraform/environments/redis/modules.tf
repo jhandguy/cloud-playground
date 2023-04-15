@@ -45,7 +45,7 @@ module "redis" {
 }
 
 module "sql_postgres" {
-  depends_on = [module.metrics, module.prometheus, module.postgresql, module.redis]
+  depends_on = [module.metrics, module.loki, module.postgresql, module.redis]
   source     = "../../modules/sql"
 
   feature            = "postgres"
@@ -65,7 +65,7 @@ module "sql_postgres" {
 }
 
 module "sql_mysql" {
-  depends_on = [module.metrics, module.prometheus, module.mysql, module.redis]
+  depends_on = [module.metrics, module.loki, module.mysql, module.redis]
   source     = "../../modules/sql"
 
   feature            = "mysql"

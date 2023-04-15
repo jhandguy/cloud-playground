@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use std::time::Duration;
 
 use anyhow::Result;
 use sqlx::mysql::{MySqlConnectOptions, MySqlPoolOptions};
@@ -17,11 +16,7 @@ pub async fn connect(
     let options = MySqlConnectOptions::from_str(&url)?
         .disable_statement_logging()
         .clone();
-    let pool = MySqlPoolOptions::new()
-        .acquire_timeout(Duration::from_secs(3))
-        .max_connections(5)
-        .connect_with(options)
-        .await?;
+    let pool = MySqlPoolOptions::new().connect_with(options).await?;
 
     Ok(pool)
 }
