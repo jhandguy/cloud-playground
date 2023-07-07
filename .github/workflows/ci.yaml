@@ -215,5 +215,5 @@ jobs:
 
       - name: Run all tests
         env:
-          ENVIRONMENT: redis
+          ENVIRONMENT: haproxy
         run: make rust_ci

@@ -23,3 +23,12 @@ resource "random_password" "sql_mysql_token" {
   length  = 32
   special = false
 }
+
+resource "random_pet" "sql_postgres_host" {
+  length    = 3
+  separator = "."
+}
+resource "random_pet" "sql_mysql_host" {
+  length    = 3
+  separator = "."
+}

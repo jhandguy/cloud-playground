@@ -87,7 +87,7 @@ update_terraform:
 update:
 	make update_terraform ENVIRONMENT=consul
 	make update_terraform ENVIRONMENT=nginx
-	make update_terraform ENVIRONMENT=redis
+	make update_terraform ENVIRONMENT=haproxy
 	make -j update_s3 update_dynamo update_gateway update_cli
 
 update_%:

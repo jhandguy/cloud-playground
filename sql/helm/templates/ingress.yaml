@@ -1,0 +1,28 @@
+{{- with .Values.ingress }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $.Release.Name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ $.Release.Name }}
+  annotations:
+    cert-manager.io/issuer: {{ $.Release.Name }}
+spec:
+  rules:
+    - host: {{ .host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $.Release.Name }}
+                port:
+                  name: http
+  tls:
+    - secretName: {{ $.Release.Name }}-tls
+      hosts:
+        - {{ .host }}
+{{- end }}

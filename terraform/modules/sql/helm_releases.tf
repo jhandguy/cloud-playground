@@ -12,9 +12,14 @@ resource "helm_release" "sql" {
     nodePorts:
       http: ${var.node_ports.0}
       metrics: ${var.node_ports.1}
+    ingress:
+      host: ${var.ingress_host}
     prometheus:
       enabled: ${var.prometheus_enabled}
       groupName: ${var.feature == "mysql" ? "MySQL" : title(var.feature)}
+    horizontalPodAutoscaler:
+      minReplicas: ${var.replicas}
+      maxReplicas: ${var.replicas * 2}
     EOF
   ]
 

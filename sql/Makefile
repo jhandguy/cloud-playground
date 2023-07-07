@@ -18,7 +18,8 @@ test:
 	cargo test --features $(FEATURE) -- --include-ignored
 
 load: export SQL_TOKEN=$(shell terraform -chdir=$(CHDIR) output -json sql_$(FEATURE)_token | jq -r .)
-load: export SQL_URL=$(shell terraform -chdir=$(CHDIR) output -json sql_$(FEATURE)_url | jq -r .)
+load: export SQL_HOST=$(shell terraform -chdir=$(CHDIR) output -json sql_$(FEATURE)_ingress_host | jq -r .)
+load: export SQL_URL=$(shell terraform -chdir=$(CHDIR) output -json sql_$(FEATURE)_ingress_url | jq -r .)
 load:
 	k6 run k6/script.js
 

@@ -3,10 +3,11 @@ import {check, sleep} from 'k6';
 import {randomItem, randomString, uuidv4} from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
 export const options = {
+    setupTimeout: '2m',
     stages: [
-        {target: 20, duration: '20s'},
-        {target: 20, duration: '20s'},
-        {target: 0, duration: '20s'},
+        {target: 20, duration: '40s'},
+        {target: 20, duration: '40s'},
+        {target: 0, duration: '40s'},
     ],
     thresholds: {
         'checks': ['rate>0.9'],
@@ -20,6 +21,7 @@ const url = `http://${__ENV.SQL_URL}`;
 const params = {
     headers: {
         'Authorization': `Bearer ${__ENV.SQL_TOKEN}`,
+        'Host': __ENV.SQL_HOST,
         'Content-Type': 'application/json',
         'X-Redis-Enabled': __ENV.REDIS_ENABLED,
     },

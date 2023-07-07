@@ -17,28 +17,28 @@ brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 | Consul               | `make setup ENVIRONMENT=consul`                                 |
 | Nginx                | `make setup ENVIRONMENT=nginx`                                  |
 | Nginx (ArgoRollouts) | `make setup ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true` |
-| Redis                | `make setup ENVIRONMENT=redis`                                  |
+| HAProxy              | `make setup ENVIRONMENT=haproxy`                                |
 
 ## Run Tests
 
-| Environment             | Command                            |
-|-------------------------|------------------------------------|
-| Consul                  | `make go_test ENVIRONMENT=consul`  |
-| Nginx                   | `make go_test ENVIRONMENT=nginx`   |
-| Redis                   | `make rust_test ENVIRONMENT=redis` |
+| Environment | Command                              |
+|-------------|--------------------------------------|
+| Consul      | `make go_test ENVIRONMENT=consul`    |
+| Nginx       | `make go_test ENVIRONMENT=nginx`     |
+| HAProxy     | `make rust_test ENVIRONMENT=haproxy` |
 
 ## Run Load Tests
 
-| Environment             | Command                            |
-|-------------------------|------------------------------------|
-| Consul                  | `make go_load ENVIRONMENT=consul`  |
-| Nginx                   | `make go_load ENVIRONMENT=nginx`   |
-| Redis                   | `make rust_load ENVIRONMENT=redis` |
+| Environment | Command                              |
+|-------------|--------------------------------------|
+| Consul      | `make go_load ENVIRONMENT=consul`    |
+| Nginx       | `make go_load ENVIRONMENT=nginx`     |
+| HAProxy     | `make rust_load ENVIRONMENT=haproxy` |
 
 ## Destroy Infrastructure
 
-| Environment             | Command                            |
-|-------------------------|------------------------------------|
-| Consul                  | `make teardown ENVIRONMENT=consul` |
-| Nginx                   | `make teardown ENVIRONMENT=nginx`  |
-| Redis                   | `make teardown ENVIRONMENT=redis`  |
+| Environment | Command                             |
+|-------------|-------------------------------------|
+| Consul      | `make teardown ENVIRONMENT=consul`  |
+| Nginx       | `make teardown ENVIRONMENT=nginx`   |
+| HAProxy     | `make teardown ENVIRONMENT=haproxy` |

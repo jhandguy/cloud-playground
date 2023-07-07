@@ -1,7 +1,7 @@
 module "kind" {
   source = "../../modules/kind"
 
-  cluster_name = "redis"
+  cluster_name = "haproxy"
   node_ports = [
     "postgresql",
     "mysql",
@@ -13,6 +13,9 @@ module "kind" {
     "prometheus",
     "alertmanager",
     "grafana",
+    "haproxy_http",
+    "haproxy_https",
+    "haproxy_stat",
   ]
 }
 
@@ -49,9 +52,11 @@ module "sql_postgres" {
   source     = "../../modules/sql"
 
   feature            = "postgres"
+  ingress_host       = random_pet.sql_postgres_host.id
   node_ip            = module.kind.node_ip
   node_ports         = [module.kind.node_ports["sql_postgres_http"], module.kind.node_ports["sql_postgres_metrics"]]
   prometheus_enabled = true
+  replicas           = 2
   secrets = {
     "database_url"      = module.postgresql.cluster_url
     "database_user"     = module.postgresql.user_name
@@ -69,9 +74,11 @@ module "sql_mysql" {
   source     = "../../modules/sql"
 
   feature            = "mysql"
+  ingress_host       = random_pet.sql_mysql_host.id
   node_ip            = module.kind.node_ip
   node_ports         = [module.kind.node_ports["sql_mysql_http"], module.kind.node_ports["sql_mysql_metrics"]]
   prometheus_enabled = true
+  replicas           = 2
   secrets = {
     "database_url"      = module.mysql.cluster_url
     "database_user"     = module.mysql.user_name
@@ -114,4 +121,18 @@ module "tempo" {
 module "metrics" {
   depends_on = [module.kind]
   source     = "../../modules/metrics"
+}
+
+module "haproxy" {
+  depends_on = [module.prometheus]
+  source     = "../../modules/haproxy"
+
+  node_ip            = module.kind.node_ip
+  node_ports         = [module.kind.node_ports["haproxy_http"], module.kind.node_ports["haproxy_https"], module.kind.node_ports["haproxy_stat"]]
+  prometheus_enabled = true
+}
+
+module "certmanager" {
+  depends_on = [module.kind]
+  source     = "../../modules/certmanager"
 }

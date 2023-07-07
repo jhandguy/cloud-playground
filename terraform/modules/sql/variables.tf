@@ -30,6 +30,11 @@ variable "replicas" {
   description = "Replicas"
 }
 
+variable "ingress_host" {
+  type        = string
+  description = "Ingress host"
+}
+
 variable "prometheus_enabled" {
   type        = bool
   default     = false

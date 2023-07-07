@@ -1,6 +1,3 @@
-.DS_STORE
-.idea
-
 **/.terraform/*
 **/terraform.tfvars
 

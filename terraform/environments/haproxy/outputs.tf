@@ -52,6 +52,16 @@ output "sql_postgres_token" {
   sensitive   = true
 }
 
+output "sql_postgres_ingress_url" {
+  value       = module.haproxy.url
+  description = "SQL Postgres Ingress URL"
+}
+
+output "sql_postgres_ingress_host" {
+  value       = random_pet.sql_postgres_host.id
+  description = "SQL Postgres Ingress host"
+}
+
 output "sql_mysql_url" {
   value       = module.sql_mysql.url
   description = "SQL MySQL URL"
@@ -61,6 +71,16 @@ output "sql_mysql_token" {
   value       = random_password.sql_mysql_token.result
   description = "SQL MySQL token"
   sensitive   = true
+}
+
+output "sql_mysql_ingress_url" {
+  value       = module.haproxy.url
+  description = "SQL MySQL Ingress URL"
+}
+
+output "sql_mysql_ingress_host" {
+  value       = random_pet.sql_mysql_host.id
+  description = "SQL MySQL Ingress host"
 }
 
 output "prometheus_url" {
