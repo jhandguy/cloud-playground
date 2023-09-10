@@ -18,7 +18,7 @@ jobs:
           - cli
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -46,7 +46,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.52
+          version: v1.54
           working-directory: ${{ matrix.binary }}
           skip-pkg-cache: true
 
@@ -91,7 +91,7 @@ jobs:
             rollouts-enabled: true
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -127,7 +127,7 @@ jobs:
             feature: mysql
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -135,13 +135,11 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
           toolchain: stable
           components: rustfmt, clippy
           target: x86_64-unknown-linux-musl
-          override: true
 
       - name: Install dependencies
         run: |
@@ -191,7 +189,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -199,13 +197,10 @@ jobs:
         uses: Homebrew/actions/setup-homebrew@master
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          profile: minimal
-          toolchain: stable
           components: rustfmt, clippy
           target: x86_64-unknown-linux-musl
-          override: true
 
       - name: Install dependencies
         run: |

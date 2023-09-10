@@ -5,7 +5,7 @@ resource "helm_release" "consul" {
   chart            = "consul"
   create_namespace = true
   wait             = true
-  version          = "1.1.0"
+  version          = "1.2.1"
 
   values = [
     <<-EOF
@@ -21,9 +21,21 @@ resource "helm_release" "consul" {
       transparentProxy:
         defaultEnabled: false
       sidecarProxy:
-        resources: null
+        resources:
+          requests:
+            cpu: 0
+            memory: 0
+          limits:
+            cpu: 0
+            memory: 0
       initContainer:
-        resources: null
+        resources:
+          requests:
+            cpu: 0
+            memory: 0
+          limits:
+            cpu: 0
+            memory: 0
     controller:
       resources: null
     server:

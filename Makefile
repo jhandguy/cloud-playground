@@ -44,8 +44,8 @@ lint_helm_%:
 go_lint: lint_s3 lint_dynamo lint_gateway lint_cli
 
 rust_lint:
-	lint_sql FEATURE=postgres
-	lint_sql FEATURE=mysql
+	make lint_sql FEATURE=postgres
+	make lint_sql FEATURE=mysql
 
 lint_%:
 	make -C $* lint

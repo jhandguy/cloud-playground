@@ -21,24 +21,27 @@ brew install protobuf protoc-gen-go protoc-gen-go-grpc kind terraform k6
 
 ## Run Tests
 
-| Environment | Command                              |
-|-------------|--------------------------------------|
-| Consul      | `make go_test ENVIRONMENT=consul`    |
-| Nginx       | `make go_test ENVIRONMENT=nginx`     |
-| HAProxy     | `make rust_test ENVIRONMENT=haproxy` |
+| Environment          | Command                                                           |
+|----------------------|-------------------------------------------------------------------|
+| Consul               | `make go_test ENVIRONMENT=consul`                                 |
+| Nginx                | `make go_test ENVIRONMENT=nginx`                                  |
+| Nginx (ArgoRollouts) | `make go_test ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true` |
+| HAProxy              | `make rust_test ENVIRONMENT=haproxy`                              |
 
 ## Run Load Tests
 
-| Environment | Command                              |
-|-------------|--------------------------------------|
-| Consul      | `make go_load ENVIRONMENT=consul`    |
-| Nginx       | `make go_load ENVIRONMENT=nginx`     |
-| HAProxy     | `make rust_load ENVIRONMENT=haproxy` |
+| Environment          | Command                                                           |
+|----------------------|-------------------------------------------------------------------|
+| Consul               | `make go_load ENVIRONMENT=consul`                                 |
+| Nginx                | `make go_load ENVIRONMENT=nginx`                                  |
+| Nginx (ArgoRollouts) | `make go_load ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true` |
+| HAProxy              | `make rust_load ENVIRONMENT=haproxy`                              |
 
 ## Destroy Infrastructure
 
-| Environment | Command                             |
-|-------------|-------------------------------------|
-| Consul      | `make teardown ENVIRONMENT=consul`  |
-| Nginx       | `make teardown ENVIRONMENT=nginx`   |
-| HAProxy     | `make teardown ENVIRONMENT=haproxy` |
+| Environment          | Command                                                            |
+|----------------------|--------------------------------------------------------------------|
+| Consul               | `make teardown ENVIRONMENT=consul`                                 |
+| Nginx                | `make teardown ENVIRONMENT=nginx`                                  |
+| Nginx (ArgoRollouts) | `make teardown ENVIRONMENT=nginx TF_VAR_argorollouts_enabled=true` |
+| HAProxy              | `make teardown ENVIRONMENT=haproxy`                                |

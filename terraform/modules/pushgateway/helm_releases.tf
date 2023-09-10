@@ -5,7 +5,7 @@ resource "helm_release" "pushgateway" {
   chart            = "prometheus-pushgateway"
   create_namespace = true
   wait             = true
-  version          = "2.1.3"
+  version          = "2.4.0"
 
   values = [
     <<-EOF

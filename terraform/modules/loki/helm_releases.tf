@@ -5,7 +5,7 @@ resource "helm_release" "loki" {
   chart            = "loki-stack"
   create_namespace = true
   wait             = true
-  version          = "2.9.9"
+  version          = "2.9.11"
 
   values = [
     <<-EOF

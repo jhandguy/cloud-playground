@@ -5,7 +5,7 @@ resource "helm_release" "mysql" {
   chart            = "mysql"
   create_namespace = true
   wait             = true
-  version          = "9.6.0"
+  version          = "9.12.1"
 
   values = [
     <<-EOF

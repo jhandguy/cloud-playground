@@ -5,7 +5,7 @@ resource "helm_release" "haproxy" {
   chart            = "kubernetes-ingress"
   create_namespace = true
   wait             = true
-  version          = "1.32.0"
+  version          = "1.33.0"
 
   values = [
     <<-EOF

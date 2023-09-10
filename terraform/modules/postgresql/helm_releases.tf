@@ -5,7 +5,7 @@ resource "helm_release" "postgresql" {
   chart            = "postgresql"
   create_namespace = true
   wait             = true
-  version          = "12.2.2"
+  version          = "12.11.1"
 
   values = [
     <<-EOF

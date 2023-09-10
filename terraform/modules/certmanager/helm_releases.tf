@@ -5,7 +5,7 @@ resource "helm_release" "certmanager" {
   chart            = "cert-manager"
   create_namespace = true
   wait             = true
-  version          = "1.11.0"
+  version          = "1.12.4"
 
   values = [
     <<-EOF
