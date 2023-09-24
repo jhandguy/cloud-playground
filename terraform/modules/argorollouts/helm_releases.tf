@@ -10,14 +10,13 @@ resource "helm_release" "argorollouts" {
   values = [
     <<-EOF
     controller:
-%{if var.prometheus_enabled}
+      replicas: 1
       metrics:
         enabled: true
         serviceMonitor:
-          enabled: true
+          enabled: ${var.prometheus_enabled}
           additionalLabels:
             release: prometheus
-%{endif}
     dashboard:
       enabled: true
       service:

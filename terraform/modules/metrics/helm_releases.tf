@@ -12,6 +12,7 @@ resource "helm_release" "metrics" {
     args:
       - --metric-resolution=10s
       - --kubelet-insecure-tls
+    resources: null
     EOF
   ]
 }

@@ -13,14 +13,16 @@ resource "helm_release" "pushgateway" {
       type: NodePort
       nodePort: ${var.node_port}
     serviceMonitor:
-      enabled: true
+      enabled: ${var.prometheus_enabled}
       namespace: pushgateway
       additionalLabels:
         release: prometheus
+%{if var.consul_enabled}
     podAnnotations:
       'consul.hashicorp.com/connect-inject': "true"
       'consul.hashicorp.com/connect-service': "pushgateway"
       'consul.hashicorp.com/connect-service-port': "metrics"
+%{endif}
     EOF
   ]
 }

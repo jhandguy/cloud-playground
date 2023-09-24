@@ -1,5 +1,5 @@
 output "aws_s3_endpoint" {
-  value       = module.localstack.aws_dynamo_endpoint
+  value       = module.localstack.aws_s3_endpoint
   description = "S3 endpoint"
 }
 

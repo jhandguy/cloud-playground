@@ -14,3 +14,9 @@ variable "labels" {
   default     = ["level", "msg", "caller"]
   description = "Labels"
 }
+
+variable "prometheus_enabled" {
+  type        = bool
+  default     = true
+  description = "Enable Prometheus"
+}

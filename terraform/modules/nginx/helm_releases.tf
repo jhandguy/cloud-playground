@@ -14,14 +14,12 @@ resource "helm_release" "nginx" {
         default: true
       config:
         ssl-redirect: false
-%{if var.prometheus_enabled}
       metrics:
         enabled: true
         serviceMonitor:
-          enabled: true
+          enabled: ${var.prometheus_enabled}
           additionalLabels:
             release: prometheus
-%{endif}
       admissionWebhooks:
         enabled: false
       service:
@@ -29,6 +27,7 @@ resource "helm_release" "nginx" {
         nodePorts:
           http: ${var.node_ports.0}
           https: ${var.node_ports.1}
+      resources: null
     defaultBackend:
       enabled: true
     EOF

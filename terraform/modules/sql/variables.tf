@@ -37,6 +37,6 @@ variable "ingress_host" {
 
 variable "prometheus_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable Prometheus"
 }

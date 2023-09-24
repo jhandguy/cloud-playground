@@ -24,6 +24,7 @@
 | <a name="module_localstack"></a> [localstack](#module\_localstack) | ../../modules/localstack | n/a |
 | <a name="module_loki"></a> [loki](#module\_loki) | ../../modules/loki | n/a |
 | <a name="module_metrics"></a> [metrics](#module\_metrics) | ../../modules/metrics | n/a |
+| <a name="module_mimir"></a> [mimir](#module\_mimir) | ../../modules/mimir | n/a |
 | <a name="module_nginx"></a> [nginx](#module\_nginx) | ../../modules/nginx | n/a |
 | <a name="module_prometheus"></a> [prometheus](#module\_prometheus) | ../../modules/prometheus | n/a |
 | <a name="module_pushgateway"></a> [pushgateway](#module\_pushgateway) | ../../modules/pushgateway | n/a |

@@ -12,7 +12,6 @@ resource "helm_release" "s3" {
     horizontalPodAutoscaler:
       minReplicas: ${var.min_replicas}
       maxReplicas: ${var.max_replicas}
-      targetCPUUtilizationPercentage: 100
     nodePorts:
       grpc: ${var.node_ports.0}
       metrics: ${var.node_ports.1}

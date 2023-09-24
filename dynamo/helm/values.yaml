@@ -2,10 +2,10 @@ replicas: 1
 resources:
   limits:
     cpu: 100m
-    memory: 150Mi
+    memory: 300Mi
   requests:
-    cpu: 75m
-    memory: 150Mi
+    cpu: 50m
+    memory: 200Mi
 horizontalPodAutoscaler:
   minReplicas: 1
   maxReplicas: 1
@@ -15,7 +15,7 @@ horizontalPodAutoscaler:
       averageUtilization: 70
     memory:
       type: Utilization
-      averageUtilization: 50
+      averageUtilization: 90
 image:
   registry: ghcr.io
   repository: jhandguy/cloud-playground/dynamo

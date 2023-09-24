@@ -26,6 +26,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_consul_enabled"></a> [consul\_enabled](#input\_consul\_enabled) | Enable Consul | `bool` | `false` | no |
+| <a name="input_prometheus_enabled"></a> [prometheus\_enabled](#input\_prometheus\_enabled) | Enable Prometheus | `bool` | `true` | no |
 
 ## Outputs
 

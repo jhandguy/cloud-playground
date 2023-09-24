@@ -29,3 +29,9 @@ variable "grafana_dashboards" {
   default     = []
   description = "Grafana dashboards"
 }
+
+variable "mimir_url" {
+  type        = string
+  default     = ""
+  description = "Mimir URL"
+}

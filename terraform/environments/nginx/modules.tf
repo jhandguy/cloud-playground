@@ -19,15 +19,16 @@ module "kind" {
     "nginx_http",
     "nginx_https",
     "argorollouts",
+    "mimir",
   ]
 }
 
 module "localstack" {
-  depends_on = [module.prometheus]
+  depends_on = [module.kind]
   source     = "../../modules/localstack"
 
   aws_dynamo_tables = ["dynamo"]
-  aws_s3_buckets    = ["s3"]
+  aws_s3_buckets    = ["mimir", "s3"]
   node_ip           = module.kind.node_ip
   node_port         = module.kind.node_ports["localstack"]
 }
@@ -36,10 +37,9 @@ module "dynamo" {
   depends_on = [module.metrics, module.prometheus, module.localstack]
   source     = "../../modules/dynamo"
 
-  max_replicas       = 2
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["dynamo_grpc"], module.kind.node_ports["dynamo_metrics"]]
-  prometheus_enabled = true
+  max_replicas = 2
+  node_ip      = module.kind.node_ip
+  node_ports   = [module.kind.node_ports["dynamo_grpc"], module.kind.node_ports["dynamo_metrics"]]
   secrets = {
     "aws_region"            = var.aws_region
     "aws_access_key_id"     = var.aws_access_key_id
@@ -55,10 +55,9 @@ module "s3" {
   depends_on = [module.metrics, module.prometheus, module.localstack]
   source     = "../../modules/s3"
 
-  max_replicas       = 2
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["s3_grpc"], module.kind.node_ports["s3_metrics"]]
-  prometheus_enabled = true
+  max_replicas = 2
+  node_ip      = module.kind.node_ip
+  node_ports   = [module.kind.node_ports["s3_grpc"], module.kind.node_ports["s3_metrics"]]
   secrets = {
     "aws_region"            = var.aws_region
     "aws_access_key_id"     = var.aws_access_key_id
@@ -71,7 +70,7 @@ module "s3" {
 }
 
 module "gateway" {
-  depends_on = [module.metrics, module.prometheus, module.dynamo, module.s3]
+  depends_on = [module.argorollouts, module.dynamo, module.s3]
   source     = "../../modules/gateway"
 
   argorollouts_enabled = var.argorollouts_enabled
@@ -83,9 +82,8 @@ module "gateway" {
     "canary" : [module.kind.node_ports["gateway_canary_http"], module.kind.node_ports["gateway_canary_metrics"]],
     "stable" : [module.kind.node_ports["gateway_stable_http"], module.kind.node_ports["gateway_stable_metrics"]]
   }
-  prometheus_enabled = true
-  prometheus_url     = module.prometheus.prometheus_cluster_url
-  replicas           = var.argorollouts_enabled ? 2 : 1
+  prometheus_url = module.prometheus.prometheus_cluster_url
+  replicas       = var.argorollouts_enabled ? 2 : 1
   secrets = {
     "gateway_token" = random_password.gateway_token.result
     "dynamo_url"    = module.dynamo.cluster_url
@@ -108,14 +106,28 @@ module "cli" {
   }
 }
 
+module "mimir" {
+  depends_on = [module.localstack]
+  source     = "../../modules/mimir"
+
+  aws_access_key_id       = var.aws_access_key_id
+  aws_region              = var.aws_region
+  aws_secret_access_key   = var.aws_secret_access_key
+  aws_s3_bucket           = module.localstack.aws_s3_buckets["mimir"]
+  aws_s3_cluster_endpoint = module.localstack.aws_s3_cluster_endpoint
+  node_ip                 = module.kind.node_ip
+  node_port               = module.kind.node_ports["mimir"]
+}
+
 module "prometheus" {
-  depends_on = [module.kind]
+  depends_on = [module.mimir]
   source     = "../../modules/prometheus"
 
   alertmanager_node_port = module.kind.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
-  grafana_datasources    = ["loki", "tempo"]
+  grafana_datasources    = ["loki", "mimir", "tempo"]
   grafana_node_port      = module.kind.node_ports["grafana"]
+  mimir_url              = module.mimir.cluster_url
   node_ip                = module.kind.node_ip
   prometheus_node_port   = module.kind.node_ports["prometheus"]
 }
@@ -150,9 +162,8 @@ module "nginx" {
   depends_on = [module.prometheus]
   source     = "../../modules/nginx"
 
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["nginx_http"], module.kind.node_ports["nginx_https"]]
-  prometheus_enabled = true
+  node_ip    = module.kind.node_ip
+  node_ports = [module.kind.node_ports["nginx_http"], module.kind.node_ports["nginx_https"]]
 }
 
 module "certmanager" {
@@ -166,7 +177,6 @@ module "argorollouts" {
   depends_on = [module.prometheus, module.nginx]
   source     = "../../modules/argorollouts"
 
-  node_ip            = module.kind.node_ip
-  node_port          = module.kind.node_ports["argorollouts"]
-  prometheus_enabled = true
+  node_ip   = module.kind.node_ip
+  node_port = module.kind.node_ports["argorollouts"]
 }

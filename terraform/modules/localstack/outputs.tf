@@ -27,7 +27,7 @@ output "aws_dynamo_cluster_endpoint" {
 
 output "aws_dynamo_tables" {
   value = {
-    for index in range(length(var.aws_s3_buckets)) : var.aws_dynamo_tables[index] => aws_dynamodb_table.dynamo[var.aws_dynamo_tables[index]].id
+    for index in range(length(var.aws_dynamo_tables)) : var.aws_dynamo_tables[index] => aws_dynamodb_table.dynamo[var.aws_dynamo_tables[index]].id
   }
   description = "AWS DynamoDB tables"
 }

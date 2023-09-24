@@ -15,12 +15,10 @@ resource "helm_release" "haproxy" {
         default: true
       config:
         ssl-redirect: "false"
-%{if var.prometheus_enabled}
       serviceMonitor:
-        enabled: true
+        enabled: ${var.prometheus_enabled}
         extraLabels:
           release: prometheus
-%{endif}
       service:
         type: NodePort
         nodePorts:

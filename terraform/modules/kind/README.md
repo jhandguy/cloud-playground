@@ -28,7 +28,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Cluster name | `string` | `"kind"` | no |
-| <a name="input_node_image"></a> [node\_image](#input\_node\_image) | Node image | `string` | `"v1.25.3"` | no |
+| <a name="input_node_image"></a> [node\_image](#input\_node\_image) | Node image | `string` | `"v1.27.3"` | no |
 | <a name="input_node_ports"></a> [node\_ports](#input\_node\_ports) | Node ports | `list(string)` | `[]` | no |
 
 ## Outputs

@@ -28,6 +28,7 @@ No modules.
 | <a name="input_alerting_rules"></a> [alerting\_rules](#input\_alerting\_rules) | Alerting rules | `list(string)` | `[]` | no |
 | <a name="input_alertmanager_url"></a> [alertmanager\_url](#input\_alertmanager\_url) | AlertManager URL | `string` | n/a | yes |
 | <a name="input_labels"></a> [labels](#input\_labels) | Labels | `list(string)` | <pre>[<br>  "level",<br>  "msg",<br>  "caller"<br>]</pre> | no |
+| <a name="input_prometheus_enabled"></a> [prometheus\_enabled](#input\_prometheus\_enabled) | Enable Prometheus | `bool` | `true` | no |
 
 ## Outputs
 

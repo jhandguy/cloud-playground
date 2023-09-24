@@ -10,7 +10,7 @@ resource "helm_release" "tempo" {
   values = [
     <<-EOF
     serviceMonitor:
-      enabled: true
+      enabled: ${var.prometheus_enabled}
       additionalLabels:
         release: prometheus
 %{if var.consul_enabled}

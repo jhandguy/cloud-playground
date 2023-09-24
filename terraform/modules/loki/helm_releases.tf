@@ -23,7 +23,7 @@ resource "helm_release" "loki" {
               store: inmemory
           enable_api: true
       serviceMonitor:
-        enabled: true
+        enabled: ${var.prometheus_enabled}
         additionalLabels:
           release: prometheus
       alerting_groups:

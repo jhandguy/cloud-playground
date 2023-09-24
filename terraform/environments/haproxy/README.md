@@ -20,6 +20,7 @@
 | <a name="module_kind"></a> [kind](#module\_kind) | ../../modules/kind | n/a |
 | <a name="module_loki"></a> [loki](#module\_loki) | ../../modules/loki | n/a |
 | <a name="module_metrics"></a> [metrics](#module\_metrics) | ../../modules/metrics | n/a |
+| <a name="module_mimir"></a> [mimir](#module\_mimir) | ../../modules/mimir | n/a |
 | <a name="module_mysql"></a> [mysql](#module\_mysql) | ../../modules/mysql | n/a |
 | <a name="module_postgresql"></a> [postgresql](#module\_postgresql) | ../../modules/postgresql | n/a |
 | <a name="module_prometheus"></a> [prometheus](#module\_prometheus) | ../../modules/prometheus | n/a |

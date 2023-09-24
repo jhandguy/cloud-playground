@@ -10,6 +10,7 @@ module "kind" {
     "sql_postgres_metrics",
     "sql_mysql_http",
     "sql_mysql_metrics",
+    "mimir",
     "prometheus",
     "alertmanager",
     "grafana",
@@ -51,12 +52,11 @@ module "sql_postgres" {
   depends_on = [module.metrics, module.loki, module.postgresql, module.redis]
   source     = "../../modules/sql"
 
-  feature            = "postgres"
-  ingress_host       = random_pet.sql_postgres_host.id
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["sql_postgres_http"], module.kind.node_ports["sql_postgres_metrics"]]
-  prometheus_enabled = true
-  replicas           = 2
+  feature      = "postgres"
+  ingress_host = random_pet.sql_postgres_host.id
+  node_ip      = module.kind.node_ip
+  node_ports   = [module.kind.node_ports["sql_postgres_http"], module.kind.node_ports["sql_postgres_metrics"]]
+  replicas     = 2
   secrets = {
     "database_url"      = module.postgresql.cluster_url
     "database_user"     = module.postgresql.user_name
@@ -73,12 +73,11 @@ module "sql_mysql" {
   depends_on = [module.metrics, module.loki, module.mysql, module.redis]
   source     = "../../modules/sql"
 
-  feature            = "mysql"
-  ingress_host       = random_pet.sql_mysql_host.id
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["sql_mysql_http"], module.kind.node_ports["sql_mysql_metrics"]]
-  prometheus_enabled = true
-  replicas           = 2
+  feature      = "mysql"
+  ingress_host = random_pet.sql_mysql_host.id
+  node_ip      = module.kind.node_ip
+  node_ports   = [module.kind.node_ports["sql_mysql_http"], module.kind.node_ports["sql_mysql_metrics"]]
+  replicas     = 2
   secrets = {
     "database_url"      = module.mysql.cluster_url
     "database_user"     = module.mysql.user_name
@@ -92,14 +91,24 @@ module "sql_mysql" {
   }
 }
 
-module "prometheus" {
+module "mimir" {
   depends_on = [module.kind]
+  source     = "../../modules/mimir"
+
+  node_ip            = module.kind.node_ip
+  node_port          = module.kind.node_ports["mimir"]
+  localstack_enabled = false
+}
+
+module "prometheus" {
+  depends_on = [module.mimir]
   source     = "../../modules/prometheus"
 
   alertmanager_node_port = module.kind.node_ports["alertmanager"]
   grafana_dashboards     = ["mysql", "postgres"]
   grafana_datasources    = ["loki", "tempo"]
   grafana_node_port      = module.kind.node_ports["grafana"]
+  mimir_url              = module.mimir.cluster_url
   node_ip                = module.kind.node_ip
   prometheus_node_port   = module.kind.node_ports["prometheus"]
 }
@@ -127,9 +136,8 @@ module "haproxy" {
   depends_on = [module.prometheus]
   source     = "../../modules/haproxy"
 
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["haproxy_http"], module.kind.node_ports["haproxy_https"], module.kind.node_ports["haproxy_stat"]]
-  prometheus_enabled = true
+  node_ip    = module.kind.node_ip
+  node_ports = [module.kind.node_ports["haproxy_http"], module.kind.node_ports["haproxy_https"], module.kind.node_ports["haproxy_stat"]]
 }
 
 module "certmanager" {

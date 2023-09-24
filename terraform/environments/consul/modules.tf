@@ -19,6 +19,7 @@ module "kind" {
     "pushgateway",
     "consul",
     "vault",
+    "mimir",
   ]
 }
 
@@ -27,7 +28,7 @@ module "localstack" {
   source     = "../../modules/localstack"
 
   aws_dynamo_tables = ["dynamo"]
-  aws_s3_buckets    = ["s3"]
+  aws_s3_buckets    = ["mimir", "s3"]
   consul_enabled    = true
   node_ip           = module.kind.node_ip
   node_port         = module.kind.node_ports["localstack"]
@@ -37,30 +38,31 @@ module "dynamo" {
   depends_on = [module.metrics, module.vault, module.localstack]
   source     = "../../modules/dynamo"
 
-  consul_enabled     = true
-  csi_enabled        = true
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["dynamo_grpc"], module.kind.node_ports["dynamo_metrics"]]
-  prometheus_enabled = true
-  vault_url          = module.vault.cluster_url
+  max_replicas   = 2
+  consul_enabled = true
+  csi_enabled    = true
+  node_ip        = module.kind.node_ip
+  node_ports     = [module.kind.node_ports["dynamo_grpc"], module.kind.node_ports["dynamo_metrics"]]
+  vault_url      = module.vault.cluster_url
 }
 
 module "s3" {
   depends_on = [module.metrics, module.vault, module.localstack]
   source     = "../../modules/s3"
 
-  consul_enabled     = true
-  csi_enabled        = true
-  node_ip            = module.kind.node_ip
-  node_ports         = [module.kind.node_ports["s3_grpc"], module.kind.node_ports["s3_metrics"]]
-  prometheus_enabled = true
-  vault_url          = module.vault.cluster_url
+  max_replicas   = 2
+  consul_enabled = true
+  csi_enabled    = true
+  node_ip        = module.kind.node_ip
+  node_ports     = [module.kind.node_ports["s3_grpc"], module.kind.node_ports["s3_metrics"]]
+  vault_url      = module.vault.cluster_url
 }
 
 module "gateway" {
-  depends_on = [module.metrics, module.vault, module.dynamo, module.s3]
+  depends_on = [module.dynamo, module.s3]
   source     = "../../modules/gateway"
 
+  max_replicas         = 2
   consul_enabled       = true
   csi_enabled          = true
   ingress_gateway_port = module.consul.ingress_gateway_port
@@ -70,8 +72,7 @@ module "gateway" {
     "canary" : [module.kind.node_ports["gateway_canary_http"], module.kind.node_ports["gateway_canary_metrics"]],
     "stable" : [module.kind.node_ports["gateway_stable_http"], module.kind.node_ports["gateway_stable_metrics"]]
   }
-  prometheus_enabled = true
-  vault_url          = module.vault.cluster_url
+  vault_url = module.vault.cluster_url
 }
 
 module "cli" {
@@ -82,28 +83,43 @@ module "cli" {
   vault_url   = module.vault.cluster_url
 }
 
+module "mimir" {
+  depends_on = [module.localstack]
+  source     = "../../modules/mimir"
+
+  aws_access_key_id       = var.aws_access_key_id
+  aws_region              = var.aws_region
+  aws_secret_access_key   = var.aws_secret_access_key
+  aws_s3_bucket           = module.localstack.aws_s3_buckets["mimir"]
+  aws_s3_cluster_endpoint = module.localstack.aws_s3_cluster_endpoint
+  node_ip                 = module.kind.node_ip
+  node_port               = module.kind.node_ports["mimir"]
+}
+
 module "prometheus" {
-  depends_on = [module.kind]
+  depends_on = [module.mimir]
   source     = "../../modules/prometheus"
 
   alertmanager_node_port = module.kind.node_ports["alertmanager"]
   grafana_dashboards     = ["dynamo", "s3", "gateway", "cli"]
-  grafana_datasources    = ["loki", "tempo"]
+  grafana_datasources    = ["loki", "mimir", "tempo"]
   grafana_node_port      = module.kind.node_ports["grafana"]
+  mimir_url              = module.mimir.cluster_url
   node_ip                = module.kind.node_ip
   prometheus_node_port   = module.kind.node_ports["prometheus"]
 }
 
 module "pushgateway" {
-  depends_on = [module.consul]
+  depends_on = [module.consul, module.prometheus]
   source     = "../../modules/pushgateway"
 
-  node_ip   = module.kind.node_ip
-  node_port = module.kind.node_ports["pushgateway"]
+  consul_enabled = true
+  node_ip        = module.kind.node_ip
+  node_port      = module.kind.node_ports["pushgateway"]
 }
 
 module "loki" {
-  depends_on = [module.consul]
+  depends_on = [module.consul, module.prometheus]
   source     = "../../modules/loki"
 
   alerting_rules   = ["dynamo", "s3", "gateway", "cli"]
@@ -111,7 +127,7 @@ module "loki" {
 }
 
 module "tempo" {
-  depends_on = [module.consul]
+  depends_on = [module.consul, module.prometheus]
   source     = "../../modules/tempo"
 
   consul_enabled = true
@@ -128,7 +144,7 @@ module "csi" {
 }
 
 module "consul" {
-  depends_on = [module.prometheus]
+  depends_on = [module.kind]
   source     = "../../modules/consul"
 
   node_ip   = module.kind.node_ip
@@ -139,7 +155,7 @@ module "consul" {
 }
 
 module "vault" {
-  depends_on = [module.consul, module.csi]
+  depends_on = [module.csi]
   source     = "../../modules/vault"
 
   node_ip   = module.kind.node_ip

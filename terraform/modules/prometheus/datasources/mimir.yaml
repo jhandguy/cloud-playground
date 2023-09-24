@@ -1,0 +1,4 @@
+- name: Mimir
+  type: prometheus
+  url: http://mimir-gateway.mimir.svc.cluster.local/prometheus
+  access: proxy

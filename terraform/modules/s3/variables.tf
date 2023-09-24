@@ -10,7 +10,7 @@ variable "node_ports" {
 
 variable "prometheus_enabled" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable Prometheus"
 }
 
