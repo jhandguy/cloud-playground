@@ -25,6 +25,7 @@ resource "helm_release" "haproxy" {
           http: ${var.node_ports.0}
           https: ${var.node_ports.1}
           stat: ${var.node_ports.2}
+          prometheus: ${var.node_ports.3}
     defaultBackend:
       enabled: true
     EOF

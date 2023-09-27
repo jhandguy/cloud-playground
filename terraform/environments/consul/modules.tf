@@ -19,7 +19,6 @@ module "kind" {
     "pushgateway",
     "consul",
     "vault",
-    "mimir",
   ]
 }
 
@@ -92,8 +91,6 @@ module "mimir" {
   aws_secret_access_key   = var.aws_secret_access_key
   aws_s3_bucket           = module.localstack.aws_s3_buckets["mimir"]
   aws_s3_cluster_endpoint = module.localstack.aws_s3_cluster_endpoint
-  node_ip                 = module.kind.node_ip
-  node_port               = module.kind.node_ports["mimir"]
 }
 
 module "prometheus" {

@@ -4,7 +4,7 @@ variable "node_ip" {
 }
 
 variable "node_ports" {
-  type        = tuple([number, number, number])
+  type        = tuple([number, number, number, number])
   description = "Node ports"
 }
 

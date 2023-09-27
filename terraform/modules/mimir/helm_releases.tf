@@ -18,8 +18,7 @@ resource "helm_release" "mimir" {
     gateway:
       enabledNonEnterprise: true
       service:
-        type: NodePort
-        nodePort: ${var.node_port}
+        legacyPort: null
     ingester:
       replicas: 1
       resources: null

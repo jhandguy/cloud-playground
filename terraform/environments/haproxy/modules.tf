@@ -10,13 +10,13 @@ module "kind" {
     "sql_postgres_metrics",
     "sql_mysql_http",
     "sql_mysql_metrics",
-    "mimir",
     "prometheus",
     "alertmanager",
     "grafana",
     "haproxy_http",
     "haproxy_https",
     "haproxy_stat",
+    "haproxy_prometheus",
   ]
 }
 
@@ -95,8 +95,6 @@ module "mimir" {
   depends_on = [module.kind]
   source     = "../../modules/mimir"
 
-  node_ip            = module.kind.node_ip
-  node_port          = module.kind.node_ports["mimir"]
   localstack_enabled = false
 }
 
@@ -137,7 +135,7 @@ module "haproxy" {
   source     = "../../modules/haproxy"
 
   node_ip    = module.kind.node_ip
-  node_ports = [module.kind.node_ports["haproxy_http"], module.kind.node_ports["haproxy_https"], module.kind.node_ports["haproxy_stat"]]
+  node_ports = [module.kind.node_ports["haproxy_http"], module.kind.node_ports["haproxy_https"], module.kind.node_ports["haproxy_stat"], module.kind.node_ports["haproxy_prometheus"]]
 }
 
 module "certmanager" {
