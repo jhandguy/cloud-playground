@@ -3,11 +3,18 @@ import {check, sleep} from 'k6';
 import {randomString, uuidv4} from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
 export const options = {
-    stages: [
-        {target: 40, duration: '1m'},
-        {target: 40, duration: '1m'},
-        {target: 0, duration: '1m'},
-    ],
+    scenarios: {
+        load: {
+            executor: 'ramping-arrival-rate',
+            startRate: 1,
+            timeUnit: '1s',
+            preAllocatedVUs: 20,
+            stages: [
+                {target: 20, duration: '40s'},
+                {target: 0, duration: '20s'},
+            ],
+        },
+    },
     thresholds: {
         'checks': ['rate>0.9'],
         'http_req_duration{method:POST}': ['p(95)<10000'],

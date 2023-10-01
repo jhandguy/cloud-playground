@@ -14,6 +14,9 @@ resource "helm_release" "sql" {
       metrics: ${var.node_ports.1}
     ingress:
       host: ${var.ingress_host}
+%{if var.rate_limit_requests > 0}
+      rateLimitRequests: ${var.rate_limit_requests}
+%{endif}
     prometheus:
       enabled: ${var.prometheus_enabled}
       groupName: ${var.feature == "mysql" ? "MySQL" : title(var.feature)}

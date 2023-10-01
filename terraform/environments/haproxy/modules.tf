@@ -67,6 +67,7 @@ module "sql_postgres" {
     "sql_token"         = random_password.sql_postgres_token.result
     "tempo_url"         = module.tempo.otlp_grpc_url
   }
+  rate_limit_requests = 40
 }
 
 module "sql_mysql" {
@@ -89,6 +90,7 @@ module "sql_mysql" {
     "sql_token"         = random_password.sql_mysql_token.result
     "tempo_url"         = module.tempo.otlp_grpc_url
   }
+  rate_limit_requests = 40
 }
 
 module "mimir" {

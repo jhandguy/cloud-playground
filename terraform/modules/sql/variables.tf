@@ -40,3 +40,9 @@ variable "prometheus_enabled" {
   default     = true
   description = "Enable Prometheus"
 }
+
+variable "rate_limit_requests" {
+  type        = number
+  default     = 0
+  description = "Rate limit requests"
+}

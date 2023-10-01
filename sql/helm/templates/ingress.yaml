@@ -9,6 +9,9 @@ metadata:
     app: {{ $.Release.Name }}
   annotations:
     cert-manager.io/issuer: {{ $.Release.Name }}
+{{- with .rateLimitRequests }}
+    haproxy.org/rate-limit-requests: "{{ . }}"
+{{- end }}
 spec:
   rules:
     - host: {{ .host }}
