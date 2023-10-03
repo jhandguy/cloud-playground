@@ -1,9 +1,10 @@
 import http from 'k6/http';
-import {check, sleep} from 'k6';
+import {check} from 'k6';
 import {randomItem, randomString, uuidv4} from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
 export const options = {
     setupTimeout: '3m',
+    rps: 30,
     scenarios: {
         load: {
             executor: 'ramping-arrival-rate',
@@ -63,8 +64,6 @@ export function setup() {
             });
 
             messages.push(message)
-
-            sleep(0.03);
         }
 
         users.push({

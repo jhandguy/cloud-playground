@@ -1,5 +1,5 @@
 import http from 'k6/http';
-import {check, sleep} from 'k6';
+import {check} from 'k6';
 import {randomString, uuidv4} from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
 export const options = {
@@ -44,18 +44,12 @@ export default function () {
         'post response body is valid': (r) => r.json().id === id && r.json().content === content,
     });
 
-    sleep(0.5);
-
     check(http.get(`${url}/message/${id}`, params), {
         'get response status is 200': (r) => r.status === 200,
         'get response body is valid': (r) => r.json().id === id && r.json().content === content,
     });
 
-    sleep(0.5);
-
     check(http.del(`${url}/message/${id}`, null, params), {
         'delete response status is 200': (r) => r.status === 200,
     });
-
-    sleep(1);
 }

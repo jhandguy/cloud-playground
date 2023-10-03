@@ -1,5 +1,5 @@
 import grpc from 'k6/net/grpc';
-import {check, sleep} from 'k6';
+import {check} from 'k6';
 import {randomString, uuidv4} from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
 
 export const options = {
@@ -50,18 +50,12 @@ export default function () {
         'create message is valid': (r) => r.message.item.id === id && r.message.item.content === content,
     });
 
-    sleep(0.5);
-
     check(client.invoke('item.ItemService/GetItem', {id: id}, params), {
         'get status is OK': (r) => r.status === grpc.StatusOK,
         'get message is valid': (r) => r.message.item.id === id && r.message.item.content === content,
     });
 
-    sleep(0.5);
-
     check(client.invoke('item.ItemService/DeleteItem', {id: id}, params), {
         'delete status is OK': (r) => r.status === grpc.StatusOK,
     });
-
-    sleep(1);
 }
