@@ -5,7 +5,7 @@ resource "helm_release" "nginx" {
   chart            = "ingress-nginx"
   create_namespace = true
   wait             = true
-  version          = "4.7.2"
+  version          = "4.8.4"
 
   values = [
     <<-EOF

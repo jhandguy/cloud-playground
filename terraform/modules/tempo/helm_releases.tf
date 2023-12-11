@@ -5,7 +5,7 @@ resource "helm_release" "tempo" {
   chart            = "tempo"
   create_namespace = true
   wait             = true
-  version          = "1.6.1"
+  version          = "1.7.1"
 
   values = [
     <<-EOF

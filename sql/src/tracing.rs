@@ -1,10 +1,10 @@
 use anyhow::Result;
 use opentelemetry::global::shutdown_tracer_provider;
-use opentelemetry::runtime::Tokio;
-use opentelemetry::sdk::trace::config;
-use opentelemetry::sdk::Resource;
 use opentelemetry::KeyValue;
 use opentelemetry_otlp::{new_exporter, new_pipeline, WithExportConfig};
+use opentelemetry_sdk::runtime::Tokio;
+use opentelemetry_sdk::trace::config;
+use opentelemetry_sdk::Resource;
 use opentelemetry_semantic_conventions::resource::SERVICE_NAME as SERVICE_NAME_KEY;
 use tracing::subscriber::set_global_default;
 use tracing::Level;

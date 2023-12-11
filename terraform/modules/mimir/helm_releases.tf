@@ -5,23 +5,41 @@ resource "helm_release" "mimir" {
   chart            = "mimir-distributed"
   create_namespace = true
   wait             = true
-  version          = "5.0.0"
+  version          = "5.1.3"
 
   values = [
     <<-EOF
     alertmanager:
       enabled: false
     compactor:
-      resources: null
+      resources:
+        limits:
+          cpu: 0
+          memory: 0
+        requests:
+          cpu: 0
+          memory: 0
     distributor:
-      resources: null
+      resources:
+        limits:
+          cpu: 0
+          memory: 0
+        requests:
+          cpu: 0
+          memory: 0
     gateway:
       enabledNonEnterprise: true
       service:
         legacyPort: null
     ingester:
       replicas: 1
-      resources: null
+      resources:
+        limits:
+          cpu: 0
+          memory: 0
+        requests:
+          cpu: 0
+          memory: 0
       zoneAwareReplication:
         enabled: false
     mimir:
@@ -58,10 +76,22 @@ resource "helm_release" "mimir" {
       enabled: false
     querier:
       replicas: 1
-      resources: null
+      resources:
+        limits:
+          cpu: 0
+          memory: 0
+        requests:
+          cpu: 0
+          memory: 0
     query_frontend:
       replicas: 1
-      resources: null
+      resources:
+        limits:
+          cpu: 0
+          memory: 0
+        requests:
+          cpu: 0
+          memory: 0
     query_scheduler:
       enabled: false
     rollout_operator:
@@ -77,11 +107,11 @@ resource "helm_release" "mimir" {
         enabled: false
       resources:
         limits:
-          cpu: null
-          memory: null
+          cpu: 0
+          memory: 0
         requests:
-          cpu: null
-          memory: null
+          cpu: 0
+          memory: 0
     EOF
   ]
 }

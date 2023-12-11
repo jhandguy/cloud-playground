@@ -1,9 +1,8 @@
-use std::net::SocketAddr;
-
 use anyhow::Result;
 use axum::routing::{delete, get, post};
-use axum::{Extension, Router, Server};
+use axum::{serve, Extension, Router};
 use clap::Parser;
+use tokio::net::TcpListener;
 use tower_http::validate_request::ValidateRequestHeaderLayer;
 use tracing::info;
 
@@ -100,10 +99,8 @@ async fn main() -> Result<()> {
         .layer(MetricsLayer(metrics));
 
     info!("listening on http port {}", args.sql_http_port);
-    let addr = SocketAddr::from(([0, 0, 0, 0], args.sql_http_port));
-    Server::bind(&addr)
-        .serve(router.into_make_service())
-        .await?;
+    let listener = TcpListener::bind(format!("0.0.0.0:{}", args.sql_http_port)).await?;
+    serve(listener, router).await?;
 
     stop_tracing();
 

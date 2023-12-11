@@ -4,7 +4,7 @@ use axum::http::header::CONTENT_TYPE;
 use axum::http::{Method, Request, StatusCode};
 use axum::response::Response;
 use axum::routing::get;
-use axum::{Extension, Router, Server};
+use axum::{serve, Extension, Router};
 use pin_project::pin_project;
 use prometheus_client::encoding::text::encode;
 use prometheus_client::encoding::EncodeLabelSet;
@@ -13,11 +13,11 @@ use prometheus_client::metrics::family::Family;
 use prometheus_client::metrics::histogram::Histogram;
 use prometheus_client::registry::Registry;
 use std::future::Future;
-use std::net::SocketAddr;
 use std::pin::Pin;
 use std::sync::Arc;
 use std::task::Poll::Ready;
 use std::task::{ready, Context, Poll};
+use tokio::net::TcpListener;
 use tokio::spawn;
 use tokio::time::Instant;
 use tower::{Layer, Service};
@@ -102,12 +102,9 @@ pub async fn serve_metrics(path: &str, port: u16) -> Result<Metrics> {
         .layer(Extension(Arc::new(registry)));
 
     info!("listening on metrics port {}", port);
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    let listener = TcpListener::bind(format!("0.0.0.0:{port}")).await?;
     spawn(async move {
-        Server::bind(&addr)
-            .serve(router.into_make_service())
-            .await
-            .unwrap()
+        serve(listener, router).await.unwrap();
     });
 
     Ok(metrics)

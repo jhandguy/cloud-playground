@@ -5,7 +5,7 @@ resource "helm_release" "haproxy" {
   chart            = "kubernetes-ingress"
   create_namespace = true
   wait             = true
-  version          = "1.33.0"
+  version          = "1.35.3"
 
   values = [
     <<-EOF
@@ -26,6 +26,7 @@ resource "helm_release" "haproxy" {
           https: ${var.node_ports.1}
           stat: ${var.node_ports.2}
           prometheus: ${var.node_ports.3}
+      resources: null
     defaultBackend:
       enabled: true
     EOF

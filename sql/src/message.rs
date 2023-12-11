@@ -40,8 +40,8 @@ pub async fn create_message(
     let tracer = tracer("message/create_message");
     let span = tracer.start("message/create_message");
     let ctx = Context::current_with_span(span);
+    let mut tx = pool.begin().with_context(ctx.clone()).await?;
 
-    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
     let message = Message {
         id: payload.id.unwrap_or(Uuid::new_v4()),
         content: payload.content,
@@ -58,9 +58,11 @@ pub async fn create_message(
         .bind(message.id)
         .bind(&message.content)
         .bind(message.user_id)
-        .execute(&mut conn)
+        .execute(tx.as_mut())
         .with_context(ctx.clone())
         .await?;
+
+    tx.commit().await?;
 
     info!(
         msg = to_string(&message)?,
@@ -78,15 +80,17 @@ pub async fn delete_message(
     let tracer = tracer("message/delete_message");
     let span = tracer.start("message/delete_message");
     let ctx = Context::current_with_span(span);
+    let mut tx = pool.begin().with_context(ctx.clone()).await?;
 
     let id = Uuid::parse_str(&id)?;
-    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
     let delete = format!("delete from messages where id = {}", bind_key(1));
     query(&delete)
         .bind(id)
-        .execute(&mut conn)
+        .execute(tx.as_mut())
         .with_context(ctx.clone())
         .await?;
+
+    tx.commit().await?;
 
     info!(
         id = id.to_string(),
@@ -104,13 +108,13 @@ pub async fn get_message(
     let tracer = tracer("message/get_message");
     let span = tracer.start("message/get_message");
     let ctx = Context::current_with_span(span);
+    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
 
     let id = Uuid::parse_str(&id)?;
-    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
     let select = format!("select * from messages where id = {}", bind_key(1));
     let message = query_as::<_, Message>(&select)
         .bind(id)
-        .fetch_one(&mut conn)
+        .fetch_one(conn.as_mut())
         .with_context(ctx.clone())
         .await?;
 
@@ -150,12 +154,12 @@ pub async fn get_user_messages(
         }
     }
 
-    let id = Uuid::parse_str(&id)?;
     let mut conn = pool.acquire().with_context(ctx.clone()).await?;
+    let id = Uuid::parse_str(&id)?;
     let select = format!("select * from messages where user_id = {}", bind_key(1));
     let messages = query_as::<_, Message>(&select)
         .bind(id)
-        .fetch_all(&mut conn)
+        .fetch_all(conn.as_mut())
         .with_context(ctx.clone())
         .await?;
 

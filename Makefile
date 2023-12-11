@@ -30,7 +30,22 @@ compile_%:
 
 format:
 	terraform fmt -recursive
+	make format_terraform ENVIRONMENT=consul
+	make format_terraform ENVIRONMENT=nginx
+	make format_terraform ENVIRONMENT=haproxy
+	make -j go_format rust_format
+
+format_terraform:
 	terraform-docs markdown table $(CHDIR) --output-file README.md --recursive --recursive-path ../../modules
+
+format_%:
+	make -C $* format
+
+go_format:
+	make -j format_s3 format_dynamo format_gateway format_cli
+
+rust_format:
+	make format_sql
 
 lint_terraform:
 	terraform fmt -recursive -check

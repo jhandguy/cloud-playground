@@ -38,8 +38,8 @@ pub async fn create_user(
     let tracer = tracer("user/create_user");
     let span = tracer.start("user/create_user");
     let ctx = Context::current_with_span(span);
+    let mut tx = pool.begin().with_context(ctx.clone()).await?;
 
-    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
     let user = User {
         id: payload.id.unwrap_or(Uuid::new_v4()),
         name: payload.name,
@@ -52,9 +52,11 @@ pub async fn create_user(
     query(&insert)
         .bind(user.id)
         .bind(&user.name)
-        .execute(&mut conn)
+        .execute(tx.as_mut())
         .with_context(ctx.clone())
         .await?;
+
+    tx.commit().await?;
 
     info!(
         user = to_string(&user)?,
@@ -74,22 +76,24 @@ pub async fn delete_user(
     let tracer = tracer("user/delete_user");
     let span = tracer.start("user/delete_user");
     let ctx = Context::current_with_span(span);
+    let mut tx = pool.begin().with_context(ctx.clone()).await?;
 
     let id = Uuid::parse_str(&id)?;
-    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
     let delete = format!("delete from messages where user_id = {}", bind_key(1));
     query(&delete)
         .bind(id)
-        .execute(&mut conn)
+        .execute(tx.as_mut())
         .with_context(ctx.clone())
         .await?;
 
     let delete = format!("delete from users where id = {}", bind_key(1));
     query(&delete)
         .bind(id)
-        .execute(&mut conn)
+        .execute(tx.as_mut())
         .with_context(ctx.clone())
         .await?;
+
+    tx.commit().await?;
 
     if redis_enabled {
         let mut conn = client.get_connection()?;
@@ -112,13 +116,13 @@ pub async fn get_user(
     let tracer = tracer("user/get_user");
     let span = tracer.start("user/get_user");
     let ctx = Context::current_with_span(span);
+    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
 
     let id = Uuid::parse_str(&id)?;
-    let mut conn = pool.acquire().with_context(ctx.clone()).await?;
     let select = format!("select * from users where id = {}", bind_key(1));
     let user = query_as::<_, User>(&select)
         .bind(id)
-        .fetch_one(&mut conn)
+        .fetch_one(conn.as_mut())
         .with_context(ctx.clone())
         .await?;
 

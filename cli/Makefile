@@ -8,6 +8,9 @@ lint_helm:
 lint:
 	golangci-lint run
 
+format:
+	go fmt ./...
+
 build:
 	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build .
 	go test ./... -short -cover -race

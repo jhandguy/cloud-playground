@@ -5,7 +5,7 @@ resource "helm_release" "redis" {
   chart            = "redis"
   create_namespace = true
   wait             = true
-  version          = "18.0.2"
+  version          = "18.4.0"
 
   values = [
     <<-EOF

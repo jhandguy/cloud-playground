@@ -10,6 +10,9 @@ lint:
 	cargo clippy --features $(FEATURE) -- -D warnings
 	cargo check --features $(FEATURE)
 
+format:
+	cargo fmt --all
+
 build:
 	cargo build --features $(FEATURE) --bins --release --locked --target x86_64-unknown-linux-musl
 	cargo test --features $(FEATURE)
